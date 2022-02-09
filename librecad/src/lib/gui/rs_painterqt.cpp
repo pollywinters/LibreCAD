@@ -115,11 +115,93 @@ void RS_PainterQt::drawGridPoint(const RS_Vector& p) {
 /**
  * Draws a point at (x1, y1).
  */
-void RS_PainterQt::drawPoint(const RS_Vector& p) {
-    QPainter::drawLine(toScreenX(p.x-1), toScreenY(p.y),
-                       toScreenX(p.x+1), toScreenY(p.y));
-    QPainter::drawLine(toScreenX(p.x), toScreenY(p.y-1),
-                       toScreenX(p.x), toScreenY(p.y+1));
+void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, double pdsize) {
+	int screenX = toScreenX(p.x);
+	int screenY = toScreenY(p.y);
+	int deviceHeight = getHeight();
+	int screenPDSize = pdsize;
+
+	if (screenPDSize == 0)
+		screenPDSize = deviceHeight / 20;
+	else if (screenPDSize < 0)
+		screenPDSize = (deviceHeight * pdsize) / 100;
+
+	int halfScreenPDSize = screenPDSize/2;
+
+	/*	PDMODE values =>
+		bits 0-3 = 0, centre dot
+		         = 1, centre blank
+		         = 2, centre +
+		         = 3, centre X
+		         = 4, centre vertical tick
+		bit 5 = 1 => added surrounding circle
+		bit 6 = 1 => added surrounding square
+	*/
+	switch (pdmode & 15) {
+	case 0:
+		/*	Centre dot - use a tiny + to make it visible  */
+		QPainter::drawLine(screenX-1, screenY, screenX+1, screenY);
+		QPainter::drawLine(screenX, screenY-1, screenX, screenY+1);
+		break ;
+
+	case 2:
+		/*	Centre +  */
+		QPainter::drawLine(screenX-screenPDSize, screenY, screenX+screenPDSize, screenY);
+		QPainter::drawLine(screenX, screenY-screenPDSize, screenX, screenY+screenPDSize);
+		break ;
+
+	case 3:
+		/*	Centre X  */
+		QPainter::drawLine(screenX-screenPDSize, screenY-screenPDSize, screenX+screenPDSize, screenY+screenPDSize);
+		QPainter::drawLine(screenX+screenPDSize, screenY-screenPDSize, screenX-screenPDSize, screenY+screenPDSize);
+		break ;
+
+	case 4:
+		/*	Centre vertical tick  */
+		QPainter::drawLine(screenX, screenY, screenX, screenY+halfScreenPDSize);
+		break ;
+
+	default:
+		/*	All others, centre is blank  */
+		break ;
+	}
+
+	/*	bit 5 = 1 => add surrounding circle  */
+	if (pdmode & 32) {
+		/*	Approximate circle by an octagon  */
+		int xMin = screenX-halfScreenPDSize;
+		int xMax = screenX+halfScreenPDSize;
+		int yMin = screenY-halfScreenPDSize;
+		int yMax = screenY+halfScreenPDSize;
+		int octOffset = halfScreenPDSize * 0.71;
+		int xOctMin = screenX - octOffset;
+		int xOctMax = screenX + octOffset;
+		int yOctMin = screenY - octOffset;
+		int yOctMax = screenY + octOffset;
+
+		QPainter::drawLine(screenX, yMin, xOctMax, yOctMin);
+		QPainter::drawLine(screenX, yMin, xOctMin, yOctMin);
+		QPainter::drawLine(screenX, yMax, xOctMax, yOctMax);
+		QPainter::drawLine(screenX, yMax, xOctMin, yOctMax);
+
+		QPainter::drawLine(xMin, screenY, xOctMin, yOctMin);
+		QPainter::drawLine(xMin, screenY, xOctMin, yOctMax);
+		QPainter::drawLine(xMax, screenY, xOctMax, yOctMin);
+		QPainter::drawLine(xMax, screenY, xOctMax, yOctMax);
+	}
+
+	/*	bit 6 = 1 => add surrounding square  */
+	if (pdmode & 64) {
+		int xMin = screenX-halfScreenPDSize;
+		int xMax = screenX+halfScreenPDSize;
+		int yMin = screenY-halfScreenPDSize;
+		int yMax = screenY+halfScreenPDSize;
+
+		QPainter::drawLine(xMin, yMin, xMax, yMin);
+		QPainter::drawLine(xMin, yMax, xMax, yMax);
+		QPainter::drawLine(xMin, yMin, xMin, yMax);
+		QPainter::drawLine(xMax, yMin, xMax, yMax);
+	}
 }
 
 

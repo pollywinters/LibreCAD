@@ -1329,6 +1329,11 @@ void RS_FilterDXFRW::addHeader(const DRW_Header* data){
     graphic->getVariableInt("$AUNITS", 0);
     graphic->getVariableInt("$AUPREC", 4);
 
+	//initialize points drawing style vars if not present in dxf file
+	if( graphic->getVariableInt("$PDMODE", -999) < 0)
+		graphic->addVariable("$PDMODE", 66, 9);
+	if( graphic->getVariableDouble("$PDSIZE", -999.9) < -100.0)
+		graphic->addVariable("$PDSIZE", -1.0, 9);
 
     QString acadver = versionStr = graphic->getVariableString("$ACADVER", "");
     acadver.replace(QRegExp("[a-zA-Z]"), "");

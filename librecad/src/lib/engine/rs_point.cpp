@@ -27,8 +27,10 @@
 #include<cmath>
 #include "rs_point.h"
 #include "rs_circle.h"
+#include "rs_graphic.h"
 #include "rs_graphicview.h"
 #include "rs_painter.h"
+#include "rs_debug.h"
 
 RS_Point::RS_Point(RS_EntityContainer* parent,
                    const RS_PointData& d)
@@ -194,7 +196,14 @@ void RS_Point::draw(RS_Painter* painter,RS_GraphicView* view, double& /*patternO
         return;
     }
 
-    painter->drawPoint(view->toGui(getPos()));
+    RS_Graphic* graphic = getGraphic();
+    if (graphic) {
+		int pdmode = getGraphicVariableInt("$PDMODE", 0);
+		double pdsize = getGraphicVariableDouble("$PDSIZE", 0.0);
+		RS_Vector guiPos = view->toGui(getPos());
+		//RS_DEBUG->print(RS_Debug::D_ERROR,"RS_Point::draw X = %f, Y = %f, PDMODE = %d, PDSIZE = %f",guiPos.x,guiPos.y,pdmode,pdsize);
+		painter->drawPoint(guiPos,pdmode,pdsize);
+	}
 }
 
 /**
