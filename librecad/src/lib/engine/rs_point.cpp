@@ -31,6 +31,7 @@
 #include "rs_graphicview.h"
 #include "rs_painter.h"
 #include "rs_debug.h"
+#include "lc_defaults.h"
 
 RS_Point::RS_Point(RS_EntityContainer* parent,
                    const RS_PointData& d)
@@ -198,11 +199,21 @@ void RS_Point::draw(RS_Painter* painter,RS_GraphicView* view, double& /*patternO
 
     RS_Graphic* graphic = getGraphic();
     if (graphic) {
-		int pdmode = getGraphicVariableInt("$PDMODE", 0);
-		double pdsize = getGraphicVariableDouble("$PDSIZE", 0.0);
+		int pdmode = getGraphicVariableInt("$PDMODE", LC_Defaults::def_PDMode);
+		double pdsize = getGraphicVariableDouble("$PDSIZE", LC_Defaults::def_PDSize);
 		RS_Vector guiPos = view->toGui(getPos());
-		//RS_DEBUG->print(RS_Debug::D_ERROR,"RS_Point::draw X = %f, Y = %f, PDMODE = %d, PDSIZE = %f",guiPos.x,guiPos.y,pdmode,pdsize);
-		painter->drawPoint(guiPos,pdmode,pdsize);
+
+		int deviceHeight = painter->getHeight();
+		int screenPDSize;
+		if (pdsize == 0)
+			screenPDSize = deviceHeight / 20;
+		else if (DXF_Format::PDSize_isPercent(pdsize))
+			screenPDSize = (deviceHeight * DXF_Format::PDSize_Percent(pdsize)) / 100;
+		else
+			screenPDSize = view->toGuiDY(pdsize);
+
+		//RS_DEBUG->print(RS_Debug::D_ERROR,"RS_Point::draw X = %f, Y = %f, PDMODE = %d, PDSIZE = %f, ScreenPDSize = %i",guiPos.x,guiPos.y,pdmode,pdsize,screenPDSize);
+		painter->drawPoint(guiPos,pdmode,screenPDSize);
 	}
 }
 

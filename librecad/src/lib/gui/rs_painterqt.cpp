@@ -27,6 +27,8 @@
 #include<cmath>
 #include "rs_painterqt.h"
 #include "rs_math.h"
+#include "rs_graphicview.h"
+#include "dxf_format.h"
 #include "rs_debug.h"
 
 namespace {
@@ -115,18 +117,10 @@ void RS_PainterQt::drawGridPoint(const RS_Vector& p) {
 /**
  * Draws a point at (x1, y1).
  */
-void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, double pdsize) {
+void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, int pdsize) {
 	int screenX = toScreenX(p.x);
 	int screenY = toScreenY(p.y);
-	int deviceHeight = getHeight();
-	int screenPDSize = pdsize;
-
-	if (screenPDSize == 0)
-		screenPDSize = deviceHeight / 20;
-	else if (screenPDSize < 0)
-		screenPDSize = (deviceHeight * pdsize) / 100;
-
-	int halfScreenPDSize = screenPDSize/2;
+	int halfPDSize = pdsize/2;
 
 	/*	PDMODE values =>
 		bits 0-3 = 0, centre dot
@@ -137,43 +131,44 @@ void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, double pdsize) {
 		bit 5 = 1 => added surrounding circle
 		bit 6 = 1 => added surrounding square
 	*/
-	switch (pdmode & 15) {
-	case 0:
+	switch (DXF_Format::PDMode_getCentre(pdmode)) {
+	case DXF_Format::PDMode_CentreDot:
+	default:
 		/*	Centre dot - use a tiny + to make it visible  */
 		QPainter::drawLine(screenX-1, screenY, screenX+1, screenY);
 		QPainter::drawLine(screenX, screenY-1, screenX, screenY+1);
 		break ;
 
-	case 2:
+	case DXF_Format::PDMode_CentreBlank:
+		/*	Centre is blank  */
+		break ;
+
+	case DXF_Format::PDMode_CentrePlus:
 		/*	Centre +  */
-		QPainter::drawLine(screenX-screenPDSize, screenY, screenX+screenPDSize, screenY);
-		QPainter::drawLine(screenX, screenY-screenPDSize, screenX, screenY+screenPDSize);
+		QPainter::drawLine(screenX-pdsize, screenY, screenX+pdsize, screenY);
+		QPainter::drawLine(screenX, screenY-pdsize, screenX, screenY+pdsize);
 		break ;
 
-	case 3:
+	case DXF_Format::PDMode_CentreCross:
 		/*	Centre X  */
-		QPainter::drawLine(screenX-screenPDSize, screenY-screenPDSize, screenX+screenPDSize, screenY+screenPDSize);
-		QPainter::drawLine(screenX+screenPDSize, screenY-screenPDSize, screenX-screenPDSize, screenY+screenPDSize);
+		QPainter::drawLine(screenX-pdsize, screenY-pdsize, screenX+pdsize, screenY+pdsize);
+		QPainter::drawLine(screenX+pdsize, screenY-pdsize, screenX-pdsize, screenY+pdsize);
 		break ;
 
-	case 4:
+	case DXF_Format::PDMode_CentreTick:
 		/*	Centre vertical tick  */
-		QPainter::drawLine(screenX, screenY, screenX, screenY+halfScreenPDSize);
-		break ;
-
-	default:
-		/*	All others, centre is blank  */
+		QPainter::drawLine(screenX, screenY, screenX, screenY+halfPDSize);
 		break ;
 	}
 
-	/*	bit 5 = 1 => add surrounding circle  */
-	if (pdmode & 32) {
+	/*	Surrounding circle if required  */
+	if (DXF_Format::PDMode_hasEncloseCircle(pdmode)) {
 		/*	Approximate circle by an octagon  */
-		int xMin = screenX-halfScreenPDSize;
-		int xMax = screenX+halfScreenPDSize;
-		int yMin = screenY-halfScreenPDSize;
-		int yMax = screenY+halfScreenPDSize;
-		int octOffset = halfScreenPDSize * 0.71;
+		int xMin = screenX-halfPDSize;
+		int xMax = screenX+halfPDSize;
+		int yMin = screenY-halfPDSize;
+		int yMax = screenY+halfPDSize;
+		int octOffset = halfPDSize * 0.71;
 		int xOctMin = screenX - octOffset;
 		int xOctMax = screenX + octOffset;
 		int yOctMin = screenY - octOffset;
@@ -190,12 +185,12 @@ void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, double pdsize) {
 		QPainter::drawLine(xMax, screenY, xOctMax, yOctMax);
 	}
 
-	/*	bit 6 = 1 => add surrounding square  */
-	if (pdmode & 64) {
-		int xMin = screenX-halfScreenPDSize;
-		int xMax = screenX+halfScreenPDSize;
-		int yMin = screenY-halfScreenPDSize;
-		int yMax = screenY+halfScreenPDSize;
+	/*	Surrounding square if required  */
+	if (DXF_Format::PDMode_hasEncloseSquare(pdmode)) {
+		int xMin = screenX-halfPDSize;
+		int xMax = screenX+halfPDSize;
+		int yMin = screenY-halfPDSize;
+		int yMax = screenY+halfPDSize;
 
 		QPainter::drawLine(xMin, yMin, xMax, yMin);
 		QPainter::drawLine(xMin, yMax, xMax, yMax);
