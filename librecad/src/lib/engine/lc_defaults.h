@@ -47,8 +47,10 @@ public:
 //	~LC_Defaults();
 
 	/*	Point display mode and size  */
-	static inline constexpr int def_PDMode = DXF_Format::PDMode_CentreDot;
-	static inline constexpr int def_PDSize = 0.0;
+//	static inline constexpr int def_PDMode = DXF_Format::PDMode_CentreDot;
+//	static inline constexpr double def_PDSize = 0.0;
+	static inline constexpr int def_PDMode = DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentreDot);
+	static inline constexpr double def_PDSize = 1.0;
 
 } ;
 
