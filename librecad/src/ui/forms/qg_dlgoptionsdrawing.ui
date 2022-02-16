@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>653</width>
-    <height>519</height>
+    <width>587</width>
+    <height>548</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tab1">
       <attribute name="title">
@@ -1606,7 +1606,7 @@
      </widget>
      <widget class="QWidget" name="tab5">
       <attribute name="title">
-       <string>Splines</string>
+       <string>&amp;Splines</string>
       </attribute>
       <layout class="QVBoxLayout">
        <item>
@@ -1678,12 +1678,897 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab6">
+      <attribute name="title">
+       <string>&amp;Points</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QWidget" name="widget_2" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QGroupBox" name="gbPointStyle">
+            <property name="title">
+             <string>Point Style</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_13">
+             <item row="0" column="0">
+              <widget class="QToolButton" name="bDot">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_dot.svg</normaloff>:/icons/point_dot.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QToolButton" name="bDotCircle">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_dot_circle.svg</normaloff>:/icons/point_dot_circle.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QToolButton" name="bCross">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_cross.svg</normaloff>:/icons/point_cross.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QToolButton" name="bTick">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_tick.svg</normaloff>:/icons/point_tick.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::DelayedPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QToolButton" name="bBlankCircle">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_blank_circle.svg</normaloff>:/icons/point_blank_circle.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QToolButton" name="bBlank">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_blank.svg</normaloff>:/icons/point_blank.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="4">
+              <widget class="QToolButton" name="bTickCircleSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_tick_circle_square.svg</normaloff>:/icons/point_tick_circle_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QToolButton" name="bPlus">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_plus.svg</normaloff>:/icons/point_plus.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::DelayedPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QToolButton" name="bPlusCircle">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_plus_circle.svg</normaloff>:/icons/point_plus_circle.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QToolButton" name="bCrossCircle">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_cross_circle.svg</normaloff>:/icons/point_cross_circle.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="4">
+              <widget class="QToolButton" name="bTickCircle">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_tick_circle.svg</normaloff>:/icons/point_tick_circle.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QToolButton" name="bDotSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_dot_square.svg</normaloff>:/icons/point_dot_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QToolButton" name="bBlankSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_blank_square.svg</normaloff>:/icons/point_blank_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QToolButton" name="bPlusSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_plus_square.svg</normaloff>:/icons/point_plus_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QToolButton" name="bCrossSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_cross_square.svg</normaloff>:/icons/point_cross_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4">
+              <widget class="QToolButton" name="bTickSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_tick_square.svg</normaloff>:/icons/point_tick_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QToolButton" name="bDotCircleSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_dot_circle_square.svg</normaloff>:/icons/point_dot_circle_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QToolButton" name="bBlankCircleSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_blank_circle_square.svg</normaloff>:/icons/point_blank_circle_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QToolButton" name="bPlusCircleSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_plus_circle_square.svg</normaloff>:/icons/point_plus_circle_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QToolButton" name="bCrossCircleSquare">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../res/icons/icons.qrc">
+                 <normaloff>:/icons/point_cross_circle_square.svg</normaloff>:/icons/point_cross_circle_square.svg</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="autoRaise">
+                <bool>false</bool>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5" rowspan="6">
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>300</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="gbPointSize">
+            <property name="title">
+             <string>Point Size</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_12">
+             <item row="0" column="0">
+              <widget class="QLineEdit" name="lePointSize">
+               <property name="maximumSize">
+                <size>
+                 <width>130</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="lDwgUnits">
+               <property name="text">
+                <string>Dwg units</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QFrame" name="frame">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <widget class="QRadioButton" name="rbRelSize">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>10</y>
+                  <width>147</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Size relative to screen</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="rbAbsSize">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>40</y>
+                  <width>141</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Size in drawing units</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>188</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="2" rowspan="2">
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>64</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>QG_FontBox</class>
+   <extends>QWidget</extends>
+   <header>qg_fontbox.h</header>
+  </customwidget>
   <customwidget>
    <class>QG_ColorBox</class>
    <extends>QComboBox</extends>
@@ -1693,11 +2578,6 @@
    <class>QG_WidthBox</class>
    <extends>QComboBox</extends>
    <header>../qg_widthbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QG_FontBox</class>
-   <extends>QWidget</extends>
-   <header>qg_fontbox.h</header>
   </customwidget>
   <customwidget>
    <class>LG_DimzerosBox</class>
@@ -1757,7 +2637,9 @@
   <tabstop>cbDimAZin</tabstop>
   <tabstop>cbSplineSegs</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../res/icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -1792,34 +2674,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>cbLengthFormat</sender>
-   <signal>activated(int)</signal>
+   <sender>lePaperWidth</sender>
+   <signal>textChanged(QString)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updateLengthPrecision()</slot>
+   <slot>updatePaperPreview()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>150</y>
+     <x>144</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
+     <x>326</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cbDimLUnit</sender>
-   <signal>activated(int)</signal>
+   <sender>lePaperHeight</sender>
+   <signal>textChanged(QString)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updateDimLengthPrecision()</slot>
+   <slot>updatePaperPreview()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>494</x>
-     <y>241</y>
+     <x>144</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
+     <x>326</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -1840,30 +2722,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>cbDimAUnit</sender>
+   <sender>cbLengthFormat</sender>
    <signal>activated(int)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updateDimAnglePrecision()</slot>
+   <slot>updateLengthPrecision()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>494</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbUnit</sender>
-   <signal>activated(int)</signal>
-   <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePreview()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>161</x>
-     <y>86</y>
+     <x>187</x>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -1904,22 +2770,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>cbAnglePrecision</sender>
-   <signal>activated(int)</signal>
-   <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePreview()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>495</x>
-     <y>179</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>cbLengthPrecision</sender>
    <signal>activated(int)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
@@ -1936,18 +2786,50 @@
    </hints>
   </connection>
   <connection>
-   <sender>cbPaperFormat</sender>
+   <sender>cbAnglePrecision</sender>
    <signal>activated(int)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePaperSize()</slot>
+   <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>104</y>
+     <x>495</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbDimAUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>QG_DlgOptionsDrawing</receiver>
+   <slot>updateDimAnglePrecision()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>494</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leMarginLeft</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QG_DlgOptionsDrawing</receiver>
+   <slot>updatePaperPreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -1984,18 +2866,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>leMarginLeft</sender>
-   <signal>textChanged(QString)</signal>
+   <sender>cbDimLUnit</sender>
+   <signal>activated(int)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePaperPreview()</slot>
+   <slot>updateDimLengthPrecision()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>341</y>
+     <x>494</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>326</x>
-     <y>250</y>
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>
@@ -2016,39 +2898,39 @@
    </hints>
   </connection>
   <connection>
+   <sender>cbPaperFormat</sender>
+   <signal>activated(int)</signal>
+   <receiver>QG_DlgOptionsDrawing</receiver>
+   <slot>updatePaperSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>QG_DlgOptionsDrawing</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>leMarginTop</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePaperPreview()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>144</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>326</x>
-     <y>250</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lePaperWidth</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>QG_DlgOptionsDrawing</receiver>
-   <slot>updatePaperPreview()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>144</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>326</x>
-     <y>250</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lePaperHeight</sender>
    <signal>textChanged(QString)</signal>
    <receiver>QG_DlgOptionsDrawing</receiver>
    <slot>updatePaperPreview()</slot>
