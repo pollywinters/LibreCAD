@@ -933,4 +933,20 @@ void QG_DlgOptionsDrawing::on_tabWidget_currentChanged(int index)
     current_tab = index;
 }
 
+
+void QG_DlgOptionsDrawing::on_rbRelSize_toggled(bool checked)
+{
+//	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::on_rbRelSize_toggled, checked = %d",checked);
+	if(checked)
+		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Screen %", nullptr));
+}
+
+void QG_DlgOptionsDrawing::on_rbAbsSize_toggled(bool checked)
+{
+//	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::on_rbAbsSize_toggled, checked = %d",checked);
+	if(checked)
+		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Dwg Units", nullptr));
+}
+
+
 //EOF
