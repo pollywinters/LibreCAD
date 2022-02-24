@@ -157,7 +157,7 @@ void RS_PainterQt::drawPoint(const RS_Vector& p, int pdmode, int pdsize) {
 
 	case DXF_Format::PDMode_CentreTick:
 		/*	Centre vertical tick  */
-		QPainter::drawLine(screenX, screenY, screenX, screenY+halfPDSize);
+		QPainter::drawLine(screenX, screenY-halfPDSize, screenX, screenY);
 		break ;
 	}
 
