@@ -622,7 +622,7 @@ public:
 	static inline const int GC_LUPrec = 70;
 
 	/* Controls the display of lineweights on the Model or Layout tab - 9, $LWDISPLAY, 290, <boolean> */
-	static inline const int GC_LWDisplay = 290;			/*
+	static inline const int GC_LWDisplay = 290;
 	//0 = Lineweight is not displayed
 	//1 = Lineweight is displayed
 

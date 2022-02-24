@@ -34,6 +34,7 @@
 #include "rs_math.h"
 #include "rs_font.h"
 #include "rs_debug.h"
+#include "dxf_format.h"
 
 /*
  *  Constructs a QG_DlgOptionsDrawing as a child of 'parent', with the
@@ -382,6 +383,92 @@ void QG_DlgOptionsDrawing::setGraphic(RS_Graphic* g) {
     // Number of pages
     sbPagesNumH->setValue(graphic->getPagesNumHoriz());
     sbPagesNumV->setValue(graphic->getPagesNumVert());
+
+	// Points drawing style:
+	int pdmode = graphic->getVariableInt("$PDMODE", 0);
+	double pdsize = graphic->getVariableDouble("$PDSIZE", 0.0);
+
+	// Set button checked for the currently selected point style
+	switch(pdmode) {
+	case DXF_Format::PDMode_CentreDot:
+	default:
+		bDot->setChecked(true);
+		break;
+	case DXF_Format::PDMode_CentreBlank:
+		bBlank->setChecked(true);
+		break;
+	case DXF_Format::PDMode_CentrePlus:
+		bPlus->setChecked(true);
+		break;
+	case DXF_Format::PDMode_CentreCross:
+		bCross->setChecked(true);
+		break;
+	case DXF_Format::PDMode_CentreTick:
+		bTick->setChecked(true);
+		break;
+
+	case DXF_Format::PDMode_EncloseCircle(DXF_Format::PDMode_CentreDot):
+		bDotCircle->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircle(DXF_Format::PDMode_CentreBlank):
+		bBlankCircle->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircle(DXF_Format::PDMode_CentrePlus):
+		bPlusCircle->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircle(DXF_Format::PDMode_CentreCross):
+		bCrossCircle->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircle(DXF_Format::PDMode_CentreTick):
+		bTickCircle->setChecked(true);
+		break;
+
+	case DXF_Format::PDMode_EncloseSquare(DXF_Format::PDMode_CentreDot):
+		bDotSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseSquare(DXF_Format::PDMode_CentreBlank):
+		bBlankSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseSquare(DXF_Format::PDMode_CentrePlus):
+		bPlusSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseSquare(DXF_Format::PDMode_CentreCross):
+		bCrossSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseSquare(DXF_Format::PDMode_CentreTick):
+		bTickSquare->setChecked(true);
+		break;
+
+	case DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentreDot):
+		bDotCircleSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentreBlank):
+		bBlankCircleSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentrePlus):
+		bPlusCircleSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentreCross):
+		bCrossCircleSquare->setChecked(true);
+		break;
+	case DXF_Format::PDMode_EncloseCircleSquare(DXF_Format::PDMode_CentreTick):
+		bTickCircleSquare->setChecked(true);
+		break;
+	}
+
+	// Fill points display size value string, and set button checked for screen-size 
+	// relative vs. absolute drawing units radio buttons. Negative pdsize => value
+	// gives points size as percent of screen size; positive pdsize => value gives
+	// points size in absolute drawing units; pdsize == 0 implies points size to be
+	// 5% relative to screen size.
+	if ( pdsize <= 0.0 )
+		rbRelSize->setChecked(true);
+	else
+		rbAbsSize->setChecked(true);
+	lePointSize->setText(QString::number(pdsize >= 0.0 ? pdsize : - pdsize));
+
+	// Set the appropriate text for the display size value label
+	updateLPtSzUnits();
 }
 
 
@@ -936,15 +1023,19 @@ void QG_DlgOptionsDrawing::on_tabWidget_currentChanged(int index)
 
 void QG_DlgOptionsDrawing::on_rbRelSize_toggled(bool checked)
 {
-//	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::on_rbRelSize_toggled, checked = %d",checked);
-	if(checked)
-		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Screen %", nullptr));
+	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::on_rbRelSize_toggled, checked = %d",checked);
+//	if(checked)
+//		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Screen %", nullptr));
+	updateLPtSzUnits();
 }
 
-void QG_DlgOptionsDrawing::on_rbAbsSize_toggled(bool checked)
+/*	Updates the text string for the point size units label  */
+void QG_DlgOptionsDrawing::updateLPtSzUnits()
 {
-//	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::on_rbAbsSize_toggled, checked = %d",checked);
-	if(checked)
+	RS_DEBUG->print(RS_Debug::D_ERROR,"QG_DlgOptionsDrawing::updateLPtSzUnits, rbRelSize->isChecked() = %d",rbRelSize->isChecked());
+	if ( rbRelSize->isChecked() )
+		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Screen %", nullptr));
+	else
 		lPtSzUnits->setText(QApplication::translate("QG_DlgOptionsDrawing", "Dwg Units", nullptr));
 }
 
