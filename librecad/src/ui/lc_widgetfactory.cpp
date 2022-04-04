@@ -580,6 +580,7 @@ QToolBar* LC_WidgetFactory::createCategoriesToolbar()
     tool_button = new QToolButton;
     tool_button->setPopupMode(QToolButton::InstantPopup);
     tool_button->setIcon(QIcon(":/icons/order.svg"));
+    tool_button->setToolTip(tr("Order"));
     categories_toolbar->addWidget(tool_button);
     tool_button->addActions(order_actions);
 
