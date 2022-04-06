@@ -49,6 +49,7 @@ public:
         setWidth(RS2::Width00);
         setLineType(RS2::SolidLine);
 		setScreenWidth(0);
+        setAlpha(1.0);
     }
     /**
      * Creates a pen with the given attributes.
@@ -60,6 +61,7 @@ public:
         setWidth(w);
         setLineType(t);
 		setScreenWidth(0);
+        setAlpha(1.0);
     }
     /**
      * Creates a default pen with the given flags. This is 
@@ -75,6 +77,7 @@ public:
         setWidth(RS2::Width00);
         setLineType(RS2::SolidLine);
 		setScreenWidth(0);
+        setAlpha(1.0);
     }
     //RS_Pen(const RS_Pen& pen) : RS_Flags(pen.getFlags()) {
     //    lineType = pen.lineType;
@@ -111,6 +114,13 @@ public:
         return !getFlag(RS2::FlagInvalid);
     }
 
+    double getAlpha() const {
+        return alpha;
+    }
+    void setAlpha(double a) {
+        alpha = a;
+    }
+
     //RS_Pen& operator = (const RS_Pen& p) {
     //    lineType = p.lineType;
     //    width = p.width;
@@ -136,6 +146,8 @@ protected:
     RS2::LineWidth width;
 	double screenWidth;
     RS_Color color;
+
+    double alpha;
 };
 
 #endif

@@ -1011,7 +1011,7 @@ void RS_GraphicView::setPenForEntity(RS_Painter *painter,RS_Entity *e)
 			}
 		}
 
-		pen.setScreenWidth(toGuiDX(w / 100.0 * uf * wf));
+        if (pen.getAlpha() == 1.0) pen.setScreenWidth(toGuiDX(w / 100.0 * uf * wf));
 	}
 	else
 	{
@@ -1042,9 +1042,7 @@ void RS_GraphicView::setPenForEntity(RS_Painter *painter,RS_Entity *e)
 		}
 
 		// this entity is highlighted:
-		if (e->isHighlighted()) {
-			pen.setColor(highlightedColor);
-		}
+		if (e->isHighlighted() || e->isHovered()) pen.setColor(highlightedColor);
 	}
 
 	// deleting not drawing:
