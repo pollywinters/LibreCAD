@@ -77,6 +77,8 @@ private slots:
 
 	void on_rbRelSize_toggled(bool checked);
 
+    void on_cbGridType_currentIndexChanged(int index);
+
 private:
     void updateCBLengthPrecision(QComboBox* u, QComboBox* l);
     void updateCBAnglePrecision(QComboBox* u, QComboBox* p);
