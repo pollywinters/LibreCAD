@@ -4,6 +4,7 @@
 **
 ** Copyright (C) 2018 A. Stebich (librecad@mail.lordofbikes.de)
 ** Copyright (C) 2018 Simon Wells <simonrwells@gmail.com>
+** Copyright (C) 2020 Nikita Letov <letovnn@gmail.com>
 ** Copyright (C) 2015-2016 ravas (github.com/r-a-v-a-s)
 ** Copyright (C) 2010 R. van Twisk (librecad@rvt.dds.nl)
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
@@ -46,6 +47,7 @@
 #include "rs_debug.h"
 
 #include "console_dxf2pdf.h"
+#include "console_dxf2png.h"
 
 
 /**
@@ -69,6 +71,9 @@ int main(int argc, char** argv)
         }
         if (arg.compare("dxf2pdf") == 0) {
             return console_dxf2pdf(argc, argv);
+        }
+        else if (arg.compare("dxf2png") == 0) {
+            return console_dxf2png(argc, argv);
         }
     }
 
@@ -107,6 +112,7 @@ int main(int argc, char** argv)
             qDebug()<<"Commands:";
             qDebug()<<"";
             qDebug()<<"  dxf2pdf\tRun librecad as console dxf2pdf tool. Use -h for help.";
+            qDebug()<<"  dxf2png\tRun librecad as console dxf2png tool. Use -h for help.";
             qDebug()<<"";
             qDebug()<<"Options:";
             qDebug()<<"";
