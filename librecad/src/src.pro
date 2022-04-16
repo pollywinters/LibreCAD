@@ -444,6 +444,7 @@ HEADERS += actions/rs_actionblocksadd.h \
     actions/rs_actionselectlayer.h \
     actions/rs_actionsetrelativezero.h \
     actions/rs_actionsetsnapmode.h \
+    actions/lc_actionsnapmiddlemanual.h \
     actions/rs_actionsetsnaprestriction.h \
     actions/rs_actionsnapintersectionmanual.h \
     actions/rs_actiontoolregeneratedimensions.h \
@@ -579,6 +580,7 @@ SOURCES += actions/rs_actionblocksadd.cpp \
     actions/rs_actionselectlayer.cpp \
     actions/rs_actionsetrelativezero.cpp \
     actions/rs_actionsetsnapmode.cpp \
+    actions/lc_actionsnapmiddlemanual.cpp \
     actions/rs_actionsetsnaprestriction.cpp \
     actions/rs_actionsnapintersectionmanual.cpp \
     actions/rs_actiontoolregeneratedimensions.cpp \
