@@ -55,6 +55,7 @@ public:
 public slots:
 	void setSnaps(RS_SnapMode const & s);
     void slotUnsetSnapMiddleManual();
+    void slotEnableRelativeZeroSnaps(const bool);
 
 private slots:
     void actionTriggered(void);

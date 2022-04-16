@@ -240,6 +240,12 @@ void QG_SnapToolBar::slotRestrictOrthogonal(bool checked)
     actionTriggered();
 }
 
+void QG_SnapToolBar::slotEnableRelativeZeroSnaps(const bool enabled)
+{
+    bRelZero->setEnabled(enabled);
+    bLockRelZero->setEnabled(enabled);
+}
+
 void QG_SnapToolBar::actionTriggered()
 {
     actionHandler->slotSetSnaps(getSnaps());
