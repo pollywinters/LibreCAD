@@ -318,7 +318,7 @@ public:
 	void lockRelativeZero(bool lock);
 
 	/**
-		 * @return true if the position of the realtive zero point is
+		 * @return true if the position of the relative zero point is
 		 * locked.
 		 */
 	bool isRelativeZeroLocked() const;
@@ -372,6 +372,15 @@ public:
 
     bool isPanning() const;
     void setPanning(bool state);
+
+    void setLineWidthScaling(bool state){
+        scaleLineWidth = state;
+    }
+
+    bool getLineWidthScaling(){
+        return scaleLineWidth;
+    }
+
 
 protected:
 
@@ -452,6 +461,8 @@ private:
 	bool m_bIsCleanUp=false;
 
     bool panning;
+
+	bool scaleLineWidth;
 
 signals:
     void relative_zero_changed(const RS_Vector&);

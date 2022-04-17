@@ -93,6 +93,44 @@ RS_FilterDXFRW::~RS_FilterDXFRW() {
     RS_DEBUG->print("RS_FilterDXFRW::~RS_FilterDXFRW(): OK");
 }
 
+QString RS_FilterDXFRW::lastError() const
+{
+    switch (errorCode) {
+    case DRW::BAD_NONE:
+        return (QObject::tr( "no DXF/DWG error", "RS_FilterDXFRW"));
+    case DRW::BAD_OPEN:
+        return (QObject::tr( "error opening DXF/DWG file", "RS_FilterDXFRW"));
+    case DRW::BAD_VERSION:
+        return (QObject::tr( "unsupported DXF/DWG file version", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_METADATA:
+        return (QObject::tr( "error reading DXF/DWG meta data", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_FILE_HEADER:
+        return (QObject::tr( "error reading DXF/DWG file header", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_HEADER:
+        return (QObject::tr( "error reading DXF/DWG header dara", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_HANDLES:
+        return (QObject::tr( "error reading DXF/DWG object map", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_CLASSES:
+        return (QObject::tr( "error reading DXF/DWG classes", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_TABLES:
+        return (QObject::tr( "error reading DXF/DWG tables", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_BLOCKS:
+        return (QObject::tr( "error reading DXF/DWG blocks", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_ENTITIES:
+        return (QObject::tr( "error reading DXF/DWG entities", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_OBJECTS:
+        return (QObject::tr( "error reading DXF/DWG objects", "RS_FilterDXFRW"));
+    case DRW::BAD_READ_SECTION:
+        return (QObject::tr( "error reading DXF/DWG sections", "RS_FilterDXFRW"));
+    case DRW::BAD_CODE_PARSED:
+        return (QObject::tr( "error reading DXF/DWG code", "RS_FilterDXFRW"));
+    default:
+        break;
+    }
+
+    return RS_FilterInterface::lastError();
+}
+
 
 
 /**
@@ -130,15 +168,16 @@ bool RS_FilterDXFRW::fileImport(RS_Graphic& g, const QString& file, RS2::FormatT
         dwgR dwgr(QFile::encodeName(file));
         RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading DWG file");
         if (RS_DEBUG->getLevel()== RS_Debug::D_DEBUGGING)
-            dwgr.setDebug(DRW::DEBUG);
+            dwgr.setDebug(DRW::DebugLevel::Debug);
         bool success = dwgr.read(this, true);
         RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading DWG file: OK");
         RS_DIALOGFACTORY->commandMessage(QObject::tr("Opened dwg file version %1.").arg(printDwgVersion(dwgr.getVersion())));
         int  lastError = dwgr.getError();
-        if (success==false) {
+        if (false == success) {
             printDwgError(lastError);
             RS_DEBUG->print(RS_Debug::D_WARNING,
                             "Cannot open DWG file '%s'.", (const char*)QFile::encodeName(file));
+            errorCode = dwgr.getError();
             return false;
         }
     } else {
@@ -150,9 +189,10 @@ bool RS_FilterDXFRW::fileImport(RS_Graphic& g, const QString& file, RS2::FormatT
         RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading file: OK");
         //graphic->setAutoUpdateBorders(true);
 
-        if (success==false) {
+        if (false == success) {
             RS_DEBUG->print(RS_Debug::D_WARNING,
                             "Cannot open DXF file '%s'.", (const char*)QFile::encodeName(file));
+            errorCode = dxfR.getError();
             return false;
         }
 #ifdef DWGSUPPORT
@@ -660,7 +700,6 @@ void RS_FilterDXFRW::addMText(const DRW_MText& data) {
     RS_MTextData::MTextDrawingDirection dir;
     RS_MTextData::MTextLineSpacingStyle lss;
     QString sty = QString::fromUtf8(data.style.c_str());
-    sty=sty.toLower();
 
     if (data.textgen<=3) {
         valign=RS_MTextData::VATop;
@@ -768,7 +807,6 @@ void RS_FilterDXFRW::addText(const DRW_Text& data) {
     RS_TextData::HAlign halign = (RS_TextData::HAlign)data.alignH;
     RS_TextData::TextGeneration dir;
     QString sty = QString::fromUtf8(data.style.c_str());
-    sty=sty.toLower();
 
     if (data.textgen==2) {
         dir = RS_TextData::Backward;
@@ -1262,8 +1300,7 @@ void RS_FilterDXFRW::addHeader(const DRW_Header* data){
         container = (RS_Graphic*)currentContainer;
     } else return;
 
-    map<std::string,DRW_Variant *>::const_iterator it;
-    for ( it=data->vars.begin() ; it != data->vars.end(); ++it ){
+    for (auto it = data->vars.begin() ; it != data->vars.end(); ++it ) {
         QString key = QString::fromStdString((*it).first);
         DRW_Variant *var = (*it).second;
         switch (var->type()) {
@@ -2943,7 +2980,7 @@ void RS_FilterDXFRW::writeImage(RS_Image * i) {
 
 
 /**
- * Writes the atomic entities of the given cotnainer to the file.
+ * Writes the atomic entities of the given container to the file.
  */
 /*void RS_FilterDXFRW::writeAtomicEntities(DL_WriterA& dw, RS_EntityContainer* c,
                                        const DRW_Entity& attrib,
@@ -3839,7 +3876,7 @@ RS2::Unit RS_FilterDXFRW::numberToUnit(int num) {
 
 
 /**
- * Converst a unit enum into a DXF unit number e.g. for INSUNITS.
+ * Converts a unit enum into a DXF unit number e.g. for INSUNITS.
  */
 int RS_FilterDXFRW::unitToNumber(RS2::Unit unit) {
     switch (unit) {

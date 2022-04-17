@@ -259,6 +259,12 @@ void RS_FilterJWW::addPoint(const DL_PointData& data) {
  * Implementation of the method which handles line entities.
  */
 void RS_FilterJWW::addLine(const DL_LineData& data) {
+
+    if (nullptr == currentContainer) {
+        RS_DEBUG->print("RS_FilterJWW::addLine: currentContainer is nullptr");
+        return;
+    }
+
         RS_DEBUG->print("RS_FilterJWW::addLine");
 
         RS_Vector v1(data.x1, data.y1);
@@ -266,11 +272,7 @@ void RS_FilterJWW::addLine(const DL_LineData& data) {
 
         RS_DEBUG->print("RS_FilterJWW::addLine: create line");
 
-		if (!currentContainer) {
-				RS_DEBUG->print("RS_FilterJWW::addLine: currentContainer is nullptr");
-        }
-
-		RS_Line* entity = new RS_Line{currentContainer, {v1, v2}};
+        RS_Line* entity = new RS_Line{currentContainer, {v1, v2}};
         RS_DEBUG->print("RS_FilterJWW::addLine: set attributes");
         setEntityAttributes(entity, attributes);
 
@@ -2421,7 +2423,7 @@ void RS_FilterJWW::writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,
 
 
 /**
- * Writes the atomic entities of the given cotnainer to the file.
+ * Writes the atomic entities of the given container to the file.
  */
 void RS_FilterJWW::writeAtomicEntities(DL_WriterA& dw, RS_EntityContainer* c,
                                                                            const DL_Attributes& attrib,
@@ -3297,7 +3299,7 @@ RS2::Unit RS_FilterJWW::numberToUnit(int num) {
 
 
 /**
- * Converst a unit enum into a JWW unit number e.g. for INSUNITS.
+ * Converts a unit enum into a JWW unit number e.g. for INSUNITS.
  */
 int RS_FilterJWW::unitToNumber(RS2::Unit unit) {
         switch (unit) {

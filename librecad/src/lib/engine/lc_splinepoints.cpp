@@ -21,6 +21,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **********************************************************************/
 
+#include <QPainterPath>
 #include <QPolygonF>
 #include "lc_splinepoints.h"
 
@@ -1908,7 +1909,7 @@ void LC_SplinePoints::draw(RS_Painter* painter, RS_GraphicView* view, double& pa
 
 	// Pattern:
 	const RS_LineTypePattern* pat = nullptr;
-	if(isSelected())
+	if(isSelected() && !(view->isPrinting() || view->isPrintPreview()))
 	{
 //		styleFactor=1.;
         pat = &RS_LineTypePattern::patternSelected;

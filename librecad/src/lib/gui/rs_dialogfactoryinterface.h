@@ -86,7 +86,7 @@ public:
          * window for the given document or for a new document isf no document
          * is given.
          */
-//    virtual RS_GraphicView* requestNewDocument(const QString& fileName = QString::null,
+//    virtual RS_GraphicView* requestNewDocument(const QString& fileName = QString(),
 //                        RS_Document* doc=NULL) = 0;
 
     /**
@@ -113,6 +113,19 @@ public:
      *         cancels the dialog.
      */
     virtual RS_Layer* requestLayerRemovalDialog(
+        RS_LayerList* layerList = NULL) = 0;
+
+    /**
+     * This virtual method must be overwritten and must provide
+     * a dialog that asks for permission for removing the selected
+     * layers from the layer list. The method must not actually
+     * remove those layers. This is up to the caller.
+     *
+     * @return The implementation is expected to return a list
+     *         of selected layers names to be removed, or empty
+     *         list if the user cancels the dialog.
+     */
+    virtual QStringList requestSelectedLayersRemovalDialog(
         RS_LayerList* layerList = NULL) = 0;
 
     /**
@@ -154,6 +167,19 @@ public:
      */
     virtual RS_Block* requestBlockRemovalDialog(
         RS_BlockList* blockList) = 0;
+
+    /**
+     * This virtual method must be overwritten and must provide
+     * a dialog that asks for permission for removing the selected
+     * blocks from the block list. The method must not actually
+     * remove those blocks. This is up to the caller.
+     *
+     * @return The implementation is expected to return a list
+     *         of selected blocks to be removed, or empty
+     *         list if the user cancels the dialog.
+     */
+    virtual QList<RS_Block*> requestSelectedBlocksRemovalDialog(
+        RS_BlockList* blockList = NULL) = 0;
 
     /**
      * This virtual method must be overwritten and must provide
@@ -381,13 +407,13 @@ public:
      * This virtual method must be overwritten if the graphic view has
      * a component that is interested in the current mouse button hints.
      * The implementation will be called typically by actions to inform
-     * the user about the current functionalty of the mouse buttons.
+     * the user about the current functionality of the mouse buttons.
      *
      * @param left Help text for the left mouse button.
      * @param right Help text for the right mouse button.
 	 */
-	virtual void updateMouseWidget(const QString& = QString::null,
-								   const QString& = QString::null)=0;
+	virtual void updateMouseWidget(const QString& = QString(),
+								   const QString& = QString())=0;
     virtual void updateArcTangentialOptions(const double& d, bool byRadius)=0;
 
     /**

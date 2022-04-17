@@ -1646,7 +1646,7 @@ QString RS_FilterDXF1::getBufLine() {
     QString str;
 
     if (fBufP >= (int)fSize)
-        return QString::null;
+        return QString();
 
     ret = &fBuf[fBufP];
 
@@ -1655,7 +1655,7 @@ QString RS_FilterDXF1::getBufLine() {
         while (++fBufP < (int)fSize && fBuf[fBufP] == '\0')
             ;
         if (fBufP >= (int)fSize)
-            return QString::null;
+            return QString();
         ret = &fBuf[fBufP];
 }*/
 
@@ -1791,7 +1791,7 @@ void RS_FilterDXF1::separateBuf(char _c1,
 //   comments get replaced by '\0'
 //
 void RS_FilterDXF1::removeComment(char _fc, char _lc) {
-    bool rem=false;   // Are we removing currrently?
+    bool rem=false;   // Are we removing currently?
     int bc;           // counter
 
     for(bc=0; bc<(int)fSize; ++bc) {

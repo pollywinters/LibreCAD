@@ -48,6 +48,9 @@
 #include <boost/version.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <boost/math/special_functions/ellint_2.hpp>
+#if BOOST_VERSION > 104500
+#include <boost/math/tools/tuple.hpp>
+#endif
 #endif
 
 namespace{
@@ -395,7 +398,7 @@ RS_Vector RS_Ellipse::getNearestDist(double distance,
     }
 
 	if(e.getMajorRadius() < RS_TOLERANCE)
-		return {}; //elipse too small
+		return {}; //ellipse too small
 
     if(getRatio()<RS_TOLERANCE) {
         //treat the ellipse as a line
@@ -463,7 +466,7 @@ RS_Vector  RS_Ellipse::getEllipsePoint(const double& a) const {
     return p;
 }
 
-/** \brief implemented using an analytical aglorithm
+/** \brief implemented using an analytical algorithm
 * find nearest point on ellipse to a given point
 *
 * @author Dongxu Li <dongxuli2011@gmail.com>
@@ -1232,7 +1235,7 @@ RS_Vector RS_Ellipse::prepareTrim(const RS_Vector& trimCoord,
         }
     }
     std::sort(ias.begin(),ias.end());
-	for(size_t ii=0; ii<trimSol.getNumber(); ++ii) { //find segment to enclude trimCoord
+	for(size_t ii=0; ii<trimSol.getNumber(); ++ii) { //find segment to include trimCoord
         if ( ! RS_Math::isSameDirection(ia,ias[ii],RS_TOLERANCE)) continue;
         if( RS_Math::isAngleBetween(am,ias[(ii+trimSol.getNumber()-1)% trimSol.getNumber()],ia,false))  {
             ia2=ias[(ii+trimSol.getNumber()-1)% trimSol.getNumber()];
@@ -1241,7 +1244,7 @@ RS_Vector RS_Ellipse::prepareTrim(const RS_Vector& trimCoord,
         }
         break;
     }
-	for(const RS_Vector& vp: trimSol) { //find segment to enclude trimCoord
+	for(const RS_Vector& vp: trimSol) { //find segment to include trimCoord
 		if ( ! RS_Math::isSameDirection(ia2,getEllipseAngle(vp),RS_TOLERANCE)) continue;
 		is2=vp;
         break;
@@ -1323,7 +1326,7 @@ const RS_EllipseData& RS_Ellipse::getData() const
 
 /* Dongxu Li's Version, 19 Aug 2011
  * scale an ellipse
- * Find the eigen vactors and eigen values by optimization
+ * Find the eigen vectors and eigen values by optimization
  * original ellipse equation,
  * x= a cos t
  * y= b sin t
@@ -1779,9 +1782,12 @@ void RS_Ellipse::drawVisible(RS_Painter* painter, RS_GraphicView* view, double& 
         painter->drawLine(view->toGui(minV),view->toGui(maxV));
         return;
     }
+
+    bool drawAsSelected = isSelected() && !(view->isPrinting() || view->isPrintPreview());
+
     double mAngle=getAngle();
     RS_Vector cp(view->toGui(getCenter()));
-	if (!isSelected() && (
+	if (!drawAsSelected && (
              getPen().getLineType()==RS2::SolidLine ||
              view->getDrawingMode()==RS2::ModePreview)) {
         painter->drawEllipse(cp,
@@ -1793,9 +1799,13 @@ void RS_Ellipse::drawVisible(RS_Painter* painter, RS_GraphicView* view, double& 
     }
 
     // Pattern:
-	const RS_LineTypePattern* pat = isSelected() ?
-				&RS_LineTypePattern::patternSelected :
-				view->getPattern(getPen().getLineType());
+	const RS_LineTypePattern* pat = nullptr;
+	if (drawAsSelected) {
+		pat = &RS_LineTypePattern::patternSelected;
+	}
+	else {
+		pat = view->getPattern(getPen().getLineType());
+	}
 
 	if (!pat) {
         RS_DEBUG->print(RS_Debug::D_WARNING, "Invalid pattern for Ellipse");

@@ -692,7 +692,7 @@ RS_Vector RS_Arc::prepareTrim(const RS_Vector& trimCoord,
             }
         }
         std::sort(ias.begin(),ias.end());
-		for(size_t ii=0; ii<trimSol.getNumber(); ++ii) { //find segment to enclude trimCoord
+		for(size_t ii=0; ii<trimSol.getNumber(); ++ii) { //find segment to include trimCoord
             if ( ! RS_Math::isSameDirection(ia,ias[ii],RS_TOLERANCE)) continue;
             if( RS_Math::isAngleBetween(am,ias[(ii+trimSol.getNumber()-1)% trimSol.getNumber()],ia,false))  {
                 ia2=ias[(ii+trimSol.getNumber()-1)% trimSol.getNumber()];
@@ -701,7 +701,7 @@ RS_Vector RS_Arc::prepareTrim(const RS_Vector& trimCoord,
             }
             break;
         }
-		for(const RS_Vector& vp: trimSol) { //find segment to enclude trimCoord
+		for(const RS_Vector& vp: trimSol) { //find segment to include trimCoord
 			if ( ! RS_Math::isSameDirection(ia2,getArcAngle(vp),RS_TOLERANCE)) continue;
 			is2=vp;
             break;
@@ -961,8 +961,10 @@ void RS_Arc::drawVisible(RS_Painter* painter, RS_GraphicView* view,
     //double styleFactor = getStyleFactor();
     patternOffset -= length;
 
+    bool drawAsSelected = isSelected() && !(view->isPrinting() || view->isPrintPreview());
+
     // simple style-less lines
-    if ( !isSelected() && (
+    if ( !drawAsSelected && (
              getPen().getLineType()==RS2::SolidLine ||
              view->getDrawingMode()==RS2::ModePreview)) {
         painter->drawArc(cp,
@@ -982,7 +984,8 @@ void RS_Arc::drawVisible(RS_Painter* painter, RS_GraphicView* view,
 
     // Pattern:
     const RS_LineTypePattern* pat;
-    if (isSelected()) {
+    if (drawAsSelected)
+    {
         pat = &RS_LineTypePattern::patternSelected;
     } else {
         pat = view->getPattern(getPen().getLineType());

@@ -3,9 +3,9 @@
 ** This file is part of the LibreCAD project, a 2D CAD program
 ** 
 ** Copyright (C) 2019 Shawn Curry (noneyabiz@mail.wasent.cz)
-** Copyright (C) 2018 Simon Wells <simonrwells@gmail.com>
+** Copyright (C) 2018 Simon Wells (simonrwells@gmail.com)
 ** Copyright (C) 2015-2016 ravas (github.com/r-a-v-a-s)
-** Copyright (C) 2015-2018 A. Stebich (librecad@mail.lordofbikes.de)
+** Copyright (C) 2015 A. Stebich (librecad@mail.lordofbikes.de)
 ** Copyright (C) 2010 R. van Twisk (librecad@rvt.dds.nl)
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 **
@@ -140,6 +140,10 @@ QC_ApplicationWindow::QC_ApplicationWindow()
     , pen_wiz(new LC_PenWizard(QObject::tr("Pen Wizard"), this))
 {
     RS_DEBUG->print("QC_ApplicationWindow::QC_ApplicationWindow");
+
+#ifdef _WINDOWS
+	qt_ntfs_permission_lookup++; // turn checking on
+#endif
 
     //accept drop events to open files
     setAcceptDrops(true);
@@ -463,7 +467,7 @@ bool QC_ApplicationWindow::doSave(QC_MDIWindow * w, bool forceSaveAs)
 	QString name, msg;
 	bool cancelled;
 	if (!w) return false;
-	if (w->getDocument()->isModified()) {
+    if (w->getDocument()->isModified() || forceSaveAs) {
 		name = w->getDocument()->getFilename();
 		if (name.isEmpty())
 			doActivate(w); // show the user the drawing for save as
@@ -498,7 +502,7 @@ bool QC_ApplicationWindow::doSave(QC_MDIWindow * w, bool forceSaveAs)
 				+ tr(" , please check the filename and permissions.");
 			statusBar()->showMessage(msg, 2000);
 			commandWidget->appendHistory(msg);
-			return doSave(w);
+			return doSave(w, true);
 		}
 	}
 	return true;
@@ -510,10 +514,21 @@ bool QC_ApplicationWindow::doSave(QC_MDIWindow * w, bool forceSaveAs)
  */
 void QC_ApplicationWindow::doClose(QC_MDIWindow * w, bool activateNext)
 {
-	for (auto child : w->getChildWindows()) // block editors; just force these closed
+	RS_DEBUG->print("QC_ApplicationWindow::doClose begin");
+	w->getGraphicView()->killAllActions();
+	QC_MDIWindow* parentWindow = w->getParentWindow();
+	if (parentWindow)
+	{
+		RS_DEBUG->print("QC_ApplicationWindow::doClose closing block or print preview");
+		parentWindow->removeChildWindow(w);
+	}
+	else
+	{
+		RS_DEBUG->print("QC_ApplicationWindow::doClose closing graphic");
+	}
+	for (auto child : w->getChildWindows()) // block editors and print previews; just force these closed
 		doClose(child, false); // they belong to the document (changes already saved there)
 	w->getChildWindows().clear();
-	w->slotWindowClosing();
 	mdiAreaCAD->removeSubWindow(w);
 	window_list.removeOne(w);
 
@@ -532,6 +547,7 @@ void QC_ApplicationWindow::doClose(QC_MDIWindow * w, bool activateNext)
 
 	if (activateNext && window_list.count() > 0)
 		doActivate(window_list.front());
+	RS_DEBUG->print("QC_ApplicationWindow::doClose end");
 }
 
 /**
@@ -547,11 +563,13 @@ void QC_ApplicationWindow::doActivate(QMdiSubWindow * w)
 		w->activateWindow();
 		w->raise();
 		w->setFocus();
-		if (maximized)
-			w->showMaximized();
-		else
-			w->show();
-	}
+        if (maximized || QMdiArea::TabbedView == mdiAreaCAD->viewMode()) {
+            w->showMaximized();
+        }
+        else {
+            w->show();
+        }
+    }
 	if (mdiAreaCAD->viewMode() == QMdiArea::SubWindowView)
 		doArrangeWindows(RS2::CurrentMode);
 	enableFileActions(qobject_cast<QC_MDIWindow*>(w));
@@ -708,6 +726,10 @@ QC_ApplicationWindow::~QC_ApplicationWindow() {
 
     RS_DEBUG->print("QC_ApplicationWindow::~QC_ApplicationWindow: "
                     "deleting dialog factory");
+
+#ifdef _WINDOWS
+	qt_ntfs_permission_lookup--; // turn it off again
+#endif
 
     delete dialogFactory;
 
@@ -961,8 +983,6 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w) {
 
     RS_DEBUG->print("QC_ApplicationWindow::slotWindowActivated begin");
 
-	enableFileActions(qobject_cast<QC_MDIWindow*>(w));
-
     if(w==nullptr) {
         emit windowsChanged(false);
         activedMdiSubWindow=w;
@@ -971,7 +991,9 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w) {
 
     if(w==activedMdiSubWindow) return;
     activedMdiSubWindow=w;
+
     QC_MDIWindow* m = qobject_cast<QC_MDIWindow*>(w);
+    enableFileActions(m);
 
     if (m && m->getDocument()) {
 
@@ -985,12 +1007,7 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w) {
 
         coordinateWidget->setGraphic(m->getGraphic());
 
-        // Only graphics show blocks. (blocks don't)
-        if (m->getDocument()->rtti()==RS2::EntityGraphic) {
-            blockWidget->setBlockList(m->getDocument()->getBlockList());
-        } else {
-            blockWidget->setBlockList(nullptr);
-        }
+        blockWidget->setBlockList(m->getDocument()->getBlockList());
 
         // Update all inserts in this graphic (blocks might have changed):
         m->getDocument()->updateInserts();
@@ -1023,6 +1040,18 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w) {
         }else {
             RS_DEBUG->print(RS_Debug::D_ERROR,"snapToolBar is nullptr\n");
         }
+    }
+
+    // show action options for active window only
+    foreach (QMdiSubWindow* sw, mdiAreaCAD->subWindowList()) {
+        QC_MDIWindow* sm = qobject_cast<QC_MDIWindow*>(sw);
+        RS_ActionInterface* ai = sm->getGraphicView()->getCurrentAction();
+        if (ai) {
+            ai->hideOptions();
+        }
+    }
+    if (m && m->getGraphicView()->getCurrentAction()) {
+        m->getGraphicView()->getCurrentAction()->showOptions();
     }
 
     // Disable/Enable menu and toolbar items
@@ -1094,10 +1123,10 @@ void QC_ApplicationWindow::slotWindowsMenuAboutToShow() {
 		menuItem->setCheckable(true);
 		menuItem->setChecked(RS_SETTINGS->readNumEntry("/SubWindowMode") == RS2::Maximized);
 
-		menuItem = menu->addAction(tr("&Cascade"), this, SLOT(slotCascade()));
-		menuItem = menu->addAction(tr("&Tile"), this, SLOT(slotTile()));
-		menuItem = menu->addAction(tr("Tile &Vertically"), this, SLOT(slotTileVertical()));
-		menuItem = menu->addAction(tr("Tile &Horizontally"), this, SLOT(slotTileHorizontal()));
+        menu->addAction(tr("&Cascade"), this, SLOT(slotCascade()));
+        menu->addAction(tr("&Tile"), this, SLOT(slotTile()));
+        menu->addAction(tr("Tile &Vertically"), this, SLOT(slotTileVertical()));
+        menu->addAction(tr("Tile &Horizontally"), this, SLOT(slotTileHorizontal()));
 	}
 	
 
@@ -1479,7 +1508,6 @@ QC_MDIWindow* QC_ApplicationWindow::slotFileNew(RS_Document* doc) {
 
     w->setWindowIcon(QIcon(":/main/document.png"));
 
-    // only graphics offer block lists, blocks don't
     RS_DEBUG->print("  adding listeners");
     RS_Graphic* graphic = w->getDocument()->getGraphic();
 
@@ -1512,7 +1540,7 @@ QC_MDIWindow* QC_ApplicationWindow::slotFileNew(RS_Document* doc) {
 	// Link the dialog factory to the command widget:
 	QG_DIALOGFACTORY->setCommandWidget(commandWidget);
 
-    QMdiSubWindow* subWindow=mdiAreaCAD->addSubWindow(w);
+    mdiAreaCAD->addSubWindow(w);
 
     RS_DEBUG->print("  showing MDI window");
 	doActivate(w);
@@ -1629,9 +1657,9 @@ void QC_ApplicationWindow::slotFileNewTemplate() {
     QMdiSubWindow* old=activedMdiSubWindow;
     QRect geo;
     bool maximized=false;
-    if(old ) {//save old geometry
-        geo=activedMdiSubWindow->geometry();
-        maximized=activedMdiSubWindow->isMaximized();
+    if(old != nullptr ) {//save old geometry
+        geo=old->geometry();
+        maximized=old->isMaximized();
     }
     QC_MDIWindow* w =nullptr;
 	if (!slotFileNewHelper(fileName, w)) {
@@ -1761,41 +1789,30 @@ void QC_ApplicationWindow::
 
         qApp->processEvents(QEventLoop::AllEvents, 1000);
 
-        if(old) {//save old geometry
-            geo=activedMdiSubWindow->geometry();
-            maximized=activedMdiSubWindow->isMaximized();
+        if(old != nullptr) {//save old geometry
+            geo=old->geometry();
+            maximized=old->isMaximized();
         }
 
         // open the file in the new view:
         bool success=false;
-        if(QFileInfo(fileName).exists())
-            success=w->slotFileOpen(fileName, type);
+        if (QFileInfo( fileName).exists()) {
+            success = w->slotFileOpen( fileName, type);
+        }
+        else {
+            QString msg=tr("Cannot open the file\n%1\nPlease "
+                           "check its existence and permissions.")
+                    .arg( fileName);
+            commandWidget->appendHistory( msg);
+            QMessageBox::information( this, QMessageBox::tr("Warning"), msg, QMessageBox::Ok);
+        }
         if (!success) {
                // error
                QApplication::restoreOverrideCursor();
-               QString msg=tr("Cannot open the file\n%1\nPlease "
-                              "check its existence and permissions.")
-                       .arg(fileName);
-               commandWidget->appendHistory(msg);
-               QMessageBox::information(this, QMessageBox::tr("Warning"),
-                                        msg,
-                                        QMessageBox::Ok);
-           //file opening failed, clean up QC_MDIWindow and QMdiSubWindow
+
+               //file opening failed, clean up QC_MDIWindow and QMdiSubWindow
                slotFilePrintPreview(false);
                doClose(w); //force closing, without asking user for confirmation
-               QMdiSubWindow* active=mdiAreaCAD->currentSubWindow();
-               activedMdiSubWindow=nullptr; //to allow reactivate the previous active
-               if( active){//restore old geometry
-                   mdiAreaCAD->setActiveSubWindow(active);
-                   active->raise();
-                   active->setFocus();
-                   if(old==nullptr || maximized){
-                       active->showMaximized();
-                   }else{
-                       active->setGeometry(geo);
-                   }
-                   qobject_cast<QC_MDIWindow*>(active)->slotZoomAuto();
-               }
                return;
         }
 
@@ -1905,7 +1922,7 @@ void QC_ApplicationWindow::slotFileSaveAs() {
 bool QC_ApplicationWindow::slotFileSaveAll()
 {
 	QC_MDIWindow* current = getMDIWindow();
-	bool result;
+    bool result {true};
 	for (auto w : window_list) {
 		if (w && w->getDocument()->isModified()) {
 			result = doSave(w);
@@ -2113,20 +2130,17 @@ bool QC_ApplicationWindow::slotFileExport(const QString& name,
     // set painter with buffer
     RS_PainterQt painter(buffer);
 
-    // black background:
     if (black) {
-//RLZ        painter.setBackgroundColor(RS_Color(0,0,0));
-		painter.setBackground(Qt::black);
+        painter.setBackground( Qt::black);
+        if (bw) {
+            painter.setDrawingMode( RS2::ModeWB);
+        }
     }
-    // white background:
     else {
-//RLZ        painter.setBackgroundColor(RS_Color(255,255,255));
-		painter.setBackground(Qt::white);
-    }
-
-    // black/white:
-    if (bw) {
-        painter.setDrawingMode(RS2::ModeBW);
+        painter.setBackground(Qt::white);
+        if (bw) {
+            painter.setDrawingMode( RS2::ModeBW);
+        }
     }
 
     painter.eraseRect(0,0, size.width(), size.height());
@@ -2183,7 +2197,8 @@ void QC_ApplicationWindow::slotFileClosing(QC_MDIWindow* win)
 {
     RS_DEBUG->print("QC_ApplicationWindow::slotFileClosing()");
 	bool cancel = false;
-	if (win && win->getDocument()->isModified()) {
+	bool hasParent = win->getParentWindow() != nullptr;
+	if (win && win->getDocument()->isModified() && !hasParent) {
 		switch (showCloseDialog(win)) {
 		case QG_ExitDialog::Save:
 			cancel = !doSave(win);
@@ -2193,7 +2208,11 @@ void QC_ApplicationWindow::slotFileClosing(QC_MDIWindow* win)
 			break;
 		}
 	}
-	if (!cancel) doClose(win);
+	if (!cancel)
+	{
+		doClose(win);
+		doArrangeWindows(RS2::CurrentMode);
+	}
 }
 
 /**
@@ -2206,10 +2225,12 @@ void QC_ApplicationWindow::slotFileClosing(QC_MDIWindow* win)
  */
 bool QC_ApplicationWindow::slotFileCloseAll()
 {
-	bool cancel(false), closeAll(false);
+	bool cancel(false), closeAll(false), hasParent(false);
 	for (auto w : window_list) if (w) {
 
-		if (w->getDocument()->isModified() && !closeAll) {
+		hasParent = w->getParentWindow() != nullptr;
+
+		if (w->getDocument()->isModified() && !hasParent && !closeAll) {
 			doActivate(w);
 			switch (showCloseDialog(w, window_list.count() > 1)) {
 			case QG_ExitDialog::Close:
@@ -2232,6 +2253,7 @@ bool QC_ApplicationWindow::slotFileCloseAll()
 		}
 
 		doClose(w);
+		doArrangeWindows(RS2::CurrentMode);
 	}
 	return true;
 }
@@ -2431,6 +2453,7 @@ void QC_ApplicationWindow::slotFilePrint(bool printPDF) {
         RS_StaticGraphicView gv(printer.width(), printer.height(), &painter);
         gv.setPrinting(true);
         gv.setBorders(0,0,0,0);
+        gv.setLineWidthScaling(w->getGraphicView()->getLineWidthScaling());
 
         double fx = printerFx * RS_Units::getFactorToMM(graphic->getUnit());
         double fy = printerFy * RS_Units::getFactorToMM(graphic->getUnit());
@@ -2462,7 +2485,10 @@ void QC_ApplicationWindow::slotFilePrint(bool printPDF) {
                              (int)((baseY - offsetY) * f));
 //fixme, I don't understand the meaning of 'true' here
 //        gv.drawEntity(&painter, graphic, true);
-                gv.drawEntity(&painter, graphic );
+                painter.setDrawSelectedOnly(true);
+                gv.drawEntity(&painter, graphic);
+                painter.setDrawSelectedOnly(false);
+                gv.drawEntity(&painter, graphic);
             }
         }
 
@@ -2521,9 +2547,9 @@ void QC_ApplicationWindow::slotFilePrintPreview(bool on)
         if (parent->getGraphicView()->isPrintPreview())
         {
             RS_DEBUG->print("QC_ApplicationWindow::slotFilePrintPreview(): close");
-            mdiAreaCAD->closeActiveSubWindow();
-            getMDIWindow()->showMaximized();
             emit(printPreviewChanged(false));
+            doClose(parent);
+            doArrangeWindows(RS2::CurrentMode);
             return;
         }
     }
@@ -2536,8 +2562,8 @@ void QC_ApplicationWindow::slotFilePrintPreview(bool on)
         {
             RS_DEBUG->print("QC_ApplicationWindow::slotFilePrintPreview(): show existing");
 
-            ppv->showMaximized();
-            mdiAreaCAD->setActiveSubWindow(qobject_cast<QMdiSubWindow*>(ppv));
+            doActivate(ppv);
+            doArrangeWindows(RS2::CurrentMode);
             emit(printPreviewChanged(true));
         }
         else
@@ -2549,15 +2575,13 @@ void QC_ApplicationWindow::slotFilePrintPreview(bool on)
                 RS_DEBUG->print("QC_ApplicationWindow::slotFilePrintPreview(): create");
 
                 QC_MDIWindow* w = new QC_MDIWindow(parent->getDocument(), mdiAreaCAD, 0);
-                QMdiSubWindow* subWindow=mdiAreaCAD->addSubWindow(w);
-                subWindow->showMaximized();
+                mdiAreaCAD->addSubWindow(w);
                 parent->addChildWindow(w);
                 connect(w, SIGNAL(signalClosing(QC_MDIWindow*)),
-                        this, SLOT(hideOptions(QC_MDIWindow*)));
+                        this, SLOT(slotFileClosing(QC_MDIWindow*)));
 
                 w->setWindowTitle(tr("Print preview for %1").arg(parent->windowTitle()));
                 w->setWindowIcon(QIcon(":/main/document.png"));
-                w->slotZoomAuto();
                 QG_GraphicView* gv = w->getGraphicView();
                 gv->device = settings.value("Hardware/Device", "Mouse").toString();
                 gv->setPrintPreview(true);
@@ -2590,11 +2614,10 @@ void QC_ApplicationWindow::slotFilePrintPreview(bool on)
 
                 RS_DEBUG->print("  showing MDI window");
 
-                if (mdiAreaCAD->subWindowList().size() <= 1 ) {
-                    w->showMaximized();
-                } else {
-                    w->show();
-                }
+                doActivate(w);
+                doArrangeWindows(RS2::CurrentMode);
+
+                gv->zoomAuto(false);
 
                 if(graphic){
                     bool bigger = graphic->isBiggerThanPaper();
@@ -2616,9 +2639,6 @@ void QC_ApplicationWindow::slotFilePrintPreview(bool on)
                         gv->zoomPage();
                     }
                 }
-                w->getGraphicView()->getDefaultAction()->showOptions();
-
-                slotWindowActivated(subWindow);
 
                 emit(printPreviewChanged(true));
             }
@@ -2878,16 +2898,14 @@ void QC_ApplicationWindow::showAboutWindow()
 
     connect(copy_button, SIGNAL(released()), &dlg, SLOT(accept()));
 
-    QString links
-    (
-        QString("<a href=\"https://github.com/LibreCAD/LibreCAD/graphs/contributors\">%1</a>").arg(tr("Contributors"))
-        + "<br/>" +
-        QString("<a href=\"https://github.com/LibreCAD/LibreCAD/blob/master/LICENSE\">%1</a>").arg(tr("License"))
-        + "<br/>" +
-        QString("<a href=\"https://github.com/LibreCAD/LibreCAD/tree/%1\">%2</a>").arg(XSTR(LC_VERSION)).arg("The Code")
-    );
-
-    auto links_label = new QLabel(links);
+    QLabel *links_label = new QLabel( QString( "<a href=\"https://github.com/LibreCAD/LibreCAD/graphs/contributors\">%1</a>"
+                                               "<br/>"
+                                               "<a href=\"https://github.com/LibreCAD/LibreCAD/blob/master/LICENSE\">%2</a>"
+                                               "<br/>"
+                                               "<a href=\"https://github.com/LibreCAD/LibreCAD/\">%3</a>")
+                                      .arg( tr("Contributors"))
+                                      .arg( tr("License"))
+                                      .arg( tr("The Code")) );
     links_label->setOpenExternalLinks(true);
     links_label->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
     f_layout->addWidget(links_label);
@@ -3007,7 +3025,7 @@ void QC_ApplicationWindow::createNewDocument(
         const QString& fileName, RS_Document* doc) {
 
     slotFileNew(doc);
-    if (fileName!=QString::null && getDocument()) {
+    if (fileName!=QString() && getDocument()) {
         getDocument()->setFilename(fileName);
     }
 }
@@ -3058,12 +3076,12 @@ void QC_ApplicationWindow::invokeLinkList()
     dlg.setWindowTitle(tr("Help Links"));
     auto layout = new QVBoxLayout;
     auto list = new LinkList(&dlg);
-    list->addLink(QObject::tr("Wiki"), "http://wiki.librecad.org/");
-    list->addLink(QObject::tr("User's Manual"), "http://wiki.librecad.org/index.php/LibreCAD_users_Manual");
-    list->addLink(QObject::tr("Commands"), "http://wiki.librecad.org/index.php/Commands");
-    list->addLink(QObject::tr("Style Sheets"), "https://github.com/LibreCAD/LibreCAD/wiki/Style-Sheets");
-    list->addLink(QObject::tr("Widgets"), "https://github.com/LibreCAD/LibreCAD/wiki/Widgets");
-    list->addLink(QObject::tr("Forum"), "http://forum.librecad.org/");
+    list->addLink(QObject::tr("Wiki"), "https://dokuwiki.librecad.org/");
+    list->addLink(QObject::tr("User's Manual"), "https://librecad.readthedocs.io/");
+    list->addLink(QObject::tr("Commands"), "https://librecad.readthedocs.io/en/latest/ref/tools.html");
+    list->addLink(QObject::tr("Style Sheets"), "https://librecad.readthedocs.io/en/latest/ref/customize.html#style-sheets");
+    list->addLink(QObject::tr("Widgets"), "https://librecad.readthedocs.io/en/latest/ref/menu.html#widgets");
+    list->addLink(QObject::tr("Forum"), "https://forum.librecad.org/");
     list->addLink(QObject::tr("Release Information"), "https://github.com/LibreCAD/LibreCAD/releases");
     layout->addWidget(list);
     dlg.setLayout(layout);
@@ -3622,4 +3640,21 @@ void QC_ApplicationWindow::invokeLicenseWindow()
     viewer->setFile("readme");
 
     dlg.exec();
+}
+
+
+QC_MDIWindow* QC_ApplicationWindow::getWindowWithDoc(const RS_Document* doc)
+{
+    QC_MDIWindow* wwd = nullptr;
+
+    if (doc) {
+        foreach (QC_MDIWindow* w, window_list) {
+            if (w && w->getDocument() == doc) {
+                wwd = w;
+                break;
+            }
+        }
+    }
+
+    return wwd;
 }

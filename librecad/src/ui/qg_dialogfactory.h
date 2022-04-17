@@ -109,12 +109,16 @@ public:
 			RS_LayerList* layerList = nullptr) override;
 	RS_Layer* requestLayerRemovalDialog(
 			RS_LayerList* layerList = nullptr) override;
+	QStringList requestSelectedLayersRemovalDialog(
+			RS_LayerList* layerList = nullptr) override;
 	RS_Layer* requestEditLayerDialog(
 			RS_LayerList* layerList = nullptr) override;
 
 	RS_BlockData requestNewBlockDialog(RS_BlockList* blockList) override;
 	RS_Block* requestBlockRemovalDialog(
 			RS_BlockList* blockList) override;
+	QList<RS_Block*> requestSelectedBlocksRemovalDialog(
+			RS_BlockList* blockList = nullptr) override;
 	RS_BlockData requestBlockAttributesDialog(
 			RS_BlockList* blockList) override;
 	void requestEditBlockWindow(RS_BlockList* /*blockList*/) override{}
@@ -228,8 +232,8 @@ public:
 	 * \param left mouse hint for left button
 	 * \param right mouse hint for right button
 	 */
-	void updateMouseWidget(const QString& left=QString::null,
-								   const QString& right=QString::null) override;
+	void updateMouseWidget(const QString& left=QString(),
+								   const QString& right=QString()) override;
 	void updateSelectionWidget(int num, double length) override;//updated for total number of selected, and total length of selected
 	void commandMessage(const QString& message) override;
 

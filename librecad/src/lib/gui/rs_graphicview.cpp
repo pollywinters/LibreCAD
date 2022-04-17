@@ -49,6 +49,7 @@
 #include "rs_layer.h"
 #include "rs_math.h"
 #include "rs_debug.h"
+#include "rs_color.h"
 
 #ifdef EMU_C99
 #include "emu_c99.h"
@@ -979,9 +980,8 @@ void RS_GraphicView::setPenForEntity(RS_Painter *painter,RS_Entity *e)
 		w = 0;
 	}
 
-#if 1 /*TRUE*/
 	// - Scale pen width.
-	// - Notes: pen width is not scaled on print and print preview.
+	// - By default pen width is not scaled on print and print preview.
 	//   This is the standard (AutoCAD like) behaviour.
 	// bug# 3437941
 	// ------------------------------------------------------------
@@ -996,10 +996,18 @@ void RS_GraphicView::setPenForEntity(RS_Painter *painter,RS_Entity *e)
 		{
 			uf = RS_Units::convert(1.0, RS2::Millimeter, graphic->getUnit());
 
-			if (	(isPrinting() || isPrintPreview()) &&
+			if ((isPrinting() || isPrintPreview()) &&
 					graphic->getPaperScale() > RS_TOLERANCE )
 			{
-				wf = 1.0 / graphic->getPaperScale();
+				if (scaleLineWidth)
+				{
+					wf = graphic->getVariableDouble("$DIMSCALE", 1.0);
+				}
+				else
+				{
+					wf = 1.0 / graphic->getPaperScale();
+				}
+
 			}
 		}
 
@@ -1011,46 +1019,32 @@ void RS_GraphicView::setPenForEntity(RS_Painter *painter,RS_Entity *e)
 		pen.setScreenWidth(0);
 	}
 
-#else
-
-	// - Scale pen width.
-	// - Notes: pen width is scaled on print and print preview.
-	//   This is not the standard (AutoCAD like) behaviour.
-	// --------------------------------------------------------
-	if (!draftMode)
-	{
-		double	uf = 1.0;	//	Unit factor.
-
-		RS_Graphic* graphic = container->getGraphic();
-
-        if (graphic)
-			uf = RS_Units::convert(1.0, RS2::Millimeter, graphic->getUnit());
-
-		pen.setScreenWidth(toGuiDX(w / 100.0 * uf));
-	}
-	else
-		pen.setScreenWidth(0);
-#endif
-
 	// prevent drawing with 1-width which is slow:
 	if (RS_Math::round(pen.getScreenWidth())==1) {
 		pen.setScreenWidth(0.0);
 	}
 
-	// prevent background color on background drawing:
-	if (pen.getColor().stripFlags()==background.stripFlags()) {
-		pen.setColor(foreground);
-	}
+    // prevent background color on background drawing
+    // and enhance visibility of black lines on dark backgrounds
+    RS_Color    penColor {pen.getColor().stripFlags()};
+    if ( penColor == background.stripFlags()
+         || (penColor.toIntColor() == RS_Color::Black
+             && penColor.colorDistance( background) < RS_Color::MinColorDistance)) {
+        pen.setColor( foreground);
+    }
 
-	// this entity is selected:
-	if (e->isSelected()) {
-		pen.setLineType(RS2::DotLine);
-		pen.setColor(selectedColor);
-	}
+	if (!isPrinting() && !isPrintPreview())
+	{
+		// this entity is selected:
+		if (e->isSelected()) {
+			pen.setLineType(RS2::DotLine);
+			pen.setColor(selectedColor);
+		}
 
-	// this entity is highlighted:
-	if (e->isHighlighted()) {
-		pen.setColor(highlightedColor);
+		// this entity is highlighted:
+		if (e->isHighlighted()) {
+			pen.setColor(highlightedColor);
+		}
 	}
 
 	// deleting not drawing:
@@ -1146,7 +1140,7 @@ void RS_GraphicView::drawEntity(RS_Painter *painter, RS_Entity* e, double& patte
 	}
 
 	// draw reference points:
-	if (e->isSelected()) {
+	if (e->isSelected() && !(isPrinting() || isPrintPreview())) {
 		if (!e->isParentSelected()) {
 			RS_VectorSolutions const& s = e->getRefPoints();
 
@@ -1772,12 +1766,13 @@ RS_EventHandler* RS_GraphicView::getEventHandler() const{
 void RS_GraphicView::setBackground(const RS_Color& bg) {
 	background = bg;
 
-	// bright background:
-	if (bg.red()+bg.green()+bg.blue()>380) {
-		foreground = RS_Color(0,0,0);
-	} else {
-		foreground = RS_Color(255,255,255);
-	}
+    RS_Color black(0,0,0);
+    if (black.colorDistance( bg) >= RS_Color::MinColorDistance) {
+        foreground = black;
+    }
+    else {
+        foreground = RS_Color(255,255,255);
+    }
 }
 
 void RS_GraphicView::setBorders(int left, int top, int right, int bottom) {

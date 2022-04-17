@@ -42,6 +42,117 @@
 #include "rs_pen.h"
 #include "rs_debug.h"
 
+/**
+  * Disable all snapping.
+  *
+  * This effectively puts the object into free snap mode.
+  *
+  * @returns A reference to itself.
+  */
+RS_SnapMode const & RS_SnapMode::clear()
+{
+    snapIntersection    = false;
+    snapOnEntity        = false;
+    snapCenter          = false;
+    snapDistance        = false;
+    snapMiddle          = false;
+    snapEndpoint        = false;
+    snapGrid            = false;
+    snapFree            = false;
+    snapAngle           = false;
+
+    restriction = RS2::RestrictNothing;
+
+    return *this;
+}
+
+bool RS_SnapMode::operator ==(RS_SnapMode const& rhs) const
+{
+    return snapIntersection == rhs.snapIntersection
+            && snapOnEntity == rhs.snapOnEntity
+            && snapCenter   == rhs.snapCenter
+            && snapDistance == rhs.snapDistance
+            && snapMiddle   == rhs.snapMiddle
+            && snapEndpoint == rhs.snapEndpoint
+            && snapGrid     == rhs.snapGrid
+            && snapFree     == rhs.snapFree
+            && restriction  == rhs.restriction
+            && snapAngle    == rhs.snapAngle;
+}
+
+
+/**
+  * snap mode to a flag integer
+  */
+uint RS_SnapMode::toInt(const RS_SnapMode& s)
+{
+    uint ret {0};
+
+    if (s.snapIntersection) ret |= RS_SnapMode::SnapIntersection;
+    if (s.snapOnEntity)     ret |= RS_SnapMode::SnapOnEntity;
+    if (s.snapCenter)       ret |= RS_SnapMode::SnapCenter;
+    if (s.snapDistance)     ret |= RS_SnapMode::SnapDistance;
+    if (s.snapMiddle)       ret |= RS_SnapMode::SnapMiddle;
+    if (s.snapEndpoint)     ret |= RS_SnapMode::SnapEndpoint;
+    if (s.snapGrid)         ret |= RS_SnapMode::SnapGrid;
+    if (s.snapFree)         ret |= RS_SnapMode::SnapFree;
+    if (s.snapAngle)        ret |= RS_SnapMode::SnapAngle;
+
+    switch (s.restriction) {
+    case RS2::RestrictHorizontal:
+        ret |= RS_SnapMode::RestrictHorizontal;
+        break;
+    case RS2::RestrictVertical:
+        ret |= RS_SnapMode::RestrictVertical;
+        break;
+    case RS2::RestrictOrthogonal:
+        ret |= RS_SnapMode::RestrictOrthogonal;
+        break;
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+/**
+  * integer flag to snapMode
+  */
+RS_SnapMode RS_SnapMode::fromInt(unsigned int ret)
+{
+    RS_SnapMode s;
+
+    if (RS_SnapMode::SnapIntersection   & ret) s.snapIntersection = true;
+    if (RS_SnapMode::SnapOnEntity       & ret) s.snapOnEntity = true;
+    if (RS_SnapMode::SnapCenter         & ret) s.snapCenter = true;
+    if (RS_SnapMode::SnapDistance       & ret) s.snapDistance = true;
+    if (RS_SnapMode::SnapMiddle         & ret) s.snapMiddle = true;
+    if (RS_SnapMode::SnapEndpoint       & ret) s.snapEndpoint = true;
+    if (RS_SnapMode::SnapGrid           & ret) s.snapGrid = true;
+    if (RS_SnapMode::SnapFree           & ret) s.snapFree = true;
+    if (RS_SnapMode::SnapAngle          & ret) s.snapAngle = true;
+
+    switch (RS_SnapMode::RestrictOrthogonal & ret) {
+    case RS_SnapMode::RestrictHorizontal:
+        s.restriction = RS2::RestrictHorizontal;
+        break;
+    case RS_SnapMode::RestrictVertical:
+        s.restriction = RS2::RestrictVertical;
+        break;
+    case RS_SnapMode::RestrictOrthogonal:
+        s.restriction = RS2::RestrictOrthogonal;
+        break;
+    default:
+        s.restriction = RS2::RestrictNothing;
+        break;
+    }
+
+    return s;
+}
+
+/**
+  * Methods and structs for class RS_Snapper
+  */
 struct RS_Snapper::Indicator
 {
     bool lines_state;
@@ -102,46 +213,12 @@ void RS_Snapper::init()
     snapRange=getSnapRange();
 }
 
+
 void RS_Snapper::finish() {
     finished = true;
     deleteSnapper();
 }
 
-/**
-  * Disable all snapping.
-  *
-  * This effectively puts the object into free snap mode.
-  *
-  * @returns A reference to itself.
-  */
- RS_SnapMode const & RS_SnapMode::clear()
-{
-	snapFree     = false;
-	snapGrid     = false;
-	snapEndpoint     = false;
-	snapMiddle       = false;
-	snapDistance       = false;
-	snapCenter       = false;
-	snapOnEntity     = false;
-	snapIntersection = false;
-
-	restriction = RS2::RestrictNothing;
-
-	return *this;
-}
-
-bool RS_SnapMode::operator ==(RS_SnapMode const& rhs) const{
-	if ( snapFree != rhs.snapFree) return false;
-	if ( snapGrid != rhs.snapGrid) return false;
-	if ( snapEndpoint != rhs.snapEndpoint) return false;
-	if ( snapMiddle != rhs.snapMiddle) return false;
-	if ( snapDistance != rhs.snapDistance) return false;
-	if ( snapCenter != rhs.snapCenter) return false;
-	if ( snapOnEntity != rhs.snapOnEntity) return false;
-	if ( snapIntersection != rhs.snapIntersection) return false;
-	if ( restriction != rhs.restriction) return false;
-	return true;
-}
 
 void RS_Snapper::setSnapMode(const RS_SnapMode& snapMode) {
     this->snapMode = snapMode;
@@ -321,10 +398,14 @@ RS_Vector RS_Snapper::snapPoint(const RS_Vector& coord, bool setSpot)
     }
     return coord;
 }
+
+
 double RS_Snapper::getSnapRange() const
 {
-	if(graphicView )
-    return (graphicView->getGrid()->getCellVector()*0.5).magnitude();
+    if (graphicView) {
+        return (graphicView->getGrid()->getCellVector() * 0.5).magnitude();
+    }
+
     return 20.;
 }
 
@@ -645,7 +726,7 @@ RS_Entity* RS_Snapper::catchEntity(QMouseEvent* e, RS2::EntityType enType,
 				level);
 }
 
-RS_Entity* RS_Snapper::catchEntity(QMouseEvent* e, const std::initializer_list<RS2::EntityType>& enTypeList,
+RS_Entity* RS_Snapper::catchEntity(QMouseEvent* e, const EntityTypeList& enTypeList,
                                    RS2::ResolveLevel level) {
 	RS_Entity* pten = nullptr;
 	RS_Vector coord{graphicView->toGraphX(e->x()), graphicView->toGraphY(e->y())};
@@ -902,70 +983,34 @@ void RS_Snapper::drawSnapper()
     }
 }
 
-/**
-  * snap mode to a flag integer
-  */
-unsigned int RS_Snapper::snapModeToInt(const RS_SnapMode& s)
+RS_Vector RS_Snapper::snapToAngle(const RS_Vector &currentCoord, const RS_Vector &referenceCoord, const double angularResolution)
 {
-    unsigned int ret; //initial
-    switch (s.restriction) {
-    case RS2::RestrictHorizontal:
-        ret=1;
-        break;
-    case RS2::RestrictVertical:
-        ret=2;
-        break;
-    case RS2::RestrictOrthogonal:
-        ret=3;
-        break;
-    default:
-        ret=0;
+
+    if(snapMode.restriction != RS2::RestrictNothing || snapMode.snapGrid)
+    {
+        return currentCoord;
     }
-    ret <<=1;ret |= s.snapFree;
-    ret <<=1;ret |= s.snapGrid;
-    ret <<=1;ret |= s.snapEndpoint;
-    ret <<=1;ret |= s.snapMiddle;
-    ret <<=1;ret |= s.snapDistance;
-    ret <<=1;ret |= s.snapCenter;
-    ret <<=1;ret |= s.snapOnEntity;
-    ret <<=1;ret |= s.snapIntersection;
-   return ret;
-}
-/**
-  * integer flag to snapMode
-  */
-RS_SnapMode RS_Snapper::intToSnapMode(unsigned int ret)
-{
-    RS_SnapMode s; //initial
-    unsigned int binaryOne(0x1);
-    s.snapIntersection =ret & binaryOne;
-    ret >>= 1;
-    s.snapOnEntity =ret & binaryOne;
-    ret >>= 1;
-    s.snapCenter =ret & binaryOne;
-    ret >>= 1;
-    s.snapDistance =ret & binaryOne;
-    ret >>= 1;
-    s.snapMiddle =ret & binaryOne;
-    ret >>= 1;
-    s.snapEndpoint =ret & binaryOne;
-    ret >>= 1;
-    s.snapGrid =ret & binaryOne;
-    ret >>= 1;
-    s.snapFree =ret & binaryOne;
-    ret >>= 1;
-    switch (ret) {
-    case 1:
-            s.restriction=RS2::RestrictHorizontal;
-        break;
-    case 2:
-            s.restriction=RS2::RestrictVertical;
-        break;
-    case 3:
-            s.restriction=RS2::RestrictOrthogonal;
-        break;
-    default:
-            s.restriction=RS2::RestrictNothing;
+
+    double angle = referenceCoord.angleTo(currentCoord)*180.0/M_PI;
+    angle -= remainder(angle,angularResolution);
+    angle *= M_PI/180.;
+    RS_Vector res = RS_Vector::polar(referenceCoord.distanceTo(currentCoord),angle);
+    res += referenceCoord;
+
+    if (snapMode.snapOnEntity)
+    {
+        RS_Vector t(false);
+        //RS_Vector mouseCoord = graphicView->toGraph(currentCoord.x(), currentCoord.y());
+        t = container->getNearestVirtualIntersection(res,angle,nullptr);
+
+        pImpData->snapSpot = t;
+        snapPoint(pImpData->snapSpot, true);
+        return t;
     }
-   return s;
+    else
+    {
+        snapPoint(res, true);
+        return res;
+    }
 }
+

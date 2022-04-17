@@ -56,6 +56,7 @@ public:
 	
 	RS2::ActionType rtti() const override;
 
+    void finish(bool updateTB = true) override;
 	void trigger() override;
 
 	void mouseMoveEvent(QMouseEvent* e) override;
@@ -112,7 +113,9 @@ private:
     bool fixedAngle;
 
     //list of entity types supported by current action
-    const std::initializer_list<RS2::EntityType> enTypeList {RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle,RS2::EntityEllipse};
+    const EntityTypeList enTypeList = EntityTypeList{RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle,RS2::EntityEllipse};
+
+    void unhighlightEntity();
 };
 
 #endif

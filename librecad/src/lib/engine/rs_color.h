@@ -2,6 +2,7 @@
 **
 ** This file is part of the LibreCAD project, a 2D CAD program
 **
+** Copyright (C) 2020 A. Stebich (librecad@mail.lordofbikes.de)
 ** Copyright (C) 2010 R. van Twisk (librecad@rvt.dds.nl)
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 **
@@ -49,6 +50,7 @@ public:
     RS_Color(int r, int g, int b) : QColor(r, g, b), RS_Flags() {}
     RS_Color(int r, int g, int b, int a) : QColor(r, g, b, a), RS_Flags() {}
     RS_Color(const QColor& c) : QColor(c), RS_Flags() {}
+    RS_Color(const Qt::GlobalColor color) : QColor(color), RS_Flags() {}
     RS_Color(const RS_Color& c) : QColor(c), RS_Flags() {
         setFlags(c.getFlags());
     }
@@ -77,9 +79,19 @@ public:
             return c0;
     }
 
-    //These 2 methods are used for plugins
+    //These 3 methods are used for plugins
     int toIntColor(void) const;
     void fromIntColor(int co);
+    int colorDistance(const RS_Color& c) const;
+
+    enum {
+        Black = 0,
+        /**
+         * Minimum acceptable distance between two colors before visibility
+         * enhancement is required. Determined empirically.
+         */
+        MinColorDistance = 20,  //< in %
+    };
 
     RS_Color& operator = (const RS_Color& c) {
         setRgb(c.red(), c.green(), c.blue());

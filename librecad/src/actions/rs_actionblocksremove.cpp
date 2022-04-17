@@ -45,52 +45,68 @@ void RS_ActionBlocksRemove::trigger() {
 		finish(false);
 		return;
 	}
-	RS_Block* block =
-			RS_DIALOGFACTORY->requestBlockRemovalDialog(graphic->getBlockList());
+
+	RS_BlockList* bl = graphic->getBlockList();
+	QList<RS_Block*> blocks =
+		RS_DIALOGFACTORY->requestSelectedBlocksRemovalDialog(bl);
+
+    if (blocks.isEmpty()) {
+        finish(false);
+        return;
+    }
 
 	// list of containers that might refer to the block via inserts:
 	std::vector<RS_EntityContainer*> containerList;
 	containerList.push_back(graphic);
-	RS_BlockList* blkLst = graphic->getBlockList();
-	for (int bi=0; bi<blkLst->count(); bi++) {
-		containerList.push_back(blkLst->at(bi));
+    for (int bi = 0; bi < bl->count(); bi++) {
+        containerList.push_back(bl->at(bi));
 	}
 
-	if (!block) {
-		finish(false);
-		return;
-	}
-	document->startUndoCycle();
-	for(auto cont: containerList){
-		// remove all inserts from the graphic:
-		bool done;
-		do {
-			done = true;
-			for(auto e: *cont){
+    document->startUndoCycle();
 
-				if (e->rtti()==RS2::EntityInsert) {
-					RS_Insert* ins = (RS_Insert*)e;
-					if (ins->getName()==block->getName() && !ins->isUndone()) {
-						document->addUndoable(ins);
-						ins->setUndoState(true);
-						done = false;
-						break;
+	for (auto block: blocks) {
+        if (nullptr == block) {
+            continue;
+        }
+        for(auto cont: containerList){
+			// remove all inserts from the graphic:
+			bool done;
+			do {
+				done = true;
+				for(auto e: *cont){
+
+					if (e->rtti()==RS2::EntityInsert) {
+						RS_Insert* ins = (RS_Insert*)e;
+						if (ins->getName()==block->getName() && !ins->isUndone()) {
+                            document->addUndoable(ins);
+                            ins->setUndoState(true);
+							done = false;
+							break;
+						}
 					}
 				}
-			}
-		} while (!done);
-	}
+			} while (!done);
+		}
 
-	// close all windows that are editing this block:
-	RS_DIALOGFACTORY->closeEditBlockWindow(block);
+		// clear selection and active state
+		block->selectedInBlockList(false);
+		if (block == bl->getActive()) {
+			bl->activate(nullptr);
+		}
 
-	// Now remove the block from the block list, but do not delete:
-	block->setUndoState(true);
-	document->addUndoable(block);
-	document->endUndoCycle();
-	graphic->addBlockNotification();
+		// close all windows that are editing this block:
+		RS_DIALOGFACTORY->closeEditBlockWindow(block);
+
+        // Now remove block from the block list, but do not delete:
+        block->setUndoState(true);
+        document->addUndoable(block);
+    }
+    document->endUndoCycle();
+
+    graphic->addBlockNotification();
 	graphic->updateInserts();
 	graphicView->redraw(RS2::RedrawDrawing);
+    bl->activate(nullptr);
 
 	finish(false);
 	RS_DIALOGFACTORY->updateSelectionWidget(container->countSelected(),container->totalSelectedLength());
