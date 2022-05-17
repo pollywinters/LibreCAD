@@ -3735,3 +3735,19 @@ QString QC_ApplicationWindow::getCurrentDocumentName()
     return currentDocumentName;
 }
 
+
+RS_Vector QC_ApplicationWindow::getMouseAbsolutePosition()
+{
+    if (coordinateWidget != nullptr) return coordinateWidget->getAbsoluteCoordinates();
+
+    return RS_Vector(false);
+}
+
+
+RS_Vector QC_ApplicationWindow::getMouseRelativePosition()
+{
+    if (coordinateWidget != nullptr) return coordinateWidget->getRelativeCoordinates();
+
+    return RS_Vector(false);
+}
+

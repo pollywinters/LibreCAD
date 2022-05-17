@@ -304,6 +304,9 @@ public:
 
     QString getCurrentDocumentName();
 
+    RS_Vector getMouseAbsolutePosition();
+    RS_Vector getMouseRelativePosition();
+
 protected:
     void closeEvent(QCloseEvent*) override;
     //! \{ accept drop files to open
