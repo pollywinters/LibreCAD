@@ -686,6 +686,12 @@ void RS_MText::draw(RS_Painter* painter, RS_GraphicView* view, double& /*pattern
 
     if ( ! isHovered()) setHovered(getParent()->isHovered());
 
+#if 0
+// New version from PR#1486
+// Only the first line of any MText entity gets displayed.
+// When "hovered" changes to highlighted colour and "glows", but
+// still only first line is shown.
+
     double patternOffset = 0.0;
 
     for (auto e : ((RS_EntityContainer *) firstEntity())->getEntityList())
@@ -696,5 +702,15 @@ void RS_MText::draw(RS_Painter* painter, RS_GraphicView* view, double& /*pattern
             sube->draw(painter, view, patternOffset);
         }
     }
+#else
+// Old version before PR#1486
+// All lines of MText entities are displayed. 
+// When "hovered", all changes to highlighted colour, but does not "glow".
+
+    foreach (auto e, entities)
+    {
+        view->drawEntity(painter, e);
+    }
+#endif
 }
 
