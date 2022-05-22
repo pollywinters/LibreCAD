@@ -424,6 +424,24 @@ RS_Commands::RS_Commands()
             {{"pj", QObject::tr("pj", "pl join")}},
             RS2::ActionPolylineSegment
          },
+        //draw polyline tangential
+        {
+            {{"polyline tangential", QObject::tr("polyline tangential", "draw polyline tangential")}},
+            {{"pltan", QObject::tr("pltan", "draw polyline tangential")}},
+            RS2::ActionDrawPolylineTangential
+        },
+        //draw polyline tan radius
+        {
+            {{"polyline tan radius", QObject::tr("polyline tan radius", "draw polyline tan radius")}},
+            {{"pltanrad", QObject::tr("pltanrad", "draw polyline tan radius")}},
+            RS2::ActionDrawPolylineTanRadius
+        },
+        //draw polyline angle
+        {
+            {{"polyline angle", QObject::tr("polyline angle", "draw polyline angle")}},
+            {{"plang", QObject::tr("plang", "draw polyline angle")}},
+            RS2::ActionDrawPolylineAngle
+        },
  
         /* SELECT COMMANDS */
         // Select all entities
@@ -950,6 +968,7 @@ RS_Commands::RS_Commands()
 
         {QObject::tr("radius"),"radius"},
         {QObject::tr("ra","radius"),"radius"},
+        {QObject::tr("rad","radius"),"radius"},
 
         {QObject::tr("reversed","reversed"),"reversed"},
         {QObject::tr("rev","reversed"),"reversed"},

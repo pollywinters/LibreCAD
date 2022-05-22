@@ -285,6 +285,9 @@ public:
         ActionDrawSpline,
         ActionDrawSplinePoints, //interpolation spline
         ActionDrawPolyline,
+        ActionDrawPolylineTangential,
+        ActionDrawPolylineTanRadius,
+        ActionDrawPolylineAngle,
         ActionDrawText,
 
         ActionPolylineAdd,
