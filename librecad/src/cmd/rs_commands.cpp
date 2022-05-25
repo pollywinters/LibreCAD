@@ -511,6 +511,12 @@ RS_Commands::RS_Commands()
              {"dan", QObject::tr("dan", "dimension - angular")}},
             RS2::ActionDimAngular
         },
+        // dimension arc
+        {
+	        {{"dimarc", QObject::tr("dimarc", "dimension - arc")}},
+	        {{"dac", QObject::tr("dac", "dimension - arc")}},
+	        RS2::ActionDimArc
+        },
         // dimension leader
         {
             {{"dimleader", QObject::tr("dimleader", "dimension - leader")}},
