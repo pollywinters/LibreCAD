@@ -993,16 +993,35 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w, const bool& for
 {
     RS_DEBUG->print("QC_ApplicationWindow::slotWindowActivated begin");
 
-    if(w==nullptr) {
+    if (w == nullptr)
+    {
         emit windowsChanged(false);
         activedMdiSubWindow=w;
         return;
     }
 
-    if(w==activedMdiSubWindow) return;
-    activedMdiSubWindow=w;
-
     QC_MDIWindow* m = qobject_cast<QC_MDIWindow*>(w);
+
+    const bool showByBlock = m->getDocument()->rtti()==RS2::EntityBlock;
+
+    if (m->getDocument()->getLayerList()->get_isDisabled())
+    {
+        actionHandler->killAllActions();
+
+        emit windowsChanged(false);
+
+        layerWidget->setLayerList(m->getDocument()->getLayerList(), showByBlock);
+
+        if (w != activedMdiSubWindow) activedMdiSubWindow = w;
+
+        emit signalLayerListEnabled();
+    }
+
+    if ((w == activedMdiSubWindow) 
+    &&  (! (m->getDocument()->getLayerList()->get_isDisabled() || m->getDocument()->getLayerList()->get_wasDisabled()))) return;
+
+    activedMdiSubWindow = w;
+
     enableFileActions(m);
 
     RS_Units::setCurrentDrawingUnits(m->getDocument()->getGraphic()->getUnit());
@@ -1012,10 +1031,7 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w, const bool& for
         RS_DEBUG->print("QC_ApplicationWindow::slotWindowActivated: "
                         "document: %d", m->getDocument()->getId());
 
-        bool showByBlock = m->getDocument()->rtti()==RS2::EntityBlock;
-
-        layerWidget->setLayerList(m->getDocument()->getLayerList(),
-                                  showByBlock);
+        layerWidget->setLayerList(m->getDocument()->getLayerList(), showByBlock);
 
         coordinateWidget->setGraphic(m->getGraphic());
 
@@ -1069,7 +1085,7 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w, const bool& for
     }
 
     // Disable/Enable menu and toolbar items
-    emit windowsChanged(m && m->getDocument());
+    if ( ! m->getDocument()->getLayerList()->get_isDisabled()) emit windowsChanged(m && m->getDocument());
 
     RS_DEBUG->print("RVT_PORT emit windowsChanged(true);");
 

@@ -241,6 +241,8 @@ signals:
     void windowsChanged(bool windowsLeft);
     void signalEnableRelativeZeroSnaps(const bool);
 
+    void signalLayerListEnabled(const bool = true);
+
 public:
     /**
      * @return Pointer to application window.
