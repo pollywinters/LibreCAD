@@ -155,6 +155,11 @@ public:
      */
     virtual void addDimOrdinate(const DRW_DimOrdinate *data) = 0;
     
+	/**
+     * Called for every arc dimension entity. 
+     */
+    virtual void addDimArc(const DRW_DimArc *data) = 0;
+
     /** 
 	 * Called for every leader start. 
 	 */

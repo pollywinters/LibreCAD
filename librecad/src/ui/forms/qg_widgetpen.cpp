@@ -108,17 +108,13 @@ void QG_WidgetPen::languageChange()
 void QG_WidgetPen::focusInEvent(QFocusEvent *event)
 {
     int reason = event->reason();
-    RS_DEBUG->print(RS_Debug::D_ERROR,"QG_WidgetPen::focusInEvent, reason '%d'",reason);
-//	if ( reason == Qt::BacktabFocusReason )
-//	    cbLineType->setFocus();
-//	else
-//	    cbColor->setFocus();
+//    RS_DEBUG->print(RS_Debug::D_ERROR,"QG_WidgetPen::focusInEvent, reason '%d'",reason);
 }
 
 void QG_WidgetPen::focusOutEvent(QFocusEvent *event)
 {
     int reason = event->reason();
-    RS_DEBUG->print(RS_Debug::D_ERROR,"QG_WidgetPen::focusOutEvent, reason '%d'",reason);
+//    RS_DEBUG->print(RS_Debug::D_ERROR,"QG_WidgetPen::focusOutEvent, reason '%d'",reason);
 }
 
 

@@ -1055,9 +1055,14 @@ bool dxfRW::writeLeader(DRW_Leader *ent){
 }
 bool dxfRW::writeDimension(DRW_Dimension *ent) {
     if (version > DRW::AC1009) {
-        writer->writeString(0, "DIMENSION");
+        if (ent->eType == DRW::DIMARC) {
+            writer->writeString(0, "ARC_DIMENSION");
+        } else {
+            writer->writeString(0, "DIMENSION");
+        }
         writeEntity(ent);
         writer->writeString(100, "AcDbDimension");
+        writer->writeInt16(280, ent->getDimVersion());
         if (!ent->getName().empty()){
             writer->writeString(2, ent->getName());
         }
@@ -1077,6 +1082,7 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             writer->writeInt16(72, ent->getTextLineStyle());
         if ( ent->getTextLineFactor() != 1)
             writer->writeDouble(41, ent->getTextLineFactor());
+        writer->writeDouble(42, ent->getActValue());
         writer->writeUtf8String(3, ent->getStyle());
         if ( ent->getTextLineFactor() != 0)
             writer->writeDouble(53, ent->getDir());
@@ -1144,6 +1150,7 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             break; }
         case DRW::DIMANGULAR3P: {
             DRW_DimAngular3p * dd = (DRW_DimAngular3p*)ent;
+            writer->writeString(100, "AcDb3PointAngularDimension");
             writer->writeDouble(13, dd->getFirstLine().x);
             writer->writeDouble(23, dd->getFirstLine().y);
             writer->writeDouble(33, dd->getFirstLine().z);
@@ -1163,6 +1170,29 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             writer->writeDouble(14, dd->getSecondLine().x);
             writer->writeDouble(24, dd->getSecondLine().y);
             writer->writeDouble(34, dd->getSecondLine().z);
+            break; }
+        case DRW::DIMARC: {
+            DRW_DimArc * dd = (DRW_DimArc*)ent;
+            writer->writeString(100, "AcDbArcDimension");
+            writer->writeDouble(13, dd->getFirstLine().x);  // 1st point defines start angle and radius ref. Arc centre
+            writer->writeDouble(23, dd->getFirstLine().y);
+            writer->writeDouble(33, dd->getFirstLine().z);
+            writer->writeDouble(14, dd->getSecondLine().x);  // 2nd point defines end angle ref. Arc centre
+            writer->writeDouble(24, dd->getSecondLine().y);
+            writer->writeDouble(34, dd->getSecondLine().z);
+            writer->writeDouble(15, dd->getVertexPoint().x);  // Arc centre
+            writer->writeDouble(25, dd->getVertexPoint().y);
+            writer->writeDouble(35, dd->getVertexPoint().z);
+            writer->writeBool(70, dd->getPartial());  // Is partial?
+            writer->writeDouble(40, dd->getStartAngle());  // Start angle (radians)
+            writer->writeDouble(41, dd->getEndAngle());  // End angle (radians)
+            writer->writeBool(71, dd->getLeader());  // Has leader?
+            writer->writeDouble(16, dd->getLeader1().x);  // Leader point 1
+            writer->writeDouble(26, dd->getLeader1().y);
+            writer->writeDouble(36, dd->getLeader1().z);
+            writer->writeDouble(17, dd->getLeader2().x);  // Leader point 2
+            writer->writeDouble(27, dd->getLeader2().y);
+            writer->writeDouble(37, dd->getLeader2().z);
             break; }
         default:
             break;
@@ -2283,6 +2313,8 @@ bool dxfRW::processEntities(bool isblock) {
 
     bool processed {false};
     do {
+        DRW_DBG("dxfRW::processEntities, nextentity = "); DRW_DBG(nextentity);DRW_DBG("\n");
+
         if (nextentity == "ENDSEC" || nextentity == "ENDBLK") {
             return true;  //found ENDSEC or ENDBLK terminate
         }
@@ -2322,6 +2354,8 @@ bool dxfRW::processEntities(bool isblock) {
             processed = processImage();
         } else if (nextentity == "DIMENSION") {
             processed = processDimension();
+        } else if (nextentity == "ARC_DIMENSION") {
+            processed = processArcDimension();
         } else if (nextentity == "LEADER") {
             processed = processLeader();
         } else if (nextentity == "RAY") {
@@ -2828,6 +2862,27 @@ bool dxfRW::processDimension() {
                 iface->addDimOrdinate(&d);
                 break; }
             }
+            return true;  //found new entity or ENDSEC, terminate
+        }
+
+        if (!dim.parseCode(code, reader)) {
+            return setError( DRW::BAD_CODE_PARSED);
+        }
+    }
+
+    return setError(DRW::BAD_READ_ENTITIES);
+}
+
+bool dxfRW::processArcDimension() {
+    DRW_DBG("dxfRW::processArcDimension\n");
+    int code;
+    DRW_DimArc dim;
+    while (reader->readRec(&code)) {
+        DRW_DBG(code); DRW_DBG("\n");
+        if (0 == code) {
+            nextentity = reader->getString();
+            DRW_DBG(nextentity); DRW_DBG("\n");
+            iface->addDimArc(&dim);
             return true;  //found new entity or ENDSEC, terminate
         }
 

@@ -72,6 +72,10 @@ bool DRW_Entity::parseCode(int code, dxfReader *reader){
     case 5:
         handle = reader->getHandleString();
         break;
+    case 100:
+        subclassName = reader->getString();
+        DRW_DBG("\nDRW_Entity::parseCode, subclassName = "); DRW_DBG(subclassName);
+        break;
     case 330:
         parentHandle = reader->getHandleString();
         break;
@@ -2313,6 +2317,82 @@ bool DRW_Dimension::parseCode(int code, dxfReader *reader){
     case 3:
         style = reader->getUtf8String();
         break;
+    case 10:
+        pt0.x = reader->getDouble();
+        break;
+    case 20:
+        pt0.y = reader->getDouble();
+        break;
+    case 30:
+        pt0.z = reader->getDouble();
+        break;
+    case 11:
+        pt1.x = reader->getDouble();
+        break;
+    case 21:
+        pt1.y = reader->getDouble();
+        break;
+    case 31:
+        pt1.z = reader->getDouble();
+        break;
+    case 12:
+        pt2.x = reader->getDouble();
+        break;
+    case 22:
+        pt2.y = reader->getDouble();
+        break;
+    case 32:
+        pt2.z = reader->getDouble();
+        break;
+    case 13:
+        pt3.x = reader->getDouble();
+        break;
+    case 23:
+        pt3.y = reader->getDouble();
+        break;
+    case 33:
+        pt3.z = reader->getDouble();
+        break;
+    case 14:
+        pt4.x = reader->getDouble();
+        break;
+    case 24:
+        pt4.y = reader->getDouble();
+        break;
+    case 34:
+        pt4.z = reader->getDouble();
+        break;
+    case 15:
+        pt5.x = reader->getDouble();
+        break;
+    case 25:
+        pt5.y = reader->getDouble();
+        break;
+    case 35:
+        pt5.z = reader->getDouble();
+        break;
+    case 16:
+        pt6.x = reader->getDouble();
+        break;
+    case 26:
+        pt6.y = reader->getDouble();
+        break;
+    case 36:
+        pt6.z = reader->getDouble();
+        break;
+    case 41:
+        linefactor = reader->getDouble();
+        break;
+    case 42:
+        haveActvalue = true;
+        actvalue = reader->getDouble();
+        break;
+    case 51:
+        hdir = reader->getDouble();
+        break;
+    case 53:
+        rot = reader->getDouble();
+        break;
     case 70:
         type = reader->getInt32();
         break;
@@ -2322,86 +2402,18 @@ bool DRW_Dimension::parseCode(int code, dxfReader *reader){
     case 72:
         linesty = reader->getInt32();
         break;
-    case 10:
-        defPoint.x = reader->getDouble();
+    case 210:
+        haveExtrusion = true;
+        extPoint.x = reader->getDouble();
         break;
-    case 20:
-        defPoint.y = reader->getDouble();
+    case 220:
+        extPoint.y = reader->getDouble();
         break;
-    case 30:
-        defPoint.z = reader->getDouble();
+    case 230:
+        extPoint.z = reader->getDouble();
         break;
-    case 11:
-        textPoint.x = reader->getDouble();
-        break;
-    case 21:
-        textPoint.y = reader->getDouble();
-        break;
-    case 31:
-        textPoint.z = reader->getDouble();
-        break;
-    case 12:
-        clonePoint.x = reader->getDouble();
-        break;
-    case 22:
-        clonePoint.y = reader->getDouble();
-        break;
-    case 32:
-        clonePoint.z = reader->getDouble();
-        break;
-    case 13:
-        def1.x = reader->getDouble();
-        break;
-    case 23:
-        def1.y = reader->getDouble();
-        break;
-    case 33:
-        def1.z = reader->getDouble();
-        break;
-    case 14:
-        def2.x = reader->getDouble();
-        break;
-    case 24:
-        def2.y = reader->getDouble();
-        break;
-    case 34:
-        def2.z = reader->getDouble();
-        break;
-    case 15:
-        circlePoint.x = reader->getDouble();
-        break;
-    case 25:
-        circlePoint.y = reader->getDouble();
-        break;
-    case 35:
-        circlePoint.z = reader->getDouble();
-        break;
-    case 16:
-        arcPoint.x = reader->getDouble();
-        break;
-    case 26:
-        arcPoint.y = reader->getDouble();
-        break;
-    case 36:
-        arcPoint.z = reader->getDouble();
-        break;
-    case 41:
-        linefactor = reader->getDouble();
-        break;
-    case 53:
-        rot = reader->getDouble();
-        break;
-    case 50:
-        angle = reader->getDouble();
-        break;
-    case 52:
-        oblique = reader->getDouble();
-        break;
-    case 40:
-        length = reader->getDouble();
-        break;
-    case 51:
-        hdir = reader->getDouble();
+    case 280:
+        dimVersion = reader->getInt32();
         break;
     default:
         return DRW_Entity::parseCode(code, reader);
@@ -2443,10 +2455,10 @@ bool DRW_Dimension::parseDwg(DRW::Version version, dwgBuffer *buf, dwgBuffer *sB
         DRW_DBG("\nFive unknown bits: "); DRW_DBG(buf->getBit()); DRW_DBG(buf->getBit());
         DRW_DBG(buf->getBit()); DRW_DBG(buf->getBit()); DRW_DBG(buf->getBit());
     }
-    textPoint.x = buf->getRawDouble();
-    textPoint.y = buf->getRawDouble();
-    textPoint.z = buf->getBitDouble();
-    DRW_DBG("\ntextPoint: "); DRW_DBGPT(textPoint.x, textPoint.y, textPoint.z);
+    pt1.x = buf->getRawDouble();
+    pt1.y = buf->getRawDouble();
+    pt1.z = buf->getBitDouble();
+    DRW_DBG("\ntextPoint: "); DRW_DBGPT(pt1.x, pt1.y, pt1.z);
     type = buf->getRawChar8();
     DRW_DBG("\ntype (70) read: "); DRW_DBG(type);
     type =  (type & 1) ? type & 0x7F : type | 0x80; //set bit 7
@@ -2475,9 +2487,10 @@ bool DRW_Dimension::parseDwg(DRW::Version version, dwgBuffer *buf, dwgBuffer *sB
             DRW_DBG("\n2007, unk, flip1, flip2: "); DRW_DBG(unk); DRW_DBG(flip1); DRW_DBG(flip2);
         }
     }
-    clonePoint.x = buf->getRawDouble();
-    clonePoint.y = buf->getRawDouble();
-    DRW_DBG("\nclonePoint: "); DRW_DBGPT(clonePoint.x, clonePoint.y, clonePoint.z);
+    pt2.x = buf->getRawDouble();
+    pt2.y = buf->getRawDouble();
+    pt2.z = pt1.z;
+    DRW_DBG("\nclonePoint: "); DRW_DBGPT(pt2.x, pt2.y, pt2.z);
 
     return buf->isGood();
 }
@@ -2487,10 +2500,7 @@ bool DRW_DimAligned::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
         return false;
     }
 
-    if (oType == 0x15)
-        DRW_DBG("\n***************************** parsing dim linear *********************************************\n");
-    else
-        DRW_DBG("\n***************************** parsing dim aligned *********************************************\n");
+    DRW_DBG("\n***************************** parsing dim aligned *********************************************\n");
     DRW_Coord pt = buf->get3BitDouble();
     setPt3(pt); //def1
     DRW_DBG("def1: "); DRW_DBGPT(pt.x, pt.y, pt.z);
@@ -2498,13 +2508,10 @@ bool DRW_DimAligned::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     setPt4(pt);
     DRW_DBG("\ndef2: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
-    setDefPoint(pt);
+    setPt0(pt);
     DRW_DBG("\ndefPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
-    setOb52(buf->getBitDouble());
-    if (oType == 0x15)
-        setAn50(buf->getBitDouble() * ARAD);
-    else
-        type |= 1;
+    setOblique(buf->getBitDouble());
+    type |= 1;
     DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
 
     if (!DRW_Entity::parseDwgEntHandle(version, buf)) {
@@ -2522,6 +2529,67 @@ bool DRW_DimAligned::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     return buf->isGood();
  }
 
+bool DRW_DimLinear::parseCode(int code, dxfReader *reader){
+    switch (code) {
+    case 50:
+        angle = reader->getDouble();
+        break;
+    case 52:
+        oblique = reader->getDouble();
+        break;
+    default:
+        return DRW_Dimension::parseCode(code, reader);
+    }
+
+    return true;
+}
+
+bool DRW_DimLinear::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
+    if (!DRW_Dimension::parseDwg(version, buf, nullptr, bs)) {
+        return false;
+    }
+
+    DRW_DBG("\n***************************** parsing dim linear *********************************************\n");
+    DRW_Coord pt = buf->get3BitDouble();
+    setPt3(pt); //def1
+    DRW_DBG("def1: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    setPt4(pt);
+    DRW_DBG("\ndef2: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    setPt0(pt);
+    DRW_DBG("\ndefPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    setOblique(buf->getBitDouble());
+    setAngle(buf->getBitDouble() * ARAD);
+    DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
+
+    if (!DRW_Entity::parseDwgEntHandle(version, buf)) {
+        DRW_DBG("Failed: parseDwgEntHandle() in DRW_DimLinear::parseDwg()\n");
+        return false;
+    }
+    DRW_DBG("Remaining bytes: "); DRW_DBG(buf->numRemainingBytes()); DRW_DBG("\n");
+    dimStyleH = buf->getHandle();
+    DRW_DBG("dim style Handle: "); DRW_DBGHL(dimStyleH.code, dimStyleH.size, dimStyleH.ref); DRW_DBG("\n");
+    blockH = buf->getHandle(); /* H 7 STYLE (hard pointer) */
+    DRW_DBG("anon block Handle: "); DRW_DBGHL(blockH.code, blockH.size, blockH.ref); DRW_DBG("\n");
+    DRW_DBG("Remaining bytes: "); DRW_DBG(buf->numRemainingBytes()); DRW_DBG("\n");
+
+    //    RS crc;   //RS */
+    return buf->isGood();
+}
+
+bool DRW_DimRadial::parseCode(int code, dxfReader *reader){
+    switch (code) {
+    case 40:
+        length = reader->getDouble();
+        break;
+    default:
+        return DRW_Dimension::parseCode(code, reader);
+    }
+
+    return true;
+}
+
 bool DRW_DimRadial::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     if (!DRW_Dimension::parseDwg(version, buf, nullptr, bs)) {
         return false;
@@ -2529,13 +2597,13 @@ bool DRW_DimRadial::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
 
     DRW_DBG("\n***************************** parsing dim radial *********************************************\n");
     DRW_Coord pt = buf->get3BitDouble();
-    setDefPoint(pt); //code 10
+    setPt0(pt); //code 10
     DRW_DBG("defPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
     setPt5(pt); //center pt  code 15
     DRW_DBG("\ncenter point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
-    setRa40(buf->getBitDouble()); //leader length code 40
-    DRW_DBG("\nleader length: "); DRW_DBG(getRa40());
+    setLeaderLength(buf->getBitDouble()); //leader length code 40
+    DRW_DBG("\nleader length: "); DRW_DBG(getLeaderLength());
     type |= 4;
     DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
 
@@ -2554,6 +2622,18 @@ bool DRW_DimRadial::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     return buf->isGood();
 }
 
+bool DRW_DimDiametric::parseCode(int code, dxfReader *reader){
+    switch (code) {
+    case 40:
+        length = reader->getDouble();
+        break;
+    default:
+        return DRW_Dimension::parseCode(code, reader);
+    }
+
+    return true;
+}
+
 bool DRW_DimDiametric::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     if (!DRW_Dimension::parseDwg(version, buf, nullptr, bs)) {
         return false;
@@ -2564,10 +2644,10 @@ bool DRW_DimDiametric::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs
     setPt5(pt); //center pt  code 15
     DRW_DBG("center point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
-    setDefPoint(pt); //code 10
+    setPt0(pt); //code 10
     DRW_DBG("\ndefPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
-    setRa40(buf->getBitDouble()); //leader length code 40
-    DRW_DBG("\nleader length: "); DRW_DBG(getRa40());
+    setLeaderLength(buf->getBitDouble()); //leader length code 40
+    DRW_DBG("\nleader length: "); DRW_DBG(getLeaderLength());
     type |= 3;
     DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
 
@@ -2607,7 +2687,7 @@ bool DRW_DimAngular::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     setPt5(pt); //center pt  code 15
     DRW_DBG("\ncenter point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
-    setDefPoint(pt); //code 10
+    setPt0(pt); //code 10
     DRW_DBG("\ndefPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     type |= 0x02;
     DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
@@ -2634,7 +2714,7 @@ bool DRW_DimAngular3p::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs
 
     DRW_DBG("\n***************************** parsing dim angular3p *********************************************\n");
     DRW_Coord pt = buf->get3BitDouble();
-    setDefPoint(pt); //code 10
+    setPt0(pt); //code 10
     DRW_DBG("defPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
     setPt3(pt); //def1  code 13
@@ -2670,7 +2750,7 @@ bool DRW_DimOrdinate::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs)
 
     DRW_DBG("\n***************************** parsing dim ordinate *********************************************\n");
     DRW_Coord pt = buf->get3BitDouble();
-    setDefPoint(pt);
+    setPt0(pt);
     DRW_DBG("defPoint: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
     setPt3(pt); //def1
@@ -2686,7 +2766,130 @@ bool DRW_DimOrdinate::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs)
     DRW_DBG("\n  type (70) final: "); DRW_DBG(type); DRW_DBG("\n");
 
     if (!DRW_Entity::parseDwgEntHandle(version, buf)) {
-        DRW_DBG("Failed: parseDwgEntHandle() in DRW_DimAligned::parseDwg()\n");
+        DRW_DBG("Failed: parseDwgEntHandle() in DRW_DimOrdinate::parseDwg()\n");
+        return false;
+    }
+    DRW_DBG("Remaining bytes: "); DRW_DBG(buf->numRemainingBytes()); DRW_DBG("\n");
+    dimStyleH = buf->getHandle();
+    DRW_DBG("dim style Handle: "); DRW_DBGHL(dimStyleH.code, dimStyleH.size, dimStyleH.ref); DRW_DBG("\n");
+    blockH = buf->getHandle(); /* H 7 STYLE (hard pointer) */
+    DRW_DBG("anon block Handle: "); DRW_DBGHL(blockH.code, blockH.size, blockH.ref); DRW_DBG("\n");
+    DRW_DBG("Remaining bytes: "); DRW_DBG(buf->numRemainingBytes()); DRW_DBG("\n");
+
+    //    RS crc;   //RS */
+    return buf->isGood();
+}
+
+bool DRW_DimArc::parseCode(int code, dxfReader *reader){
+    if (subclassName == "AcDbArcDimension") {
+        switch (code) {
+        case 10:
+            pt0.x = reader->getDouble();
+            break;
+        case 20:
+            pt0.y = reader->getDouble();
+            break;
+        case 30:
+            pt0.z = reader->getDouble();
+            break;
+        case 13:
+            pt3.x = reader->getDouble();
+            break;
+        case 23:
+            pt3.y = reader->getDouble();
+            break;
+        case 33:
+            pt3.z = reader->getDouble();
+            break;
+        case 14:
+            pt4.x = reader->getDouble();
+            break;
+        case 24:
+            pt4.y = reader->getDouble();
+            break;
+        case 34:
+            pt4.z = reader->getDouble();
+            break;
+        case 16:
+            leader1.x = reader->getDouble();
+            break;
+        case 26:
+            leader1.y = reader->getDouble();
+            break;
+        case 36:
+            leader1.z = reader->getDouble();
+            break;
+        case 17:
+            leader2.x = reader->getDouble();
+            break;
+        case 27:
+            leader2.y = reader->getDouble();
+            break;
+        case 37:
+            leader2.z = reader->getDouble();
+            break;
+        case 40:
+            staangle = reader->getDouble();
+            break;
+        case 41:
+            endangle = reader->getDouble();
+            break;
+        case 70:
+            partial = (bool) reader->getInt32();
+            break;
+        case 71:
+            leader = (bool) reader->getInt32();
+            break;
+        default:
+            return DRW_Entity::parseCode(code, reader);
+        }
+
+    } else {
+        return DRW_Dimension::parseCode(code, reader);
+    }
+
+    return true;
+}
+
+bool DRW_DimArc::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
+    if (!DRW_Dimension::parseDwg(version, buf, nullptr, bs)) {
+        return false;
+    }
+
+    DRW_DBG("\n***************************** parsing arc dim *********************************************\n");
+    DRW_Coord pt = buf->get3BitDouble();
+    setPt0(pt); //code 10
+    DRW_DBG("arc point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    setFirstLine(pt); //line1  code 13
+    DRW_DBG("\nline1: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    setSecondLine(pt); //line2  code 14
+    DRW_DBG("\nline2: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    SetVertexPoint(pt); //center pt  code 15
+    DRW_DBG("\nvertex point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    bool b = buf->getBit();
+    setPartial(b);
+    DRW_DBG("\npartial: "); DRW_DBG(b);
+    double ang = buf->getBitDouble();
+    setStartAngle(ang);
+    DRW_DBG("\nstart angle: "); DRW_DBG(ang);
+    ang = buf->getBitDouble();
+    setEndAngle(ang);
+    DRW_DBG("\nend angle: "); DRW_DBG(ang);
+    b = buf->getBit();
+    setLeader(b);
+    DRW_DBG("\nhas leader: "); DRW_DBG(b);
+    pt = buf->get3BitDouble();
+    setLeader1(pt); //leader pt 1  code 16
+    DRW_DBG("\nleader1 point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+    pt = buf->get3BitDouble();
+    setLeader2(pt); //leader pt 2  code 17
+    DRW_DBG("\nleader2 point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
+
+    if (!DRW_Entity::parseDwgEntHandle(version, buf)) {
+        DRW_DBG("Failed: parseDwgEntHandle() in DRW_DimArc::parseDwg()\n");
         return false;
     }
     DRW_DBG("Remaining bytes: "); DRW_DBG(buf->numRemainingBytes()); DRW_DBG("\n");

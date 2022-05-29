@@ -71,6 +71,7 @@ public:
     DRW_ImageDef *writeImage(DRW_Image *ent, std::string name);
     bool writeLeader(DRW_Leader *ent);
     bool writeDimension(DRW_Dimension *ent);
+//    bool writeArcDimension(DRW_DimArc *ent) const {return writeDimension((DRW_Dimension *)ent);}
     void setEllipseParts(int parts){elParts = parts;} /*!< set parts number when convert ellipse to polyline */
     bool writePlotSettings(DRW_PlotSettings *ent);
 
@@ -116,6 +117,7 @@ private:
     bool processImage();
     bool processImageDef();
     bool processDimension();
+    bool processArcDimension();
     bool processLeader();
     bool processPlotSettings();
 
