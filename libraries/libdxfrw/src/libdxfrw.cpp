@@ -1977,7 +1977,7 @@ bool dxfRW::processDxf() {
                 }
 
                 if (!processed) {
-                    DRW_DBG("  failed\n");
+                    DRW_DBG("  failed process section "); DRW_DBG(sectionname); DRW_DBG(" \n");
                     return setError(DRW::BAD_READ_SECTION);
                 }
 
@@ -2141,7 +2141,7 @@ bool dxfRW::processLayer() {
 }
 
 bool dxfRW::processDimStyle() {
-    DRW_DBG("dxfRW::processDimStyle");
+    DRW_DBG("dxfRW::processDimStyle\n");
     int code;
     std::string sectionstr;
     bool reading = false;
@@ -2170,7 +2170,7 @@ bool dxfRW::processDimStyle() {
 }
 
 bool dxfRW::processTextStyle(){
-    DRW_DBG("dxfRW::processTextStyle");
+    DRW_DBG("dxfRW::processTextStyle\n");
     int code;
     std::string sectionstr;
     bool reading = false;
@@ -2199,7 +2199,7 @@ bool dxfRW::processTextStyle(){
 }
 
 bool dxfRW::processVports(){
-    DRW_DBG("dxfRW::processVports");
+    DRW_DBG("dxfRW::processVports\n");
     int code;
     std::string sectionstr;
     bool reading = false;
@@ -2228,7 +2228,7 @@ bool dxfRW::processVports(){
 }
 
 bool dxfRW::processAppId(){
-    DRW_DBG("dxfRW::processAppId");
+    DRW_DBG("dxfRW::processAppId\n");
     int code;
     std::string sectionstr;
     bool reading = false;
@@ -2279,7 +2279,7 @@ bool dxfRW::processBlocks() {
 }
 
 bool dxfRW::processBlock() {
-    DRW_DBG("dxfRW::processBlock");
+    DRW_DBG("dxfRW::processBlock\n");
     int code;
     DRW_Block block;
     while (reader->readRec(&code)) {
@@ -2389,7 +2389,7 @@ bool dxfRW::processEntities(bool isblock) {
 }
 
 bool dxfRW::processEllipse() {
-    DRW_DBG("dxfRW::processEllipse");
+    DRW_DBG("dxfRW::processEllipse\n");
     int code;
     DRW_Ellipse ellipse;
     while (reader->readRec(&code)) {
@@ -2412,7 +2412,7 @@ bool dxfRW::processEllipse() {
 }
 
 bool dxfRW::processTrace() {
-    DRW_DBG("dxfRW::processTrace");
+    DRW_DBG("dxfRW::processTrace\n");
     int code;
     DRW_Trace trace;
     while (reader->readRec(&code)) {
@@ -2435,7 +2435,7 @@ bool dxfRW::processTrace() {
 }
 
 bool dxfRW::processSolid() {
-    DRW_DBG("dxfRW::processSolid");
+    DRW_DBG("dxfRW::processSolid\n");
     int code;
     DRW_Solid solid;
     while (reader->readRec(&code)) {
@@ -2458,7 +2458,7 @@ bool dxfRW::processSolid() {
 }
 
 bool dxfRW::process3dface() {
-    DRW_DBG("dxfRW::process3dface");
+    DRW_DBG("dxfRW::process3dface\n");
     int code;
     DRW_3Dface face;
     while (reader->readRec(&code)) {
@@ -2479,7 +2479,7 @@ bool dxfRW::process3dface() {
 }
 
 bool dxfRW::processViewport() {
-    DRW_DBG("dxfRW::processViewport");
+    DRW_DBG("dxfRW::processViewport\n");
     int code;
     DRW_Viewport vp;
     while (reader->readRec(&code)) {
@@ -2494,7 +2494,7 @@ bool dxfRW::processViewport() {
         if (!vp.parseCode(code, reader)) {
             return setError( DRW::BAD_CODE_PARSED);
         }
-        break;
+//        break;
     }
 
     return setError(DRW::BAD_READ_ENTITIES);
@@ -2585,7 +2585,7 @@ bool dxfRW::processXline() {
 }
 
 bool dxfRW::processCircle() {
-    DRW_DBG("dxfRW::processPoint\n");
+    DRW_DBG("dxfRW::processCircle\n");
     int code;
     DRW_Circle circle;
     while (reader->readRec(&code)) {
@@ -2608,7 +2608,7 @@ bool dxfRW::processCircle() {
 }
 
 bool dxfRW::processArc() {
-    DRW_DBG("dxfRW::processPoint\n");
+    DRW_DBG("dxfRW::processArc\n");
     int code;
     DRW_Arc arc;
     while (reader->readRec(&code)) {
@@ -2631,7 +2631,7 @@ bool dxfRW::processArc() {
 }
 
 bool dxfRW::processInsert() {
-    DRW_DBG("dxfRW::processInsert");
+    DRW_DBG("dxfRW::processInsert\n");
     int code;
     DRW_Insert insert;
     while (reader->readRec(&code)) {
@@ -2652,7 +2652,7 @@ bool dxfRW::processInsert() {
 }
 
 bool dxfRW::processLWPolyline() {
-    DRW_DBG("dxfRW::processLWPolyline");
+    DRW_DBG("dxfRW::processLWPolyline\n");
     int code;
     DRW_LWPolyline pl;
     while (reader->readRec(&code)) {
@@ -2675,7 +2675,7 @@ bool dxfRW::processLWPolyline() {
 }
 
 bool dxfRW::processPolyline() {
-    DRW_DBG("dxfRW::processPolyline");
+    DRW_DBG("dxfRW::processPolyline\n");
     int code;
     DRW_Polyline pl;
     while (reader->readRec(&code)) {
@@ -2699,7 +2699,7 @@ bool dxfRW::processPolyline() {
 }
 
 bool dxfRW::processVertex(DRW_Polyline *pl) {
-    DRW_DBG("dxfRW::processVertex");
+    DRW_DBG("dxfRW::processVertex\n");
     int code;
     auto v = std::make_shared<DRW_Vertex>();
     while (reader->readRec(&code)) {
@@ -2725,7 +2725,7 @@ bool dxfRW::processVertex(DRW_Polyline *pl) {
 }
 
 bool dxfRW::processText() {
-    DRW_DBG("dxfRW::processText");
+    DRW_DBG("dxfRW::processText\n");
     int code;
     DRW_Text txt;
     while (reader->readRec(&code)) {
@@ -2746,7 +2746,7 @@ bool dxfRW::processText() {
 }
 
 bool dxfRW::processMText() {
-    DRW_DBG("dxfRW::processMText");
+    DRW_DBG("dxfRW::processMText\n");
     int code;
     DRW_MText txt;
     while (reader->readRec(&code)) {
@@ -2768,7 +2768,7 @@ bool dxfRW::processMText() {
 }
 
 bool dxfRW::processHatch() {
-    DRW_DBG("dxfRW::processHatch");
+    DRW_DBG("dxfRW::processHatch\n");
     int code;
     DRW_Hatch hatch;
     while (reader->readRec(&code)) {
@@ -2790,7 +2790,7 @@ bool dxfRW::processHatch() {
 
 
 bool dxfRW::processSpline() {
-    DRW_DBG("dxfRW::processSpline");
+    DRW_DBG("dxfRW::processSpline\n");
     int code;
     DRW_Spline sp;
     while (reader->readRec(&code)) {
@@ -2812,7 +2812,7 @@ bool dxfRW::processSpline() {
 
 
 bool dxfRW::processImage() {
-    DRW_DBG("dxfRW::processImage");
+    DRW_DBG("dxfRW::processImage\n");
     int code;
     DRW_Image img;
     while (reader->readRec(&code)) {
@@ -2834,7 +2834,7 @@ bool dxfRW::processImage() {
 
 
 bool dxfRW::processDimension() {
-    DRW_DBG("dxfRW::processDimension");
+    DRW_DBG("dxfRW::processDimension\n");
     int code;
     DRW_Dimension dim;
     while (reader->readRec(&code)) {
@@ -2906,7 +2906,7 @@ bool dxfRW::processArcDimension() {
 }
 
 bool dxfRW::processLeader() {
-    DRW_DBG("dxfRW::processLeader");
+    DRW_DBG("dxfRW::processLeader\n");
     int code;
     DRW_Leader leader;
     while (reader->readRec(&code)) {
@@ -2967,7 +2967,7 @@ bool dxfRW::processObjects() {
 }
 
 bool dxfRW::processImageDef() {
-    DRW_DBG("dxfRW::processImageDef");
+    DRW_DBG("dxfRW::processImageDef\n");
     int code;
     DRW_ImageDef img;
     while (reader->readRec(&code)) {
@@ -2988,7 +2988,7 @@ bool dxfRW::processImageDef() {
 }
 
 bool dxfRW::processPlotSettings() {
-    DRW_DBG("dxfRW::processPlotSettings");
+    DRW_DBG("dxfRW::processPlotSettings\n");
     int code;
     DRW_PlotSettings ps;
     while (reader->readRec(&code)) {
