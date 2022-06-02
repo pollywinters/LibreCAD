@@ -20,6 +20,7 @@
 #include "drw_objects.h"
 #include "drw_header.h"
 #include "drw_interface.h"
+#include "drw_classes.h"
 
 
 class dxfReader;
@@ -87,6 +88,8 @@ private:
     bool processBlock();
     bool processEntities(bool isblock);
     bool processObjects();
+    bool processClasses();
+    bool processClass();
 
     bool processLType();
     bool processLayer();
@@ -152,6 +155,7 @@ private:
     bool writingBlock;
     int elParts;  /*!< parts number when convert ellipse to polyline */
     std::unordered_map<std::string,int> blockMap;
+    std::unordered_map<std::string,DRW_Class*> classesmap;
     std::vector<DRW_ImageDef*> imageDef;  /*!< imageDef list */
 
     int currHandle;

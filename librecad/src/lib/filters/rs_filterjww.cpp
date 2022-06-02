@@ -878,6 +878,35 @@ void RS_FilterJWW::addDimAngular3P(const DL_DimensionData& data,
 }
 
 
+/**
+ * Implementation of the method which handles
+ * arc dimensions (ARC_DIMENSION).
+ */
+void RS_FilterJWW::addDimArc(const DL_DimensionData& data,
+                             const DL_DimArcData& edata) {
+    RS_DEBUG->print("RS_FilterJWW::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
+#if 0
+        RS_DEBUG->print("RS_FilterJWW::addDimArc");
+
+        RS_DimensionData dimensionData = convDimensionData(data);
+        RS_Vector dp1(edata.dpx3, edata.dpy3);
+        RS_Vector dp2(edata.dpx1, edata.dpy1);
+        RS_Vector dp3(edata.dpx3, edata.dpy3);
+        RS_Vector dp4 = dimensionData.definitionPoint;
+        dimensionData.definitionPoint = RS_Vector(edata.dpx2, edata.dpy2);
+
+        RS_DimAngularData d(dp1, dp2, dp3, dp4);
+
+        RS_DimAngular* entity = new RS_DimAngular(currentContainer,
+                                                        dimensionData, d);
+
+        setEntityAttributes(entity, attributes);
+        entity->update();
+        currentContainer->addEntity(entity);
+#endif
+}
+
+
 
 /**
  * Implementation of the method which handles leader entities.

@@ -177,12 +177,17 @@ void RS_ActionDefault::highlightHoveredEntities(const RS_Vector& currentMousePos
 
                     double duplicatedPen_width = zoomFactor * duplicatedPen.getWidth() / 100.0;
                     if (duplicatedPen_width < 1.0) duplicatedPen_width = 1.0;
+                    else if (duplicatedPen_width > 3.0) duplicatedPen_width = 3.0;
 
                     numberOf_highlightedEntityDuplicates = 2.0 * zoomFactor;
 
                     if (numberOf_highlightedEntityDuplicates < minimumNumberOf_highlightedEntityDuplicates)
                     {
                         numberOf_highlightedEntityDuplicates = minimumNumberOf_highlightedEntityDuplicates;
+                    }
+                    else if (numberOf_highlightedEntityDuplicates > maximumNumberOf_highlightedEntityDuplicates)
+                    {
+                        numberOf_highlightedEntityDuplicates = maximumNumberOf_highlightedEntityDuplicates;
                     }
 
                     highlightedEntityDuplicates.resize(numberOf_highlightedEntityDuplicates);

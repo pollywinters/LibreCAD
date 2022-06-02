@@ -876,6 +876,14 @@ void RS_FilterDXF::addDimAngular3P(const DL_DimensionData& data,
 }
 
 
+/**
+ * Implementation of the method which handles
+ * arc dimensions (ARC_DIMENSION).
+ */
+void RS_FilterDXF::addDimArc(const DL_DimensionData&, const DL_DimArcData&) {
+    RS_DEBUG->print("RS_FilterDXF::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
+}
+
 
 /**
  * Implementation of the method which handles leader entities.

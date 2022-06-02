@@ -22,6 +22,7 @@
 #include "intern/dxfwriter.h"
 #include "intern/drw_dbg.h"
 #include "intern/dwgutil.h"
+#include "drw_classes.h"
 
 #define FIRSTHANDLE 48
 
@@ -42,6 +43,17 @@ dxfRW::dxfRW(const char* name){
     applyExt = false;
     elParts = 128; //parts number when convert ellipse to polyline
 }
+
+namespace {
+    //helper function to cleanup pointers in Look Up Tables
+    template<typename T>
+    void mapCleanUp(std::unordered_map<std::string, T*>& table)
+    {
+        for (auto& item: table)
+            delete item.second;
+    }
+}
+
 dxfRW::~dxfRW(){
     if (reader != NULL)
         delete reader;
@@ -49,8 +61,8 @@ dxfRW::~dxfRW(){
         delete writer;
     for (std::vector<DRW_ImageDef*>::iterator it=imageDef.begin(); it!=imageDef.end(); ++it)
         delete *it;
-
     imageDef.clear();
+    mapCleanUp(classesmap);
 }
 
 void dxfRW::setDebug(DRW::DebugLevel lvl){
@@ -1960,9 +1972,8 @@ bool dxfRW::processDxf() {
                 }
                 else {
                     //TODO handle CLASSES
-
-                    DRW_DBG("section unknown or not supported\n");
-                    continue;
+                    //DRW_DBG("section "); DRW_DBG(sectionname); DRW_DBG(" unknown or not supported\n");
+                    processed = processClasses();
                 }
 
                 if (!processed) {
@@ -3007,6 +3018,66 @@ bool dxfRW::writePlotSettings(DRW_PlotSettings *ent) {
     writer->writeDouble(42, ent->marginRight);
     writer->writeDouble(43, ent->marginTop);
     return true;
+}
+
+/********* Classes Section *********/
+
+bool dxfRW::processClasses() {
+    DRW_DBG("dxfRW::processClasses\n");
+    int code;
+    if (!reader->readRec(&code)
+            || 0 != code){
+        return setError(DRW::BAD_READ_CLASSES); //first record in classes must be 0
+    }
+
+    bool processed {false};
+    nextentity = reader->getString();
+    do {
+        if ("ENDSEC" == nextentity) {
+            return true;  //found ENDSEC terminate
+        }
+
+        if ("CLASS" == nextentity) {
+            processed = processClass();
+        }
+        else {
+            if (!reader->readRec(&code)) {
+                return setError(DRW::BAD_READ_CLASSES); //end of file without ENDSEC
+            }
+
+            if (code == 0) {
+                nextentity = reader->getString();
+            }
+            processed = true;
+        }
+    }
+    while (processed);
+
+    return setError(DRW::BAD_READ_CLASSES);
+}
+
+bool dxfRW::processClass(){
+    DRW_DBG("dxfRW::processClass\n");
+    int code;
+    DRW_Class *cl = new DRW_Class();
+
+    while (reader->readRec(&code)) {
+        DRW_DBG(code); DRW_DBG("\n");
+        if (0 == code) {
+            nextentity = reader->getString();
+            DRW_DBG(nextentity); DRW_DBG("\n");
+            classesmap[cl->className] = cl;
+            return true;  //found new entity or ENDSEC, terminate
+        }
+
+        if (!cl->parseCode(code, reader)) {
+            delete cl;
+            return setError( DRW::BAD_CODE_PARSED);
+        }
+    }
+
+    delete cl;
+    return setError(DRW::BAD_READ_CLASSES);
 }
 
 /** utility function

@@ -166,6 +166,12 @@ public:
     virtual void addDimOrdinate(const DL_DimensionData& data,
                              const DL_DimOrdinateData& edata) = 0;
     
+	/**
+     * Called for every arc dimension entity. 
+     */
+    virtual void addDimArc(const DL_DimensionData& data,
+                        const DL_DimArcData& edata) = 0;
+
     /** 
 	 * Called for every leader start. 
 	 */

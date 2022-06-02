@@ -188,14 +188,14 @@ bool RS_FilterDXFRW::fileImport(RS_Graphic& g, const QString& file, RS2::FormatT
 
         RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading file");
         bool success = dxfR.read(this, true);
-        RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading file: OK");
+        RS_DEBUG->print("RS_FilterDXFRW::fileImport: reading file: Completed");
         //graphic->setAutoUpdateBorders(true);
 
         if (false == success) {
-            RS_DEBUG->print(RS_Debug::D_WARNING,
-                            "Cannot open DXF file '%s'.", (const char*)QFile::encodeName(file));
             errorCode = dxfR.getError();
-            return false;
+            RS_DEBUG->print(RS_Debug::D_WARNING,
+                            "Error during processing DXF file '%s', errorCode = %d.", (const char*)QFile::encodeName(file), errorCode);
+            //return false;
         }
 #ifdef DWGSUPPORT
     }
@@ -1057,6 +1057,15 @@ void RS_FilterDXFRW::addDimAngular3P(const DRW_DimAngular3p* data) {
 
 void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate* /*data*/) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimOrdinate(const DL_DimensionData&, const DL_DimOrdinateData&) not yet implemented");
+}
+
+
+/**
+ * Implementation of the method which handles
+ * arc dimensions (ARC_DIMENSION).
+ */
+void RS_FilterDXFRW::addDimArc(const DRW_DimArc* /*data*/) {
+    RS_DEBUG->print("RS_FilterDXFRW::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
 }
 
 

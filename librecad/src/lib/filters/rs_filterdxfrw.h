@@ -117,6 +117,7 @@ public:
     virtual void addDimAngular(const DRW_DimAngular *data) override;
     virtual void addDimAngular3P(const DRW_DimAngular3p *data) override;
     virtual void addDimOrdinate(const DRW_DimOrdinate *data) override;
+    virtual void addDimArc(const DRW_DimArc *data) override;
     virtual void addLeader(const DRW_Leader *data) override;
     virtual void addHatch(const DRW_Hatch* data) override;
     virtual void addViewport(const DRW_Viewport& /*data*/) override{}

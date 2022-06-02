@@ -1153,6 +1153,14 @@ bool dwgReader::readDwgEntity(dwgBuffer *dbuf, objHandle& obj, DRW_Interface& in
             }
             break; }
 
+        case 103: {
+            DRW_DimArc e;
+            if (entryParse( e, buff, bs, ret)) {
+                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                intfa.addDimArc(&e);
+            }
+            break; }
+
         default:
             //not supported or are object add to remaining map
             objObjectMap[obj.handle]= obj;

@@ -1149,6 +1149,84 @@ struct DL_DimOrdinateData {
 
 
 /**
+ * Arc Dimension Data.
+ *
+ * @author Polly Winters
+ */
+struct DL_DimArcData {
+    /**
+     * Constructor.
+     * Parameters: see member variables.
+     */
+    DL_DimArcData(bool bPartial,
+                     double ddpx1, double ddpy1, double ddpz1,
+                     double ddpx2, double ddpy2, double ddpz2,
+                     double ddpx3, double ddpy3, double ddpz3,
+                     double dStartAngle, double dEndAngle) {
+
+        partial = bPartial;
+
+        dpx1 = ddpx1;
+        dpy1 = ddpy1;
+        dpz1 = ddpz1;
+
+        dpx2 = ddpx2;
+        dpy2 = ddpy2;
+        dpz2 = ddpz2;
+
+        dpx3 = ddpx3;
+        dpy3 = ddpy3;
+        dpz3 = ddpz3;
+
+        staangle = dStartAngle;
+        endangle = dEndAngle;
+    }
+
+    /*! True when dimension of partial arc */
+    bool partial;
+
+    /*! X Coordinate of Definition point line 1. */
+    double dpx1;
+    /*! Y Coordinate of Definition point line 1. */
+    double dpy1;
+    /*! Z Coordinate of Definition point line 1. */
+    double dpz1;
+
+    /*! X Coordinate of Definition point line 2. */
+    double dpx2;
+    /*! Y Coordinate of Definition point line 2. */
+    double dpy2;
+    /*! Z Coordinate of Definition point line 2. */
+    double dpz2;
+
+    /*! X Coordinate of Arc centre point. */
+    double dpx3;
+    /*! Y Coordinate of Arc centre point. */
+    double dpy3;
+    /*! Z Coordinate of Arc centre point. */
+    double dpz3;
+
+    /*! Start angle on arc for partial dim, in degrees. */
+    double staangle;
+
+    /*! End angle on arc for partial dim, in degrees. */
+    double endangle;
+
+	/* Values for these within "AcDbArcDimension" sub-class in the DXF */
+//	bool partial = false;             /*!< dimension of partial arc, code 70 */
+//	bool leader = false;              /*!< dimension has leader line, code 71 */
+//	DRW_Coord line1;                  /*!< Definition point line 1, code 13, 23 & 33 */
+//	DRW_Coord line2;                  /*!< Definition point line 2, code 14, 24 & 34 */
+//	DRW_Coord vertex;                 /*!< Arc centre point, code 15, 25 & 35 */
+//	double staangle;                  /*!< Start angle on arc for partial dim, radians, code 40 */
+//	double endangle;                  /*!< End angle on arc for partial dim, radians, code 41 */
+//	DRW_Coord leader1;                /*!< Leader point 1, code 16, 26 & 36 */
+//	DRW_Coord leader2;                /*!< Leader point 2, code 17, 27 & 37 */
+};
+
+
+
+/**
  * Leader (arrow).
  *
  * @author Andrew Mustun

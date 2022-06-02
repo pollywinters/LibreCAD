@@ -119,6 +119,8 @@ public:
                                const DL_DimAngularData& edata);
     virtual void addDimAngular3P(const DL_DimensionData& data,
                                  const DL_DimAngular3PData& edata);
+    virtual void addDimArc(const DL_DimensionData& data,
+                           const DL_DimArcData& edata);
     virtual void addLeader(const DL_LeaderData& data);
     virtual void addLeaderVertex(const DL_LeaderVertexData& data);
     virtual void addHatch(const DL_HatchData& data);
