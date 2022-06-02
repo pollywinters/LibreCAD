@@ -34,8 +34,9 @@ public:
     ~DRW_Class() {
     }
 
-    void write(dxfWriter *writer, DRW::Version ver);
+    bool parseCode(int code, dxfReader *reader);
     bool parseDwg(DRW::Version version, dwgBuffer *buf, dwgBuffer *strBuf);
+    void write(dxfWriter *writer, DRW::Version ver);
 
 private:
     void toDwgType();
