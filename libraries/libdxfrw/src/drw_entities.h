@@ -1061,7 +1061,7 @@ public:
     int getType() {return type;}                            /*!< Dimension type, code 70 */
     void setType(const int t) {type = t;}
     double getActValue() const {return actvalue;}           /*!< Actual measurement, code 42 (optional, read-only) */
-    void setActValue(const double d) {actvalue = d;}
+    void setActValue(const double d) {actvalue = d; haveActvalue = true;}
     int getDimVersion(){return dimVersion;}                 /*!< Dimension type, code 70 */
     void setDimVersion(const int v) {dimVersion = v;}
 
@@ -1361,7 +1361,7 @@ public:
     DRW_Coord getLeader2() const {return leader2;}           /*!< Leader point 2, code 17, 27 & 37 */
     void setLeader2(const DRW_Coord p) {leader2 = p;}
     DRW_Coord getVertexPoint() const {return vertex;}        /*!< Vertex point, code 15, 25 & 35 */
-    void SetVertexPoint(const DRW_Coord p) {vertex = p;}
+    void setVertexPoint(const DRW_Coord p) {vertex = p;}
     double getStartAngle() const {return staangle;}          /*!< Start angle (radians), code 40 */
     void setStartAngle(const double d) {staangle = d;}
     double getEndAngle() const {return endangle;}            /*!< End angle (radians), code 41 */

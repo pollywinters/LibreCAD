@@ -2126,6 +2126,9 @@ void RS_FilterDXF::writeDimension(DL_WriterA& dw, RS_Dimension* d,
     case RS2::EntityDimDiametric:
         type = 3;
         break;
+    case RS2::EntityDimArc:
+        type = 5;
+        break;
     default:
         type = 0;
         break;
@@ -2205,6 +2208,26 @@ void RS_FilterDXF::writeDimension(DL_WriterA& dw, RS_Dimension* d,
                                          0.0);
 
         dxf.writeDimAngular(dw, dimData, dimAngularData, attrib);
+    } else if (d->rtti()==RS2::EntityDimArc) {
+        LC_DimArc* da = (LC_DimArc*)d;
+
+        RS_Vector centrePos = da->getCenter();
+        double radius = da->getRadius();
+        double startAngle = da->getStartAngle();
+        double endAngle = da->getEndAngle();
+        RS_Vector defPoint1(centrePos + RS_Vector::polar(radius, startAngle));
+        RS_Vector defPoint2(centrePos + RS_Vector::polar(radius, endAngle));
+
+        DL_DimArcData dimArcData(da->getPartial(),
+                                 da->getLeader(),
+                                 defPoint1.x, defPoint1.y, 0.0,   /*! Coordinate of Definition point line 1. */
+                                 defPoint2.x, defPoint2.y, 0.0,   /*! Coordinate of Definition point line 2. */
+                                 da->getCenter().x, da->getCenter().y, 0.0,
+                                 startAngle, endAngle,
+                                 da->getLeaderStart().x, da->getLeaderStart().y, 0.0,
+                                 da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0);  /*! Coordinate of leader arrow end point. */
+
+        dxf.writeDimArc(dw, dimData, dimArcData, attrib);
     }
 
 }

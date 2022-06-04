@@ -1066,7 +1066,7 @@ void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate *data) {
  * arc dimensions (ARC_DIMENSION).
  */
 void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
-    RS_DEBUG->print("RS_FilterDXFRW::addDimArc");
+    RS_DEBUG->print("RS_FilterDXFRW::addDimArc - enter\n");
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
 
@@ -1100,6 +1100,8 @@ void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
     setEntityAttributes(entity, data);
     entity->update();
     currentContainer->addEntity(entity);
+
+    RS_DEBUG->print("RS_FilterDXFRW::addDimArc - exit\n");
 }
 
 
@@ -2734,6 +2736,28 @@ void RS_FilterDXFRW::writeDimension(RS_Dimension* d) {
             dd->setSecondLine1(DRW_Coord (da->getDefinitionPoint3().x, da->getDefinitionPoint3().y, 0.0)); //15
             dd->setDimPoint(DRW_Coord (da->getDefinitionPoint4().x, da->getDefinitionPoint4().y, 0.0)); //16
         }
+        break; }
+    case RS2::EntityDimArc: {
+        LC_DimArc* da = (LC_DimArc*)d;
+        DRW_DimArc* dd = new DRW_DimArc();
+        RS_Vector centrePos = da->getCenter();
+        double startAngle = da->getStartAngle();
+        double endAngle = da->getEndAngle();
+        double radius = da->getRadius();
+        RS_Vector defPoint1(centrePos + RS_Vector::polar(radius, startAngle));
+        RS_Vector defPoint2(centrePos + RS_Vector::polar(radius, endAngle));
+        dim = dd ;
+        dim->type = 5;
+        dd->setDimPoint(DRW_Coord (d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0.0));
+        dd->setFirstLine(DRW_Coord (defPoint1.x, defPoint1.y, 0.0));
+        dd->setSecondLine(DRW_Coord (defPoint2.x, defPoint2.y, 0.0));
+        dd->setLeader1(DRW_Coord (da->getLeaderStart().x, da->getLeaderStart().y, 0.0));
+        dd->setLeader2(DRW_Coord (da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0));
+        dd->setVertexPoint(DRW_Coord (centrePos.x, centrePos.y, 0.0));
+        dd->setStartAngle(startAngle);
+        dd->setEndAngle(endAngle);
+        dd->setPartial(da->getPartial());
+        dd->setLeader(da->getLeader());
         break; }
     default: { //default to DimLinear
         RS_DimLinear* dl = (RS_DimLinear*)d;
