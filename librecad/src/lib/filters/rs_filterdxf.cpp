@@ -38,6 +38,7 @@
 #include "rs_dimdiametric.h"
 #include "rs_dimlinear.h"
 #include "rs_dimradial.h"
+#include "lc_dimarc.h"
 #include "rs_hatch.h"
 #include "rs_image.h"
 #include "rs_leader.h"
@@ -880,10 +881,34 @@ void RS_FilterDXF::addDimAngular3P(const DL_DimensionData& data,
  * Implementation of the method which handles
  * arc dimensions (ARC_DIMENSION).
  */
-void RS_FilterDXF::addDimArc(const DL_DimensionData&, const DL_DimArcData&) {
-    RS_DEBUG->print("RS_FilterDXF::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
-}
+void RS_FilterDXF::addDimArc(const DL_DimensionData& data, const DL_DimArcData& edata) {
+    RS_DEBUG->print("RS_FilterDXF::addDimArc");
 
+    RS_DimensionData dimensionData = convDimensionData(data);
+
+    RS_Vector startPos(edata.dpx1, edata.dpy1, 0.0);
+    RS_Vector centrePos(edata.dpx3, edata.dpy3, 0.0);
+    double radius = centrePos.distanceTo(startPos);
+    double arcLength = radius * RS_Math::correctAngle(edata.endangle - edata.staangle);
+    RS_Vector leaderStart(edata.dpx4, edata.dpy4, 0.0);
+    RS_Vector leaderEnd(edata.dpx5, edata.dpy5, 0.0);
+
+    LC_DimArcData dimarcData(radius, 
+                  arcLength,
+                  centrePos, 
+                  edata.staangle, 
+                  edata.endangle,
+                  edata.partial,
+                  edata.leader,
+                  leaderStart,
+                  leaderEnd);
+
+    LC_DimArc* entity = new LC_DimArc(currentContainer,
+                            dimensionData, dimarcData);
+    setEntityAttributes(entity, attributes);
+    entity->update();
+    currentContainer->addEntity(entity);
+}
 
 /**
  * Implementation of the method which handles leader entities.
@@ -1622,6 +1647,7 @@ void RS_FilterDXF::writeEntity(DL_WriterA& dw, RS_Entity* e,
     case RS2::EntityDimLinear:
     case RS2::EntityDimRadial:
     case RS2::EntityDimDiametric:
+    case RS2::EntityDimArc:
         writeDimension(dw, (RS_Dimension*)e, attrib);
         break;
     case RS2::EntityDimLeader:

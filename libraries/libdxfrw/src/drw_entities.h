@@ -1379,13 +1379,13 @@ private:
 	/* Values for these within "AcDbArcDimension" sub-class in the DXF */
 	bool partial = false;             /*!< dimension of partial arc, code 70 */
 	bool leader = false;              /*!< dimension has leader line, code 71 */
-	DRW_Coord line1;                  /*!< Definition point line 1, code 13, 23 & 33 */
-	DRW_Coord line2;                  /*!< Definition point line 2, code 14, 24 & 34 */
+	DRW_Coord line1;                  /*!< Definition point line 1 (start of dim on the arc), code 13, 23 & 33 */
+	DRW_Coord line2;                  /*!< Definition point line 2 (end of dim on the arc), code 14, 24 & 34 */
 	DRW_Coord vertex;                 /*!< Arc centre point, code 15, 25 & 35 */
-	double staangle;                  /*!< Start angle on arc for partial dim, radians, code 40 */
-	double endangle;                  /*!< End angle on arc for partial dim, radians, code 41 */
-	DRW_Coord leader1;                /*!< Leader point 1, code 16, 26 & 36 */
-	DRW_Coord leader2;                /*!< Leader point 2, code 17, 27 & 37 */
+	double staangle;                  /*!< Start point angle ref centre point, radians, code 40 */
+	double endangle;                  /*!< End point angle ref centre point, radians, code 41 */
+	DRW_Coord leader1;                /*!< Leader point 1 (start of arrow from dim text), code 16, 26 & 36 */
+	DRW_Coord leader2;                /*!< Leader point 2 (end of arrow to the arc), code 17, 27 & 37 */
 };
 
 

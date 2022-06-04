@@ -36,6 +36,7 @@
 #include "rs_dimdiametric.h"
 #include "rs_dimlinear.h"
 #include "rs_dimradial.h"
+#include "lc_dimarc.h"
 #include "rs_ellipse.h"
 #include "rs_hatch.h"
 #include "rs_image.h"
@@ -1055,7 +1056,7 @@ void RS_FilterDXFRW::addDimAngular3P(const DRW_DimAngular3p* data) {
 
 
 
-void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate* /*data*/) {
+void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate *data) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimOrdinate(const DL_DimensionData&, const DL_DimOrdinateData&) not yet implemented");
 }
 
@@ -1064,9 +1065,43 @@ void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate* /*data*/) {
  * Implementation of the method which handles
  * arc dimensions (ARC_DIMENSION).
  */
-void RS_FilterDXFRW::addDimArc(const DRW_DimArc* /*data*/) {
-    RS_DEBUG->print("RS_FilterDXFRW::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
+void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
+    RS_DEBUG->print("RS_FilterDXFRW::addDimArc");
+
+    RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
+
+    DRW_Coord crd = data->getFirstLine();
+    RS_Vector startPos(crd.x, crd.y, 0.0);
+    crd = data->getVertexPoint();
+    RS_Vector centrePos(crd.x, crd.y, 0.0);
+    crd = data->getLeader1();
+    RS_Vector leaderStart(crd.x, crd.y, 0.0);
+    crd = data->getLeader2();
+    RS_Vector leaderEnd(crd.x, crd.y, 0.0);
+
+    double startAngle = data->getStartAngle();
+    double endAngle = data->getEndAngle();
+
+    double radius = centrePos.distanceTo(startPos);
+    double arcLength = radius * RS_Math::correctAngle(endAngle - startAngle);
+
+    LC_DimArcData dimarcData(radius, 
+                  arcLength,
+                  centrePos, 
+                  startAngle, 
+                  endAngle,
+                  data->getPartial(),
+                  data->getLeader(),
+                  leaderStart,
+                  leaderEnd);
+
+    LC_DimArc* entity = new LC_DimArc(currentContainer,
+                            dimensionData, dimarcData);
+    setEntityAttributes(entity, data);
+    entity->update();
+    currentContainer->addEntity(entity);
 }
+
 
 
 /**
@@ -2119,6 +2154,7 @@ void RS_FilterDXFRW::writeEntity(RS_Entity* e){
     case RS2::EntityDimAngular:
     case RS2::EntityDimRadial:
     case RS2::EntityDimDiametric:
+    case RS2::EntityDimArc:
         writeDimension((RS_Dimension*)e);
         break;
     case RS2::EntityDimLeader:

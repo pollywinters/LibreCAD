@@ -35,18 +35,41 @@ struct LC_DimArcData
 
     LC_DimArcData(const LC_DimArcData& input_dimArcData);
 
-    LC_DimArcData( const double& input_radius, 
-                   const double& input_arcLength,
-                   const RS_Vector& input_centre, 
-                   const RS_Vector& input_endAngle, 
-                   const RS_Vector& input_startAngle);
+    LC_DimArcData(const double& input_radius, 
+                  const double& input_arcLength,
+                  const RS_Vector& input_centre, 
+                  const double& input_startAngle, 
+                  const double& input_endAngle);
 
-    double radius;
-    double arcLength;
+    LC_DimArcData(const double& input_radius, 
+                  const double& input_arcLength,
+                  const RS_Vector& input_centre, 
+                  const double& input_startAngle, 
+                  const double& input_endAngle,
+                  const bool& input_partial);
 
-    RS_Vector centre;
-    RS_Vector endAngle;
-    RS_Vector startAngle;
+    LC_DimArcData(const double& input_radius, 
+                  const double& input_arcLength,
+                  const RS_Vector& input_centre, 
+                  const double& input_startAngle, 
+                  const double& input_endAngle,
+                  const bool& input_partial,
+                  const bool& input_leader,
+                  const RS_Vector& input_leaderStart,
+                  const RS_Vector& input_leaderEnd);
+
+    double radius;           /*! Radius of the arc */
+    double arcLength;        /*! Length value for the arc */
+
+    RS_Vector centre;        /*! Coordinate of arc centre point */
+    double startAngle;       /*! Angle centre to arc start point, radians */
+    double endAngle;         /*! Angle centre to arc end point, radians */
+
+    bool partial;            /*! Display as a partial arc dimension */
+    bool leader;             /*! Display with leader line from text to the arc */
+
+    RS_Vector leaderStart;   /*! Coordinate of leader line start point */
+    RS_Vector leaderEnd;     /*! Coordinate of leader line start point */
 };
 
 
@@ -88,18 +111,39 @@ class LC_DimArc : public RS_Dimension
 
         double getStartAngle() const
         {
-            return dimArcData.startAngle.angle();
+            return dimArcData.startAngle;
         }
 
         double getEndAngle() const
         {
-            return dimArcData.endAngle.angle();
+            return dimArcData.endAngle;
         }
 
         RS_Vector getCenter() const
         {
             return dimArcData.centre;
         }
+
+        bool getPartial() const
+        {
+            return dimArcData.partial;
+        }
+
+        bool getLeader() const
+        {
+            return dimArcData.leader;
+        }
+
+        RS_Vector getLeaderStart() const
+        {
+            return dimArcData.leaderStart;
+        }
+
+        RS_Vector getLeaderEnd() const
+        {
+            return dimArcData.leaderEnd;
+        }
+
 
         QString getMeasuredLabel() override;
 

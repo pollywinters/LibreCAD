@@ -1065,6 +1065,7 @@ bool dxfRW::writeLeader(DRW_Leader *ent){
     }
     return true;
 }
+
 bool dxfRW::writeDimension(DRW_Dimension *ent) {
     if (version > DRW::AC1009) {
         if (ent->eType == DRW::DIMARC) {
@@ -1199,10 +1200,10 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             writer->writeDouble(40, dd->getStartAngle());  // Start angle (radians)
             writer->writeDouble(41, dd->getEndAngle());  // End angle (radians)
             writer->writeBool(71, dd->getLeader());  // Has leader?
-            writer->writeDouble(16, dd->getLeader1().x);  // Leader point 1
+            writer->writeDouble(16, dd->getLeader1().x);  // Leader point 1 (start of arrow from dim text)
             writer->writeDouble(26, dd->getLeader1().y);
             writer->writeDouble(36, dd->getLeader1().z);
-            writer->writeDouble(17, dd->getLeader2().x);  // Leader point 2
+            writer->writeDouble(17, dd->getLeader2().x);  // Leader point 2 (end of arrow to the arc)
             writer->writeDouble(27, dd->getLeader2().y);
             writer->writeDouble(37, dd->getLeader2().z);
             break; }
@@ -1213,6 +1214,10 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
         //RLZ: todo not supported by acad 12 saved as unnamed block
     }
     return true;
+}
+
+bool dxfRW::writeArcDimension(DRW_DimArc *ent) {
+    return dxfRW::writeDimension(ent);
 }
 
 bool dxfRW::writeInsert(DRW_Insert *ent){
@@ -1970,10 +1975,13 @@ bool dxfRW::processDxf() {
                 else if ("OBJECTS" == sectionname) {
                     processed = processObjects();
                 }
-                else {
+                else if ("CLASSES" == sectionname) {
                     //TODO handle CLASSES
                     //DRW_DBG("section "); DRW_DBG(sectionname); DRW_DBG(" unknown or not supported\n");
                     processed = processClasses();
+                }
+                else {
+                    DRW_DBG("section "); DRW_DBG(sectionname); DRW_DBG(" unknown or not supported\n");
                 }
 
                 if (!processed) {

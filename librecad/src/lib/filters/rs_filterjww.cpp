@@ -1652,6 +1652,7 @@ void RS_FilterJWW::writeEntity(DL_WriterA& dw, RS_Entity* e,
         case RS2::EntityDimLinear:
         case RS2::EntityDimRadial:
         case RS2::EntityDimDiametric:
+        case RS2::EntityDimArc:
                 writeDimension(dw, (RS_Dimension*)e, attrib);
                 break;
         case RS2::EntityDimLeader:

@@ -60,8 +60,8 @@ void LC_ActionDimArc::reset()
     dimArcData.arcLength = 0.0;
 
     dimArcData.centre     = RS_Vector(false);
-    dimArcData.endAngle   = RS_Vector(false);
-    dimArcData.startAngle = RS_Vector(false);
+    dimArcData.endAngle   = 0.0;
+    dimArcData.startAngle = 0.0;
 
     selectedArcEntity = nullptr;
 
@@ -154,14 +154,14 @@ void LC_ActionDimArc::mouseReleaseEvent(QMouseEvent* e)
                         dimArcData.centre     = selectedArcEntity->getCenter();
                         dimArcData.arcLength  = selectedArcEntity->getLength();
 
-                        dimArcData.startAngle = RS_Vector(((RS_Arc *) selectedArcEntity)->getAngle1());
-                        dimArcData.endAngle   = RS_Vector(((RS_Arc *) selectedArcEntity)->getAngle2());
+                        dimArcData.startAngle = ((RS_Arc *) selectedArcEntity)->getAngle1();
+                        dimArcData.endAngle   = ((RS_Arc *) selectedArcEntity)->getAngle2();
 
                         data->definitionPoint = selectedArcEntity->getStartpoint();
 
                         if (((RS_Arc *) selectedArcEntity)->isReversed())
                         {
-                            const RS_Vector tempAngle = RS_Vector(dimArcData.startAngle);
+                            double tempAngle = dimArcData.startAngle;
 
                             dimArcData.startAngle = dimArcData.endAngle;
                             dimArcData.endAngle   = tempAngle;

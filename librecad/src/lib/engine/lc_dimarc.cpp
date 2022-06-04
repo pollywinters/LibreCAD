@@ -32,6 +32,7 @@
 #include "rs_mtext.h"
 #include "rs_solid.h"
 #include "rs_graphic.h"
+#include "rs_math.h"
 
 #include "lc_dimarc.h"
 
@@ -41,8 +42,12 @@ LC_DimArcData::LC_DimArcData()
                radius     (0.0), 
                arcLength  (0.0), 
                centre     (false), 
-               endAngle   (false), 
-               startAngle (false)
+               startAngle (0.0),
+               endAngle   (0.0),
+               partial    (false),
+               leader     (false),
+               leaderStart(false),
+               leaderEnd  (false)
 {
 }
 
@@ -52,8 +57,12 @@ LC_DimArcData::LC_DimArcData(const LC_DimArcData &input_dimArcData)
                radius     (input_dimArcData.radius), 
                arcLength  (input_dimArcData.arcLength), 
                centre     (input_dimArcData.centre), 
+               startAngle (input_dimArcData.startAngle),
                endAngle   (input_dimArcData.endAngle), 
-               startAngle (input_dimArcData.startAngle)
+               partial    (input_dimArcData.partial),
+               leader     (input_dimArcData.leader),
+               leaderStart(input_dimArcData.leaderStart),
+               leaderEnd  (input_dimArcData.leaderEnd)
 {
 }
 
@@ -61,14 +70,59 @@ LC_DimArcData::LC_DimArcData(const LC_DimArcData &input_dimArcData)
 LC_DimArcData::LC_DimArcData( const double& input_radius, 
                               const double& input_arcLength, 
                               const RS_Vector& input_centre, 
-                              const RS_Vector& input_endAngle, 
-                              const RS_Vector& input_startAngle)
+                              const double& input_startAngle, 
+                              const double& input_endAngle)
                :
                radius     (input_radius), 
                arcLength  (input_arcLength), 
                centre     (input_centre), 
-               endAngle   (input_endAngle), 
-               startAngle (input_startAngle)
+               startAngle (input_startAngle),
+               endAngle   (input_endAngle),
+               partial    (false),
+               leader     (false),
+               leaderStart(false),
+               leaderEnd  (false)
+{
+}
+
+LC_DimArcData::LC_DimArcData( const double& input_radius, 
+                              const double& input_arcLength, 
+                              const RS_Vector& input_centre, 
+                              const double& input_startAngle,
+                              const double& input_endAngle,
+                              const bool& input_partial)
+               :
+               radius     (input_radius), 
+               arcLength  (input_arcLength), 
+               centre     (input_centre), 
+               startAngle (input_startAngle),
+               endAngle   (input_endAngle),
+               partial    (input_partial),
+               leader     (false),
+               leaderStart(false),
+               leaderEnd  (false)
+{
+}
+
+LC_DimArcData::LC_DimArcData( const double& input_radius, 
+                              const double& input_arcLength, 
+                              const RS_Vector& input_centre, 
+                              const double& input_startAngle,
+                              const double& input_endAngle,
+                              const bool& input_partial,
+                              const bool& input_leader,
+                              const RS_Vector& input_leaderStart,
+                              const RS_Vector& input_leaderEnd)
+               :
+               radius     (input_radius), 
+               arcLength  (input_arcLength), 
+               centre     (input_centre), 
+               startAngle (input_startAngle),
+               endAngle   (input_endAngle),
+               partial    (input_partial),
+               leader     (input_leader),
+               leaderStart(input_leaderStart),
+               leaderEnd  (input_leaderEnd)
 {
 }
 
@@ -163,7 +217,7 @@ void LC_DimArc::arrow( const RS_Vector& point,
     {
         const double deg45 = M_PI_2 / 2.0;
 
-        const double midAngle = (dimArcData.startAngle.angle() + dimArcData.endAngle.angle()) / 2.0;
+        const double midAngle = (dimArcData.startAngle + dimArcData.endAngle) / 2.0;
 
         const RS_Vector tickVector = RS_Vector::polar(getTickSize() * getGeneralScale(), midAngle - deg45);
 
@@ -208,14 +262,14 @@ void LC_DimArc::updateDim(bool autoText /* = false */)
         new RS_Arc( this, 
                     RS_ArcData( dimArcData.centre, 
                                 dimArcData.radius, 
-                                dimArcData.startAngle.angle(), 
-                                dimArcData.endAngle.angle(), 
+                                dimArcData.startAngle, 
+                                dimArcData.endAngle, 
                                 false) 
                   ) 
     };
 
-    arrow (arrowStartPoint, dimArcData.startAngle.angle(), +1.0, pen);
-    arrow (arrowEndPoint,   dimArcData.endAngle.angle(),   -1.0, pen);
+    arrow (arrowStartPoint, dimArcData.startAngle, +1.0, pen);
+    arrow (arrowEndPoint,   dimArcData.endAngle,   -1.0, pen);
 
     double textAngle  { 0.0 };
 
@@ -395,6 +449,8 @@ void LC_DimArc::move(const RS_Vector& offset)
     RS_Dimension::move (offset);
 
     dimArcData.centre.move (offset);
+    dimArcData.leaderEnd.move (offset);
+    dimArcData.leaderStart.move (offset);
 
     update();
 }
@@ -402,7 +458,14 @@ void LC_DimArc::move(const RS_Vector& offset)
 
 void LC_DimArc::rotate(const RS_Vector& center, const double& angle)
 {
-    rotate (center, RS_Vector (angle));
+    RS_Vector angleVector(angle);
+
+    RS_Dimension::rotate (center, angleVector);
+    dimArcData.centre.rotate (center, angleVector);
+    dimArcData.leaderEnd.rotate (center, angleVector);
+    dimArcData.leaderStart.rotate (center, angleVector);
+    dimArcData.startAngle = RS_Math::correctAngle(dimArcData.startAngle + angle);
+    dimArcData.endAngle = RS_Math::correctAngle(dimArcData.endAngle + angle);
 
     update();
 }
@@ -410,17 +473,14 @@ void LC_DimArc::rotate(const RS_Vector& center, const double& angle)
 
 void LC_DimArc::rotate(const RS_Vector& center, const RS_Vector& angleVector)
 {
+    double angle = angleVector.angle();
+
     RS_Dimension::rotate (center, angleVector);
-
     dimArcData.centre.rotate (center, angleVector);
-
-    const double arcDeltaAngle { dimArcData.startAngle.angleTo(dimArcData.endAngle) };
-
-    dimArcData.startAngle = RS_Vector(data.definitionPoint.angleTo(dimArcData.centre) - M_PI);
-
-    dimArcData.endAngle = dimArcData.startAngle;
-
-	dimArcData.endAngle.rotate (arcDeltaAngle);
+    dimArcData.leaderEnd.rotate (center, angleVector);
+    dimArcData.leaderStart.rotate (center, angleVector);
+    dimArcData.startAngle = RS_Math::correctAngle(dimArcData.startAngle + angle);
+    dimArcData.endAngle = RS_Math::correctAngle(dimArcData.endAngle + angle);
 
     update();
 }
@@ -437,6 +497,8 @@ void LC_DimArc::scale(const RS_Vector& center, const RS_Vector& factor)
     RS_Dimension::scale (center, adjustedFactorVector);
 
     dimArcData.centre.scale (center, adjustedFactorVector);
+    dimArcData.leaderEnd.scale (center, adjustedFactorVector);
+    dimArcData.leaderStart.scale (center, adjustedFactorVector);
 
     dimArcData.radius *= adjustedFactor;
 
@@ -450,28 +512,14 @@ void LC_DimArc::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2)
 
     RS_Dimension::mirror (axisPoint1, axisPoint2);
 
-    dimArcData.centre.mirror     (axisPoint1, axisPoint2);
+    dimArcData.centre.mirror (axisPoint1, axisPoint2);
+    dimArcData.leaderEnd.mirror (axisPoint1, axisPoint2);
+    dimArcData.leaderStart.mirror (axisPoint1, axisPoint2);
 
-    /*
-        // Just another way of accomplishing the operation below this comment.
+    double twiceMirrorAngle = axisPoint1.angleTo(axisPoint2) * 2.0;
 
-        dimStartPoint.mirror (axisPoint1, axisPoint2);
-        dimEndPoint.mirror   (axisPoint1, axisPoint2);
-
-        dimArcData.startAngle = RS_Vector((dimStartPoint - dimArcData.centre).angle() - M_PI);
-        dimArcData.endAngle   = RS_Vector((dimEndPoint   - dimArcData.centre).angle() - M_PI);
-    */
-
-    const RS_Vector originPoint(0.0, 0.0);
-
-    const RS_Vector deltaAxisPoints = axisPoint2 - axisPoint1;
-
-    /* The minus one (-1) value denotes that mirroring changes direction (and hence, sign). */
-    dimArcData.startAngle.setPolar (-1.0, dimArcData.startAngle.angle());
-    dimArcData.endAngle.setPolar   (-1.0, dimArcData.endAngle.angle());
-
-    dimArcData.startAngle.mirror (originPoint, deltaAxisPoints);
-    dimArcData.endAngle.mirror   (originPoint, deltaAxisPoints);
+    dimArcData.startAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.startAngle);
+    dimArcData.endAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.endAngle);
 
     update();
 }
@@ -487,24 +535,17 @@ RS_Vector LC_DimArc::truncateVector(const RS_Vector input_vector)
 
 void LC_DimArc::calcDimension()
 {
-    const double endAngle   = dimArcData.endAngle.angle();
-    const double startAngle = dimArcData.startAngle.angle();
-
-    dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, startAngle, startAngle, false));
-    dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, endAngle,   endAngle, false));
-
     RS_Vector entityStartPoint = truncateVector(data.definitionPoint);
 
     const double entityRadius  = dimArcData.centre.distanceTo(entityStartPoint);
 
-    RS_Vector entityEndPoint   = truncateVector(dimArcData.centre 
-                               + RS_Vector(dimArcData.endAngle).scale(entityRadius));
+    RS_Vector startAngleVector = RS_Vector(dimArcData.startAngle);
+    RS_Vector endAngleVector   = RS_Vector(dimArcData.endAngle);
 
-    dimStartPoint = dimArcData.centre 
-                  + RS_Vector(dimArcData.startAngle).scale(dimArcData.radius);
+    RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector.scale(entityRadius));
 
-    dimEndPoint   = dimArcData.centre 
-                  + RS_Vector(dimArcData.endAngle).scale(dimArcData.radius);
+    dimStartPoint = dimArcData.centre + startAngleVector.scale(dimArcData.radius);
+    dimEndPoint   = dimArcData.centre + endAngleVector.scale(dimArcData.radius);
 
     arrowStartPoint = dimStartPoint;
     arrowEndPoint   = dimEndPoint;
@@ -521,7 +562,7 @@ void LC_DimArc::calcDimension()
 
     RS_DEBUG->print( RS_Debug::D_INFORMATIONAL, 
                      "\n LC_DimArc::calcDimension: Start / end angles : %lf / %lf\n", 
-                     startAngle, endAngle);
+                     dimArcData.startAngle, dimArcData.endAngle);
 
     RS_DEBUG->print( RS_Debug::D_INFORMATIONAL, 
                      "\n LC_DimArc::calcDimension: Dimension / entity radii : %lf / %lf\n", 
@@ -555,6 +596,10 @@ std::ostream& operator << (std::ostream& os, const LC_DimArcData& input_dimArcDa
        <<   "\n\tRadius      : " << input_dimArcData.radius 
        <<   "\n\tStart Angle : " << input_dimArcData.startAngle 
        <<   "\n\tEnd   Angle : " << input_dimArcData.endAngle 
+       <<   "\n\tPartial     : " << input_dimArcData.partial
+       <<   "\n\tLeader      : " << input_dimArcData.leader
+       <<   "\n\tLeader Start: " << input_dimArcData.leaderStart
+       <<   "\n\tLeader End  : " << input_dimArcData.leaderEnd
        <<   "\n}"                << std::endl << std::endl;
 
     return os;

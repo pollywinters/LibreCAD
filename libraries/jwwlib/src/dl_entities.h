@@ -1158,13 +1158,16 @@ struct DL_DimArcData {
      * Constructor.
      * Parameters: see member variables.
      */
-    DL_DimArcData(bool bPartial,
-                     double ddpx1, double ddpy1, double ddpz1,
-                     double ddpx2, double ddpy2, double ddpz2,
-                     double ddpx3, double ddpy3, double ddpz3,
-                     double dStartAngle, double dEndAngle) {
+    DL_DimArcData(bool dPartial, bool dLeader,                   /*! Flag for dimension of partial arc, flag for leader line required. */
+                     double ddpx1, double ddpy1, double ddpz1,   /*! Coordinate of Definition point line 1. */
+                     double ddpx2, double ddpy2, double ddpz2,   /*! Coordinate of Definition point line 2. */
+                     double ddpx3, double ddpy3, double ddpz3,   /*! Coordinate of Arc centre point. */
+                     double dStartAngle, double dEndAngle,       /*! Start angle of arc, end angle of arc, radians, anticlockwise ref. X-axis */
+                     double ddpx4, double ddpy4, double ddpz4,   /*! Coordinate of leader arrow start point. */
+                     double ddpx5, double ddpy5, double ddpz5) { /*! Coordinate of leader arrow end point. */
 
-        partial = bPartial;
+        partial = dPartial;
+        leader = dLeader;
 
         dpx1 = ddpx1;
         dpy1 = ddpy1;
@@ -1180,10 +1183,21 @@ struct DL_DimArcData {
 
         staangle = dStartAngle;
         endangle = dEndAngle;
+
+        dpx4 = ddpx4;
+        dpy4 = ddpy4;
+        dpz4 = ddpz4;
+
+        dpx5 = ddpx5;
+        dpy5 = ddpy5;
+        dpz5 = ddpz5;
     }
 
     /*! True when dimension of partial arc */
     bool partial;
+
+    /*! True when leader line to be drawn from dimension text to the arc */
+    bool leader;
 
     /*! X Coordinate of Definition point line 1. */
     double dpx1;
@@ -1206,11 +1220,25 @@ struct DL_DimArcData {
     /*! Z Coordinate of Arc centre point. */
     double dpz3;
 
-    /*! Start angle on arc for partial dim, in degrees. */
+    /*! Start angle on arc for partial dim, radians. */
     double staangle;
 
-    /*! End angle on arc for partial dim, in degrees. */
+    /*! End angle on arc for partial dim, radians. */
     double endangle;
+
+    /*! X Coordinate of leader line start point.  */
+    double dpx4;
+    /*! Y Coordinate of leader line start point. */
+    double dpy4;
+    /*! Z Coordinate of leader line start point. */
+    double dpz4;
+
+    /*! X Coordinate of leader line end point. */
+    double dpx5;
+    /*! Y Coordinate of leader line end point. */
+    double dpy5;
+    /*! Z Coordinate of leader line end point. */
+    double dpz5;
 
 	/* Values for these within "AcDbArcDimension" sub-class in the DXF */
 //	bool partial = false;             /*!< dimension of partial arc, code 70 */
@@ -1220,8 +1248,8 @@ struct DL_DimArcData {
 //	DRW_Coord vertex;                 /*!< Arc centre point, code 15, 25 & 35 */
 //	double staangle;                  /*!< Start angle on arc for partial dim, radians, code 40 */
 //	double endangle;                  /*!< End angle on arc for partial dim, radians, code 41 */
-//	DRW_Coord leader1;                /*!< Leader point 1, code 16, 26 & 36 */
-//	DRW_Coord leader2;                /*!< Leader point 2, code 17, 27 & 37 */
+//	DRW_Coord leader1;                /*!< Leader start point, code 16, 26 & 36 */
+//	DRW_Coord leader2;                /*!< Leader end point, code 17, 27 & 37 */
 };
 
 
