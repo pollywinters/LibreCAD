@@ -1371,6 +1371,8 @@ public:
     bool getLeader() const {return leader;}                  /*!< dimension has leader line, code 71 */
     void setLeader(const bool b) {leader = b;}
 
+    friend std::ostream& operator << (std::ostream&, const DRW_DimArc& dimArc);
+
 protected:
     bool parseCode(int code, dxfReader *reader) override;
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;

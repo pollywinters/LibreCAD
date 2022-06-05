@@ -17,3 +17,11 @@ void DRW::setCustomDebugPrinter(DebugPrinter *printer)
 {
   DRW_dbg::getInstance()->setCustomDebugPrinter(std::unique_ptr<DebugPrinter>(printer));
 }
+
+std::ostream& operator << (std::ostream& os, const DRW_Coord& coord)
+{
+    os << coord.x << "," << coord.y << "," << coord.z; 
+
+    return os;
+}
+

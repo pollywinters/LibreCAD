@@ -75,6 +75,7 @@ bool DRW_Entity::parseCode(int code, dxfReader *reader){
     case 100:
         subclassName = reader->getString();
         DRW_DBG("\nDRW_Entity::parseCode, subclassName = "); DRW_DBG(subclassName);
+        std::cout << "\nDRW_Entity::parseCode, subclassName = '" << subclassName << "'/n";
         break;
     case 330:
         parentHandle = reader->getHandleString();
@@ -2780,64 +2781,97 @@ bool DRW_DimOrdinate::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs)
 }
 
 bool DRW_DimArc::parseCode(int code, dxfReader *reader){
+    std::cout << "\nDRW_DimArc::parseCode, subclassName = '" << subclassName << "'\n";
     if (subclassName == "AcDbArcDimension") {
+        std::cout << "subclassName == \"AcDbArcDimension\"\n";
         switch (code) {
         case 10:
             pt0.x = reader->getDouble();
+            std::cout << "10 = " << pt0.x << "\n";
             break;
         case 20:
             pt0.y = reader->getDouble();
+            std::cout << "20 = " << pt0.y << "\n";
             break;
         case 30:
             pt0.z = reader->getDouble();
+            std::cout << "30 = " << pt0.z << "\n";
             break;
         case 13:
-            pt3.x = reader->getDouble();
+            line1.x = reader->getDouble();
+            std::cout << "13 = " << line1.x << "\n";
             break;
         case 23:
-            pt3.y = reader->getDouble();
+            line1.y = reader->getDouble();
+            std::cout << "23 = " << line1.y << "\n";
             break;
         case 33:
-            pt3.z = reader->getDouble();
+            line1.z = reader->getDouble();
+            std::cout << "33 = " << line1.z << "\n";
             break;
         case 14:
-            pt4.x = reader->getDouble();
+            line2.x = reader->getDouble();
+            std::cout << "14 = " << line2.x << "\n";
             break;
         case 24:
-            pt4.y = reader->getDouble();
+            line2.y = reader->getDouble();
+            std::cout << "24 = " << line2.y << "\n";
             break;
         case 34:
-            pt4.z = reader->getDouble();
+            line2.z = reader->getDouble();
+            std::cout << "34 = " << line2.z << "\n";
+            break;
+        case 15:
+            vertex.x = reader->getDouble();
+            std::cout << "15 = " << vertex.x << "\n";
+            break;
+        case 25:
+            vertex.y = reader->getDouble();
+            std::cout << "25 = " << vertex.y << "\n";
+            break;
+        case 35:
+            vertex.z = reader->getDouble();
+            std::cout << "35 = " << vertex.z << "\n";
             break;
         case 16:
             leader1.x = reader->getDouble();
+            std::cout << "16 = " << leader1.x << "\n";
             break;
         case 26:
             leader1.y = reader->getDouble();
+            std::cout << "26 = " << leader1.y << "\n";
             break;
         case 36:
             leader1.z = reader->getDouble();
+            std::cout << "36 = " << leader1.z << "\n";
             break;
         case 17:
             leader2.x = reader->getDouble();
+            std::cout << "17 = " << leader2.x << "\n";
             break;
         case 27:
             leader2.y = reader->getDouble();
+            std::cout << "27 = " << leader2.y << "\n";
             break;
         case 37:
             leader2.z = reader->getDouble();
+            std::cout << "37 = " << leader2.z << "\n";
             break;
         case 40:
             staangle = reader->getDouble();
+            std::cout << "40 = " << staangle << "\n";
             break;
         case 41:
             endangle = reader->getDouble();
+            std::cout << "41 = " << endangle << "\n";
             break;
         case 70:
             partial = (bool) reader->getInt32();
+            std::cout << "70 = " << partial << "\n";
             break;
         case 71:
             leader = (bool) reader->getInt32();
+            std::cout << "71 = " << leader << "\n";
             break;
         default:
             return DRW_Entity::parseCode(code, reader);
@@ -2900,6 +2934,24 @@ bool DRW_DimArc::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
 
     //    RS crc;   //RS */
     return buf->isGood();
+}
+
+std::ostream& operator << (std::ostream& os, const DRW_DimArc& dimArc)
+{
+    os << "DRW_DimArc : \n" 
+       << "{\n\tDimPoint    : " << dimArc.getDimPoint() 
+       <<  "\n\tFirstLine   : " << dimArc.getFirstLine() 
+       <<  "\n\tSecondLine  : " << dimArc.getSecondLine() 
+       <<  "\n\tLeader1     : " << dimArc.getLeader1() 
+       <<  "\n\tLeader2     : " << dimArc.getLeader2() 
+       <<  "\n\tVertexPoint : " << dimArc.getVertexPoint() 
+       <<  "\n\tStartAngle  : " << dimArc.getStartAngle() 
+       <<  "\n\tEndAngle    : " << dimArc.getEndAngle() 
+       <<  "\n\tPartial     : " << dimArc.getPartial() 
+       <<  "\n\tLeader      : " << dimArc.getLeader() 
+       <<  "\n}"                << std::endl << std::endl;
+
+    return os;
 }
 
 bool DRW_Leader::parseCode(int code, dxfReader *reader){

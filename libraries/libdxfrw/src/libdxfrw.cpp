@@ -2925,6 +2925,7 @@ bool dxfRW::processDimension() {
 
 bool dxfRW::processArcDimension() {
     DRW_DBG("dxfRW::processArcDimension\n");
+    std::cout << "dxfRW::processArcDimension\n";
     int code;
     DRW_DimArc dim;
     while (reader->readRec(&code)) {
@@ -2932,6 +2933,7 @@ bool dxfRW::processArcDimension() {
         if (0 == code) {
             nextentity = reader->getString();
             DRW_DBG(nextentity); DRW_DBG("\n");
+            std::cout << dim;
             iface->addDimArc(&dim);
             return true;  //found new entity or ENDSEC, terminate
         }

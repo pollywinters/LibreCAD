@@ -222,6 +222,8 @@ public:
         }
     }
 
+    friend std::ostream& operator << (std::ostream&, const DRW_Coord& coord);
+
 public:
     double x{0};
     double y{0};
