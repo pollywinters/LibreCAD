@@ -223,6 +223,10 @@ public:
                            const DL_DimensionData& data,
                            const DL_DimAngular3PData& edata,
                            const DL_Attributes& attrib);
+    void writeDimArc(DL_WriterA& dw,
+                     const DL_DimensionData& data,
+                     const DL_DimArcData& edata,
+                     const DL_Attributes& attrib);
     void writeLeader(DL_WriterA& dw,
                      const DL_LeaderData& data,
                      const DL_Attributes& attrib);

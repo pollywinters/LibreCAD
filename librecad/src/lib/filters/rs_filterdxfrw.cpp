@@ -23,7 +23,8 @@
 **
 **********************************************************************/
 
-#include<cstdlib>
+#include <cstdlib>
+#include <iostream>
 #include <QStringList>
 #include <QTextCodec>
 
@@ -2738,7 +2739,12 @@ void RS_FilterDXFRW::writeDimension(RS_Dimension* d) {
         }
         break; }
     case RS2::EntityDimArc: {
+        std::cout << "RS_FilterDXFRW::writeDimension, EntityDimArc\n";
+        std::cout << d->getData();
+
         LC_DimArc* da = (LC_DimArc*)d;
+        std::cout << da->getData();
+
         DRW_DimArc* dd = new DRW_DimArc();
         RS_Vector centrePos = da->getCenter();
         double startAngle = da->getStartAngle();

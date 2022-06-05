@@ -130,6 +130,9 @@ void LC_ActionDimArc::mouseMoveEvent(QMouseEvent* e)
 
             LC_DimArc *temp_dimArc_entity { new LC_DimArc (preview.get(), *data, dimArcData) };
 
+            std::cout << *data;
+            std::cout << *temp_dimArc_entity;
+
             deletePreview();
             preview->addEntity(temp_dimArc_entity);
 

@@ -508,7 +508,10 @@ void LC_DimArc::update()
 
 void LC_DimArc::move(const RS_Vector& offset)
 {
-//    RS_DEBUG->print("LC_DimArc::move - enter\n");
+    RS_DEBUG->print("LC_DimArc::move\n");
+
+    std::cout << data;
+    std::cout << dimArcData;
 
     RS_Dimension::move (offset);
 
@@ -518,13 +521,17 @@ void LC_DimArc::move(const RS_Vector& offset)
 
     update();
 
-//    RS_DEBUG->print("LC_DimArc::move - exit\n");
+    std::cout << data;
+    std::cout << dimArcData;
 }
 
 
 void LC_DimArc::rotate(const RS_Vector& center, const double& angle)
 {
-//    RS_DEBUG->print("LC_DimArc::rotate C,A - enter\n");
+    RS_DEBUG->print("LC_DimArc::rotate(center,angle)\n");
+
+    std::cout << data;
+    std::cout << dimArcData;
 
     RS_Vector angleVector(angle);
 
@@ -537,13 +544,17 @@ void LC_DimArc::rotate(const RS_Vector& center, const double& angle)
 
     update();
 
-//    RS_DEBUG->print("LC_DimArc::rotate C,A - exit\n");
+    std::cout << data;
+    std::cout << dimArcData;
 }
 
 
 void LC_DimArc::rotate(const RS_Vector& center, const RS_Vector& angleVector)
 {
-//    RS_DEBUG->print("LC_DimArc::rotate C,Avec - enter\n");
+    RS_DEBUG->print("LC_DimArc::rotate(centre,angleVector)\n");
+
+    std::cout << data;
+    std::cout << dimArcData;
 
     double angle = angleVector.angle();
 
@@ -556,13 +567,17 @@ void LC_DimArc::rotate(const RS_Vector& center, const RS_Vector& angleVector)
 
     update();
 
-//    RS_DEBUG->print("LC_DimArc::rotate C,Avec - exit\n");
+    std::cout << data;
+    std::cout << dimArcData;
 }
 
 
 void LC_DimArc::scale(const RS_Vector& center, const RS_Vector& factor)
 {
-//    RS_DEBUG->print("LC_DimArc::scale - enter\n");
+    RS_DEBUG->print("LC_DimArc::scale\n");
+
+    std::cout << data;
+    std::cout << dimArcData;
 
     const double adjustedFactor = factor.x < factor.y 
                                 ? factor.x 
@@ -580,13 +595,17 @@ void LC_DimArc::scale(const RS_Vector& center, const RS_Vector& factor)
 
     update();
 
-//    RS_DEBUG->print("LC_DimArc::scale - exit\n");
+    std::cout << data;
+    std::cout << dimArcData;
 }
 
 
 void LC_DimArc::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2)
 {
-//    RS_DEBUG->print("LC_DimArc::mirror - enter\n");
+    RS_DEBUG->print("LC_DimArc::mirror\n");
+
+    std::cout << data;
+    std::cout << dimArcData;
 
     const RS_Vector previousDefinitionPoint = data.definitionPoint;
 
@@ -600,10 +619,12 @@ void LC_DimArc::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2)
 
     dimArcData.startAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.startAngle);
     dimArcData.endAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.endAngle);
+    std::swap(dimArcData.startAngle,dimArcData.endAngle);
 
     update();
 
-//    RS_DEBUG->print("LC_DimArc::mirror - exit\n");
+    std::cout << data;
+    std::cout << dimArcData;
 }
 
 
@@ -617,30 +638,45 @@ RS_Vector LC_DimArc::truncateVector(const RS_Vector input_vector)
 
 void LC_DimArc::calcDimension()
 {
-//    RS_DEBUG->print("LC_DimArc::calcDimension - enter\n");
+    RS_DEBUG->print("LC_DimArc::calcDimension\n");
+
+    std::cout << "LC_DimArc::calcDimension\n";
+    std::cout << data;
+    std::cout << dimArcData;
 
     dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.startAngle, dimArcData.startAngle, false));
     dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.endAngle,   dimArcData.endAngle, false));
 
     RS_Vector entityStartPoint = truncateVector(data.definitionPoint);
+    std::cout << "entityStartPoint " << entityStartPoint << "\n";
 
     const double entityRadius  = dimArcData.centre.distanceTo(entityStartPoint);
+    std::cout << "entityRadius " << entityRadius << "\n";
 
     RS_Vector startAngleVector = RS_Vector(dimArcData.startAngle);
     RS_Vector endAngleVector   = RS_Vector(dimArcData.endAngle);
+    std::cout << "startAngleVector " << startAngleVector << "\n";
+    std::cout << "endAngleVector " << endAngleVector << "\n";
 
-    RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector.scale(entityRadius));
+    RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector * entityRadius);
+    std::cout << "entityEndPoint " << entityEndPoint << "\n";
 
-    dimStartPoint = dimArcData.centre + startAngleVector.scale(dimArcData.radius);
-    dimEndPoint   = dimArcData.centre + endAngleVector.scale(dimArcData.radius);
+    dimStartPoint = dimArcData.centre + startAngleVector * dimArcData.radius;
+    dimEndPoint   = dimArcData.centre + endAngleVector * dimArcData.radius;
 
     arrowStartPoint = dimStartPoint;
     arrowEndPoint   = dimEndPoint;
+    std::cout << "arrowStartPoint " << arrowStartPoint << "\n";
+    std::cout << "arrowEndPoint " << arrowEndPoint << "\n";
 
     entityStartPoint += RS_Vector::polar (getExtensionLineOffset(),    entityStartPoint.angleTo(dimStartPoint));
     entityEndPoint   += RS_Vector::polar (getExtensionLineOffset(),    entityEndPoint.angleTo(dimEndPoint));
     dimStartPoint    += RS_Vector::polar (getExtensionLineExtension(), entityStartPoint.angleTo(dimStartPoint));
     dimEndPoint      += RS_Vector::polar (getExtensionLineExtension(), entityEndPoint.angleTo(dimEndPoint));
+    std::cout << "entityStartPoint " << entityStartPoint << "\n";
+    std::cout << "entityEndPoint " << entityEndPoint << "\n";
+    std::cout << "dimStartPoint " << dimStartPoint << "\n";
+    std::cout << "dimEndPoint " << dimEndPoint << "\n";
 
     extLine1 = new RS_Line (this, entityStartPoint, dimStartPoint);
     extLine2 = new RS_Line (this, entityEndPoint,   dimEndPoint);
@@ -665,14 +701,12 @@ void LC_DimArc::calcDimension()
                   << " LC_DimArc::calcDimension: End Points : " << entityEndPoint << " to " << dimEndPoint 
                   << std::endl;
     }
-
-//    RS_DEBUG->print("LC_DimArc::calcDimension - exit\n");
 }
 
 
 std::ostream& operator << (std::ostream& os, const LC_DimArc& input_dimArc)
 {
-    os << " DimArc Information : \n" 
+    os << "DimArc Information : \n" 
        << input_dimArc.getData() << std::endl << std::endl;
 
     return os;
@@ -681,15 +715,15 @@ std::ostream& operator << (std::ostream& os, const LC_DimArc& input_dimArc)
 
 std::ostream& operator << (std::ostream& os, const LC_DimArcData& input_dimArcData)
 {
-    os << " {\n\tCentre      : " << input_dimArcData.centre 
-       <<   "\n\tRadius      : " << input_dimArcData.radius 
-       <<   "\n\tStart Angle : " << input_dimArcData.startAngle 
-       <<   "\n\tEnd   Angle : " << input_dimArcData.endAngle 
-       <<   "\n\tPartial     : " << input_dimArcData.partial
-       <<   "\n\tLeader      : " << input_dimArcData.leader
-       <<   "\n\tLeader Start: " << input_dimArcData.leaderStart
-       <<   "\n\tLeader End  : " << input_dimArcData.leaderEnd
-       <<   "\n}"                << std::endl << std::endl;
+    os << "{\n\tCentre      : " << input_dimArcData.centre 
+       <<  "\n\tRadius      : " << input_dimArcData.radius 
+       <<  "\n\tStart Angle : " << input_dimArcData.startAngle 
+       <<  "\n\tEnd   Angle : " << input_dimArcData.endAngle 
+       <<  "\n\tPartial     : " << input_dimArcData.partial
+       <<  "\n\tLeader      : " << input_dimArcData.leader
+       <<  "\n\tLeader Start: " << input_dimArcData.leaderStart
+       <<  "\n\tLeader End  : " << input_dimArcData.leaderEnd
+       <<  "\n}"                << std::endl << std::endl;
 
     return os;
 }

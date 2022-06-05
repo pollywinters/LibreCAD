@@ -39,6 +39,7 @@
 #include "rs_dimdiametric.h"
 #include "rs_dimlinear.h"
 #include "rs_dimradial.h"
+#include "lc_dimarc.h"
 #include "rs_ellipse.h"
 #include "rs_hatch.h"
 #include "rs_image.h"
@@ -884,26 +885,32 @@ void RS_FilterJWW::addDimAngular3P(const DL_DimensionData& data,
  */
 void RS_FilterJWW::addDimArc(const DL_DimensionData& data,
                              const DL_DimArcData& edata) {
-    RS_DEBUG->print("RS_FilterJWW::addDimArc(const DL_DimensionData&, const DL_DimArcData&) not yet implemented");
-#if 0
-        RS_DEBUG->print("RS_FilterJWW::addDimArc");
+    RS_DEBUG->print("RS_FilterJWW::addDimArc");
 
-        RS_DimensionData dimensionData = convDimensionData(data);
-        RS_Vector dp1(edata.dpx3, edata.dpy3);
-        RS_Vector dp2(edata.dpx1, edata.dpy1);
-        RS_Vector dp3(edata.dpx3, edata.dpy3);
-        RS_Vector dp4 = dimensionData.definitionPoint;
-        dimensionData.definitionPoint = RS_Vector(edata.dpx2, edata.dpy2);
+    RS_DimensionData dimensionData = convDimensionData(data);
 
-        RS_DimAngularData d(dp1, dp2, dp3, dp4);
+    RS_Vector startPos(edata.dpx1, edata.dpy1, 0.0);
+    RS_Vector centrePos(edata.dpx3, edata.dpy3, 0.0);
+    double radius = centrePos.distanceTo(startPos);
+    double arcLength = radius * RS_Math::correctAngle(edata.endangle - edata.staangle);
+    RS_Vector leaderStart(edata.dpx4, edata.dpy4, 0.0);
+    RS_Vector leaderEnd(edata.dpx5, edata.dpy5, 0.0);
 
-        RS_DimAngular* entity = new RS_DimAngular(currentContainer,
-                                                        dimensionData, d);
+    LC_DimArcData dimarcData(radius, 
+                  arcLength,
+                  centrePos, 
+                  edata.staangle, 
+                  edata.endangle,
+                  edata.partial,
+                  edata.leader,
+                  leaderStart,
+                  leaderEnd);
 
-        setEntityAttributes(entity, attributes);
-        entity->update();
-        currentContainer->addEntity(entity);
-#endif
+    LC_DimArc* entity = new LC_DimArc(currentContainer,
+                            dimensionData, dimarcData);
+    setEntityAttributes(entity, attributes);
+    entity->update();
+    currentContainer->addEntity(entity);
 }
 
 
@@ -2090,7 +2097,7 @@ void RS_FilterJWW::writeText(DL_WriterA& dw, RS_MText* t,
 void RS_FilterJWW::writeDimension(DL_WriterA& dw, RS_Dimension* d,
                                                                   const DL_Attributes& attrib) {
 
-        // split hatch into atomic entities:
+        // split dimension into atomic entities:
         if (jww.getVersion()==VER_R12) {
                 writeAtomicEntities(dw, d, attrib, RS2::ResolveNone);
                 return;
@@ -2125,6 +2132,9 @@ void RS_FilterJWW::writeDimension(DL_WriterA& dw, RS_Dimension* d,
                 break;
         case RS2::EntityDimDiametric:
                 type = 3;
+                break;
+        case RS2::EntityDimArc:
+                type = 5;
                 break;
         default:
                 type = 0;
@@ -2205,7 +2215,27 @@ void RS_FilterJWW::writeDimension(DL_WriterA& dw, RS_Dimension* d,
                                                                                  0.0);
 
                 jww.writeDimAngular(dw, dimData, dimAngularData, attrib);
-        }
+        } else if (d->rtti()==RS2::EntityDimArc) {
+                LC_DimArc* da = (LC_DimArc*)d;
+
+                RS_Vector centrePos = da->getCenter();
+                double radius = da->getRadius();
+                double startAngle = da->getStartAngle();
+                double endAngle = da->getEndAngle();
+                RS_Vector defPoint1(centrePos + RS_Vector::polar(radius, startAngle));
+                RS_Vector defPoint2(centrePos + RS_Vector::polar(radius, endAngle));
+
+                DL_DimArcData dimArcData(da->getPartial(),
+                                         da->getLeader(),
+                                         defPoint1.x, defPoint1.y, 0.0,   /*! Coordinate of Definition point line 1. */
+                                         defPoint2.x, defPoint2.y, 0.0,   /*! Coordinate of Definition point line 2. */
+                                         da->getCenter().x, da->getCenter().y, 0.0,
+                                         startAngle, endAngle,
+                                         da->getLeaderStart().x, da->getLeaderStart().y, 0.0,
+                                         da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0);  /*! Coordinate of leader arrow end point. */
+
+                jww.writeDimArc(dw, dimData, dimArcData, attrib);
+    }
 
 }
 

@@ -1340,6 +1340,20 @@ void DL_Jww::writeDimAngular3P(DL_WriterA& /*dw*/,
 }
 
 /**
+ * Writes an arc dimension entity to the file.
+ *
+ * @param dw DXF writer
+ * @param data Generic dimension data for from the file
+ * @param edata Specific arc dimension data from the file
+ * @param attrib Attributes
+ */
+void DL_Jww::writeDimArc(DL_WriterA& /*dw*/,
+                         const DL_DimensionData& /*data*/,
+                         const DL_DimArcData& /*edata*/,
+                         const DL_Attributes& /*attrib*/) {
+}
+
+/**
  * Writes a leader entity to the file.
  *
  * @param dw DXF writer

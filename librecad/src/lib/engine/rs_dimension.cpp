@@ -86,18 +86,18 @@ RS_DimensionData::RS_DimensionData(const RS_Vector& _definitionPoint,
 
 std::ostream& operator << (std::ostream& os,
 						   const RS_DimensionData& dd) {
-	os << "("
-	   << dd.definitionPoint<<','
-	   <<dd.middleOfText<<','
-	  <<dd.valign<<','
-	 <<dd.halign<<','
-	<<dd.lineSpacingStyle<<','
-	<<dd.lineSpacingFactor<<','
-	<<dd.text.toLatin1().data() <<','
-	<<dd.style.toLatin1().data()<<','
-	<<dd.angle
-	<< ")";
-	return os;
+    os << "{\n\tDef Point       : " << dd.definitionPoint 
+       <<  "\n\tMid Text        : " << dd.middleOfText 
+       <<  "\n\tVert Align      : " << dd.valign 
+       <<  "\n\tHoriz Align     : " << dd.halign 
+       <<  "\n\tLine Space Style: " << dd.lineSpacingStyle
+       <<  "\n\tLine Space Fac  : " << dd.lineSpacingFactor
+       <<  "\n\tText            : " << dd.text.toLatin1().data()
+       <<  "\n\tStyle           : " << dd.style.toLatin1().data()
+       <<  "\n\tAngle           : " << dd.angle
+       <<  "\n}"                    << std::endl << std::endl;
+
+    return os;
 }
 
 /**
@@ -134,7 +134,10 @@ RS_Vector RS_Dimension::getNearestSelectedRef( const RS_Vector& coord,
  * @see getMeasuredLabel
  */
 QString RS_Dimension::getLabel(bool resolve) {
+    RS_DEBUG->print("RS_Dimension::getLabel - entry\n");
+
         if (!resolve) {
+                RS_DEBUG->print("RS_Dimension::getLabel - exit !resolve\n");
                 return data.text;
         }
 
@@ -155,6 +158,8 @@ QString RS_Dimension::getLabel(bool resolve) {
         ret = data.text;
         ret = ret.replace(QString("<>"), getMeasuredLabel());
     }
+
+    RS_DEBUG->print("RS_Dimension::getLabel - exit\n");
 
     return ret;
 }

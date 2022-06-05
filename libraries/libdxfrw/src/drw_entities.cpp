@@ -2384,8 +2384,7 @@ bool DRW_Dimension::parseCode(int code, dxfReader *reader){
         linefactor = reader->getDouble();
         break;
     case 42:
-        haveActvalue = true;
-        actvalue = reader->getDouble();
+        setActValue(reader->getDouble());
         break;
     case 51:
         hdir = reader->getDouble();
@@ -2867,7 +2866,7 @@ bool DRW_DimArc::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
     setSecondLine(pt); //line2  code 14
     DRW_DBG("\nline2: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     pt = buf->get3BitDouble();
-    SetVertexPoint(pt); //center pt  code 15
+    setVertexPoint(pt); //center pt  code 15
     DRW_DBG("\nvertex point: "); DRW_DBGPT(pt.x, pt.y, pt.z);
     bool b = buf->getBit();
     setPartial(b);
