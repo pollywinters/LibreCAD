@@ -607,8 +607,6 @@ void LC_DimArc::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2)
     std::cout << data;
     std::cout << dimArcData;
 
-    const RS_Vector previousDefinitionPoint = data.definitionPoint;
-
     RS_Dimension::mirror (axisPoint1, axisPoint2);
 
     dimArcData.centre.mirror (axisPoint1, axisPoint2);
@@ -619,7 +617,17 @@ void LC_DimArc::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2)
 
     dimArcData.startAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.startAngle);
     dimArcData.endAngle = RS_Math::correctAngle(twiceMirrorAngle - dimArcData.endAngle);
+
+    /* Arc has to be defined in CCW direction, but the mirroring has
+       effectively reversed the direction. Put it right by reflecting
+       angles and definition point in the bisector line of the arc.
+       Reflecting the angles in the bisector line is the same as swapping
+       start and end angles. Reflecting the definition point is the same
+       as rotating the point around the arc centre by ( start + end - def.angle ). */
     std::swap(dimArcData.startAngle,dimArcData.endAngle);
+
+    double defAngle = dimArcData.centre.angleTo(data.definitionPoint);
+    data.definitionPoint.rotate(dimArcData.centre, dimArcData.startAngle + dimArcData.endAngle - defAngle);
 
     update();
 
@@ -647,16 +655,16 @@ void LC_DimArc::calcDimension()
     dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.startAngle, dimArcData.startAngle, false));
     dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.endAngle,   dimArcData.endAngle, false));
 
-    RS_Vector entityStartPoint = truncateVector(data.definitionPoint);
-    std::cout << "entityStartPoint " << entityStartPoint << "\n";
-
-    const double entityRadius  = dimArcData.centre.distanceTo(entityStartPoint);
+    const double entityRadius  = dimArcData.centre.distanceTo(data.definitionPoint);
     std::cout << "entityRadius " << entityRadius << "\n";
 
     RS_Vector startAngleVector = RS_Vector(dimArcData.startAngle);
     RS_Vector endAngleVector   = RS_Vector(dimArcData.endAngle);
     std::cout << "startAngleVector " << startAngleVector << "\n";
     std::cout << "endAngleVector " << endAngleVector << "\n";
+
+    RS_Vector entityStartPoint = truncateVector(dimArcData.centre + startAngleVector * entityRadius);
+    std::cout << "entityStartPoint " << entityStartPoint << "\n";
 
     RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector * entityRadius);
     std::cout << "entityEndPoint " << entityEndPoint << "\n";
