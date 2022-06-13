@@ -42,19 +42,18 @@ struct RS_DimAngularData
     /**
      * Constructor with initialisation.
      *
-     * @param definitionPoint Definition point of the angular dimension.
-     * @param leader Leader length.
      */
     RS_DimAngularData(const RS_Vector& definitionPoint1,
                       const RS_Vector& definitionPoint2,
                       const RS_Vector& definitionPoint3,
                       const RS_Vector& definitionPoint4);
 
-    RS_Vector definitionPoint1; ///< 1st line start point, DXF codes 13,23,33
-    RS_Vector definitionPoint2; ///< 1st line end point, DXF codes 14,24,34
-    RS_Vector definitionPoint3; ///< 2nd line start point, DXF codes 15,25,35
-                                ///< 2nd line end point is in common dim data, DXF codes 10,20,30
-    RS_Vector definitionPoint4; ///< dim arc radius point, DXF codes 16,26,36
+    RS_Vector definitionPoint1; ///< 1st line start point (closer to angle vertex), from DXF codes 13,23,33
+    RS_Vector definitionPoint2; ///< 1st line end point (further from angle vertex), from DXF codes 14,24,34
+    RS_Vector definitionPoint3; ///< 2nd line start point (closer to angle vertex), from DXF codes 15,25,35
+    RS_Vector definitionPoint4; ///< 2nd line end point (further from angle vertex), from DXF codes 10,20,30
+
+    ///< point on the dimension line specified by RS_DimensionData.definitionPoint, from DXF codes 16,26,36
 };
 
 std::ostream& operator << (std::ostream& os, const RS_DimAngularData& dd);

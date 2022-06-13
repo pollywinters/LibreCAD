@@ -993,24 +993,24 @@ class DRW_Dimension : public DRW_Entity {
 public:
     DRW_Dimension() {
         eType = DRW::DIMENSION;
-        type = 0;
+        dimType = 0;
         haveActvalue = false;
         dimVersion = 0;
-        style = "STANDARD";
-        align = 5;
-        linesty = 1;
-        linefactor = 1.0;
-        actvalue = rot = 0;
-        extPoint.z = 1.0;
-        hdir = 0;
+        styleName = "STANDARD";
+        textAttach = 5;
+        textLinestyle = 1;
+        textLinefactor = 1.0;
+        dimActvalue = textRotation = 0;
+        extrusionVec.z = 1.0;
+        dimHdir = 0;
     }
 
     DRW_Dimension(const DRW_Dimension& d): DRW_Entity(d) {
         eType = DRW::DIMENSION;
-        type = d.type;
+        dimType = d.dimType;
         haveActvalue = d.haveActvalue;
         dimVersion = d.dimVersion;
-        name = d.name;
+        blockName = d.blockName;
         pt0 = d.pt0;
         pt1 = d.pt1;
         pt2 = d.pt2;
@@ -1018,16 +1018,19 @@ public:
         pt4 = d.pt4;
         pt5 = d.pt5;
         pt6 = d.pt6;
-        text = d.text;
-        style = d.style;
-        align = d.align;
-        linesty = d.linesty;
-        linefactor = d.linefactor;
-        actvalue = d.actvalue;
-        rot = d.rot;
-        extPoint = d.extPoint;
-        hdir = d.hdir;
+        pt7 = d.pt7;
+        dimText = d.dimText;
+        styleName = d.styleName;
+        textAttach = d.textAttach;
+        textLinestyle = d.textLinestyle;
+        textLinefactor = d.textLinefactor;
+        dimActvalue = d.dimActvalue;
+        haveActvalue = d.haveActvalue;
+        textRotation = d.textRotation;
+        extrusionVec = d.extrusionVec;
+        dimHdir = d.dimHdir;
     }
+
     virtual ~DRW_Dimension() {}
 
     virtual void applyExtrusion() override {}
@@ -1037,84 +1040,120 @@ protected:
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, dwgBuffer *sBuf, duint32 bs = 0) override;
     virtual bool parseDwg(DRW::Version version, dwgBuffer* buf, duint32 bs=0) override;
 
-public:
-    DRW_Coord getDefPoint() const {return getPt0();}        /*!< Definition point, code 10, 20 & 30 */
-    void setDefPoint(const DRW_Coord p) {setPt0(p);}
-    DRW_Coord getTextPoint() const {return getPt1();}       /*!< Middle point of text, code 11, 21 & 31 */
-    void setTextPoint(const DRW_Coord p) {setPt1(p);}
-    std::string getStyle() const {return style;}            /*!< Dimension style, code 3 */
-    void setStyle(const std::string s) {style = s;}
-    int getAlign() const {return align;}                    /*!< attachment point, code 71 */
-    void setAlign(const int a) {align = a;}
-    int getTextLineStyle() const {return linesty;}          /*!< Dimension text line spacing style, code 72, default 1 */
-    void setTextLineStyle(const int l) {linesty = l;}
-    std::string getText() const {return text;}              /*!< Dimension text explicitly entered by the user, code 1 */
-    void setText(const std::string t) {text = t;}
-    double getTextLineFactor() const {return linefactor;}   /*!< Dimension text line spacing factor, code 41, default 1? */
-    void setTextLineFactor(const double l) {linefactor = l;}
-    double getDir() const {return rot;}                     /*!< rotation angle of the dimension text, code 53 (optional) default 0 */
-    void setDir(const double d) {rot = d;}
-    DRW_Coord getExtrusion() const {return extPoint;}       /*!< extrusion vector, code 210, 220 & 230 */
-    void setExtrusion(const DRW_Coord p) {extPoint = p;}
-    std::string getName() {return name;}                    /*!< Name of the block that contains the entities, code 2 */
-    void setName(const std::string s) {name = s;}
-    int getType() {return type;}                            /*!< Dimension type, code 70 */
-    void setType(const int t) {type = t;}
-    double getActValue() const {return actvalue;}           /*!< Actual measurement, code 42 (optional, read-only) */
-    void setActValue(const double d) {actvalue = d; haveActvalue = true;}
-    int getDimVersion(){return dimVersion;}                 /*!< Dimension type, code 70 */
-    void setDimVersion(const int v) {dimVersion = v;}
-
+    /* Accessor methods for class members corresponding to DXF codes data
+       (common to all dimension types).                                   */
 protected:
     DRW_Coord getPt0() const {return pt0;}
     void setPt0(const DRW_Coord p) {pt0 = p;}
+    void setPt0(double x, double y, double z) {pt0.x = x; pt0.y = y; pt0.z = z;}
+
     DRW_Coord getPt1() const {return pt1;}
     void setPt1(const DRW_Coord p) {pt1 = p;}
+    void setPt1(double x, double y, double z) {pt1.x = x; pt1.y = y; pt1.z = z;}
+
     DRW_Coord getPt2() const {return pt2;}
     void setPt2(const DRW_Coord p) {pt2 = p;}
+    void setPt2(double x, double y, double z) {pt2.x = x; pt2.y = y; pt2.z = z;}
+
     DRW_Coord getPt3() const {return pt3;}
     void setPt3(const DRW_Coord p) {pt3 = p;}
+    void setPt3(double x, double y, double z) {pt3.x = x; pt3.y = y; pt3.z = z;}
+
     DRW_Coord getPt4() const {return pt4;}
     void setPt4(const DRW_Coord p) {pt4 = p;}
+    void setPt4(double x, double y, double z) {pt4.x = x; pt4.y = y; pt4.z = z;}
+
     DRW_Coord getPt5() const {return pt5;}
     void setPt5(const DRW_Coord p) {pt5 = p;}
+    void setPt5(double x, double y, double z) {pt5.x = x; pt5.y = y; pt5.z = z;}
+
     DRW_Coord getPt6() const {return pt6;}
     void setPt6(const DRW_Coord p) {pt6 = p;}
+    void setPt6(double x, double y, double z) {pt6.x = x; pt6.y = y; pt6.z = z;}
+
+    DRW_Coord getPt7() const {return pt7;}
+    void setPt7(const DRW_Coord p) {pt7 = p;}
+    void setPt7(double x, double y, double z) {pt7.x = x; pt7.y = y; pt7.z = z;}
 
 public:
-    int type;                  /*!< Dimension type, code 70 */
-    bool haveActvalue;         /*!< When actual measurement is present */
+    DRW_Coord getDimLinePoint() const {return getPt0();}         /*!< Definition point for dimension line = pt0 */
+    void setDimLinePoint(const DRW_Coord p) {setPt0(p);}
+    void setDimLinePoint(double x, double y, double z) {setPt0(x,y,z);}
 
-    /* Values for these within "AcDbDimension" sub-class in the DXF */
-private:
-    int dimVersion;            /*!< Dimension version number, code 280 */
-    std::string name;          /*!< Name of the block that contains the entities, code 2 */
-protected:
-    DRW_Coord pt0;             /*!< Definition point, code 10, 20 & 30 (WCS) */
-    DRW_Coord pt1;             /*!< Middle point of text, code 11, 21 & 31 (OCS) */
-    DRW_Coord pt2;             /*!< Insertion point for clones (Baseline & Continue), code 12, 22 & 32 (OCS) */
-    DRW_Coord pt3;             /*!< Definition point 1 for linear & angular, code 13, 23 & 33 (WCS) */
-    DRW_Coord pt4;             /*!< Definition point 2, code 14, 24 & 34 (WCS) */
-    DRW_Coord pt5;             /*!< Definition point for diameter, radius & angular dims code 15, 25 & 35 (WCS) */
-    DRW_Coord pt6;             /*!< Point defining dimension arc, x coordinate, code 16, 26 & 36 (OCS) */
-private:
-    UTF8STRING text;           /*!< Dimension text explicitly entered by the user, code 1 */
-    UTF8STRING style;          /*!< Dimension style, code 3 */
-    int align;                 /*!< attachment point, code 71 */
-    int linesty;               /*!< Dimension text line spacing style, code 72, default 1 */
-    double linefactor;         /*!< Dimension text line spacing factor, code 41, default 1? (value range 0.25 to 4.00*/
-    double actvalue;           /*!< Actual measurement, code 42 (optional, read-only) */
-    double rot;                /*!< rotation angle of the dimension text, code 53 */
-    DRW_Coord extPoint;        /*!< extrusion normal vector, code 210, 220 & 230 */
-    double hdir;               /*!< horizontal direction for the dimension, code 51, default ? */
+    DRW_Coord getTextPoint() const {return getPt1();}            /*!< Middle point of dimText = pt1 */
+    void setTextPoint(const DRW_Coord p) {setPt1(p);}
+    void setTextPoint(double x, double y, double z) {setPt1(x,y,z);}
 
+    int getDimVersion(){return dimVersion;}                      /*!< Dimension version number */
+    void setDimVersion(const int v) {dimVersion = v;}
+
+    std::string getName() {return blockName;}                    /*!< Name of the block that contains the entities */
+    void setName(const std::string s) {blockName = s;}
+
+    int getType() {return dimType;}                              /*!< Dimension dimType (rotated/aligned/angular/diameter/radius etc) */
+    void setType(const int t) {dimType = t;}
+
+    int getAlign() const {return textAttach;}                    /*!< attachment point, code 71 */
+    void setAlign(const int a) {textAttach = a;}
+
+    std::string getStyle() const {return styleName;}             /*!< Dimension styleName, code 3 */
+    void setStyle(const std::string s) {styleName = s;}
+
+    int getTextLineStyle() const {return textLinestyle;}         /*!< Dimension text line spacing style, code 72, default 1 */
+    void setTextLineStyle(const int l) {textLinestyle = l;}
+
+    std::string getDimText() const {return dimText;}             /*!< Dimension dimText explicitly entered by the user, code 1 */
+    void setDimText(const std::string t) {dimText = t;}
+
+    double getTextLineFactor() const {return textLinefactor;}    /*!< Dimension text line spacing factor, code 41 */
+    void setTextLineFactor(const double l) {textLinefactor = l;}
+
+    double getTextRotation() const {return textRotation;}        /*!< rotation angle of the dimension dimText, code 53 (optional) default 0 */
+    void setTextRotation(const double d) {textRotation = d;}
+
+    DRW_Coord getExtrusion() const {return extrusionVec;}        /*!< extrusion vector, code 210, 220 & 230 */
+    void setExtrusion(const DRW_Coord p) {extrusionVec = p;}
+
+    double getActValue() const {return dimActvalue;}             /*!< Actual measurement, code 42 (optional, read-only) */
+    void setActValue(const double d) {dimActvalue = d; haveActvalue = true;}
+
+    /* Following all correspond to common dimension group code values within the
+       DXF. Values are within the "AcDbDimension" and other dimension sub-classes
+       in the DXF.                                                                */
 protected:
+    UTF8STRING dimText;        /*!< Code 1 - Dimension dimText explicitly entered by the user */
+    std::string blockName;     /*!< Code 2 - Name of the block that contains the entities */
+    UTF8STRING styleName;      /*!< Code 3 - Dimension styleName name */
+
+    DRW_Coord pt0;             /*!< Code 10/20/30 coordinate - definition point for the dimension line (WCS) */
+    DRW_Coord pt1;             /*!< Code 11/21/31 coordinate - mid point for the dimension dimText (OCS) */
+    DRW_Coord pt2;             /*!< Code 12/22/32 coordinate - usage depends on dimension dimType (OCS) */
+    DRW_Coord pt3;             /*!< Code 13/23/33 coordinate - usage depends on dimension dimType (WCS) */
+    DRW_Coord pt4;             /*!< Code 14/24/34 coordinate - usage depends on dimension dimType (WCS) */
+    DRW_Coord pt5;             /*!< Code 15/25/35 coordinate - usage depends on dimension dimType (WCS) */
+    DRW_Coord pt6;             /*!< Code 16/26/36 coordinate - usage depends on dimension dimType (OCS) */
+    DRW_Coord pt7;             /*!< Code 17/27/37 coordinate - usage depends on dimension dimType (OCS) */
+
+    double textLinefactor;     /*!< Code 41 - Dimension dimText line spacing factor, default 1 (value range 0.25 to 4.00 */
+    double dimActvalue;        /*!< Code 42 - Actual measurement (optional, read-only) */
+    double dimHdir;            /*!< Code 51 - Horizontal direction for the dimension entity, radians */
+    double textRotation;       /*!< Code 53 - Rotation angle of the dimension dimText, radians */
+
+    int dimType;               /*!< Code 70 - Dimension dimType */
+    int textAttach;            /*!< Code 71 - Dimension dimText attachment specifier, left/centre/right & top/middle/bottom */
+    int textLinestyle;         /*!< Code 72 - Dimension dimText line spacing styleName, default 1 */
+    DRW_Coord extrusionVec;    /*!< Code 210/220/230 - Extrusion normal vector, default (0,0,1) */
+    int dimVersion;            /*!< Code 280 - Dimension version number */
+
+    /* Internal data of the class */
+protected:
+    bool haveActvalue;         /*!< Set true when actual measurement value is present */
     dwgHandle dimStyleH;
     dwgHandle blockH;
 };
 
 
-//! Class to handle  aligned dimension entity
+//! Class to handle aligned dimension entity
 /*!
 *  Class to handle aligned dimension entity
 *  @author Rallaz
@@ -1131,28 +1170,34 @@ public:
         eType = DRW::DIMALIGNED;
     }
 
-    DRW_Coord getClonepoint() const {return getPt2();}      /*!< Insertion for clones (Baseline & Continue), 12, 22 & 32 */
+    DRW_Coord getClonepoint() const {return getPt2();}      /*!< Insertion point for clones (Baseline & Continue) = pt2 */
     void setClonePoint(DRW_Coord c){setPt2(c);}
+    void setClonePoint(double x, double y, double z) {setPt2(x,y,z);}
 
-    DRW_Coord getDimPoint() const {return getPt0();}   /*!< dim line location point, code 10, 20 & 30 */
-    void setDimPoint(const DRW_Coord p){setPt0(p);}
-    DRW_Coord getDef1Point() const {return getPt3();}       /*!< Definition point 1, code 13, 23 & 33 */
-    void setDef1Point(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getDef2Point() const {return getPt4();}       /*!< Definition point 2, code 14, 24 & 34 */
-    void setDef2Point(const DRW_Coord p) {setPt4(p);}
-    double getOblique() const {return oblique;}             /*!< oblique angle, code 52 (seems to be DWG only, not in DXF) */
+    DRW_Coord getDefPoint1() const {return getPt3();}       /*!< Definition point 1 (point to measure from) = pt3 */
+    void setDefPoint1(const DRW_Coord p) {setPt3(p);}
+    void setDefPoint1(double x, double y, double z) {setPt3(x,y,z);}
+
+    DRW_Coord getDefPoint2() const {return getPt4();}       /*!< Definition point 2 (point to measure to) = pt4 */
+    void setDefPoint2(const DRW_Coord p) {setPt4(p);}
+    void setDefPoint2(double x, double y, double z) {setPt4(x,y,z);}
+
+    double getOblique() const {return oblique;}             /*!< Oblique angle for extension lines = code 50, degrees? */
     void setOblique(const double d) {oblique = d;}
 
 protected:
+    bool parseCode(int code, dxfReader *reader) override;
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;
 
 private:
-    double oblique;            /*!< oblique angle, code 52 */
+    double oblique;            /*!< Code 52 - Oblique angle for extension lines, degrees? */
 };
+
 
 //! Class to handle linear or rotated dimension entity
 /*!
 *  Class to handle linear or rotated dimension entity
+*  (superclass of aligned dimension entity)
 *  @author Rallaz
 */
 class DRW_DimLinear : public DRW_DimAligned {
@@ -1162,25 +1207,22 @@ public:
     DRW_DimLinear() {
         eType = DRW::DIMLINEAR;
         angle = 0.0;
-        oblique = 0.0;
     }
     DRW_DimLinear(const DRW_Dimension& d): DRW_DimAligned(d) {
         eType = DRW::DIMLINEAR;
     }
 
-    double getAngle() const {return angle;}          /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
+    double getAngle() const {return angle;}          /*!< Angle of rotated, horizontal, or vertical dimensions (DXF code 50), degrees? */
     void setAngle(const double d) {angle = d;}
-    double getOblique() const {return oblique;}      /*!< oblique angle, code 52 */
-    void setOblique(const double d) {oblique = d;}
 
 protected:
     bool parseCode(int code, dxfReader *reader) override;
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;
 
 private:
-    double angle;              /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
-    double oblique;            /*!< oblique angle, code 52 */
+    double angle;              /*!< Code 50 - Angle of rotated, horizontal, or vertical dimensions, degrees? */
 };
+
 
 //! Class to handle radial dimension entity
 /*!
@@ -1199,11 +1241,15 @@ public:
         eType = DRW::DIMRADIAL;
     }
 
-    DRW_Coord getCenterPoint() const {return getPt0();}        /*!< center point, code 10, 20 & 30 */
-    void setCenterPoint(const DRW_Coord p){setPt0(p);}
-    DRW_Coord getDiameterPoint() const {return getPt5();}      /*!< Definition point for radius, code 15, 25 & 35 */
-    void setDiameterPoint(const DRW_Coord p){setPt5(p);}
-    double getLeaderLength() const {return length;}            /*!< Leader length, code 40 */
+    DRW_Coord getDefPoint1() const {return getPt0();}      /*!< Definition point 1 (point to measure from), centre of circle/arc = pt0 */
+    void setDefPoint1(const DRW_Coord p) {setPt0(p);}
+    void setDefPoint1(double x, double y, double z) {setPt0(x,y,z);}
+
+    DRW_Coord getDefPoint2() const {return getPt5();}      /*!< Definition point 2 (point to measure to), on circle/arc = pt5 */
+    void setDefPoint2(const DRW_Coord p){setPt5(p);}
+    void setDefPoint2(double x, double y, double z) {setPt5(x,y,z);}
+
+    double getLeaderLength() const {return length;}        /*!< Leader line length */
     void setLeaderLength(const double d) {length = d;}
 
 protected:
@@ -1214,9 +1260,10 @@ private:
     double length;             /*!< Leader length, code 40 */
 };
 
-//! Class to handle radial dimension entity
+
+//! Class to handle diameter dimension entity
 /*!
-*  Class to handle aligned, linear or rotated dimension entity
+*  Class to handle diameter dimension entity
 *  @author Rallaz
 */
 class DRW_DimDiametric : public DRW_Dimension {
@@ -1231,11 +1278,15 @@ public:
         eType = DRW::DIMDIAMETRIC;
     }
 
-    DRW_Coord getDiameter1Point() const {return getPt5();}      /*!< First definition point for diameter, code 15, 25 & 35 */
-    void setDiameter1Point(const DRW_Coord p){setPt5(p);}
-    DRW_Coord getDiameter2Point() const {return getPt0();}      /*!< Opposite point for diameter, code 10, 20 & 30 */
-    void setDiameter2Point(const DRW_Coord p){setPt0(p);}
-    double getLeaderLength() const {return length;}             /*!< Leader length, code 40 */
+    DRW_Coord getDefPoint1() const {return getPt0();}      /*!< Definition point 1 (point to measure from), on circle = pt0 */
+    void setDefPoint1(const DRW_Coord p) {setPt0(p);}
+    void setDefPoint1(double x, double y, double z) {setPt0(x,y,z);}
+
+    DRW_Coord getDefPoint2() const {return getPt5();}      /*!< Definition point 2 (point to measure to), opposite side of circle = pt5 */
+    void setDefPoint2(const DRW_Coord p){setPt5(p);}
+    void setDefPoint2(double x, double y, double z) {setPt5(x,y,z);}
+
+    double getLeaderLength() const {return length;}        /*!< Leader line length */
     void setLeaderLength(const double d) {length = d;}
 
 protected:
@@ -1245,6 +1296,7 @@ protected:
 private:
     double length;             /*!< Leader length, code 40 */
 };
+
 
 //! Class to handle angular dimension entity
 /*!
@@ -1262,25 +1314,34 @@ public:
         eType = DRW::DIMANGULAR;
     }
 
-    DRW_Coord getFirstLine1() const {return getPt3();}       /*!< Definition point line 1-1, code 13, 23 & 33 */
+    DRW_Coord getDimLinePoint() const {return getPt6();}      /*!< Definition point for dimension line = pt6 (for angular dimension only!) */
+    void setDimLinePoint(const DRW_Coord p) {setPt6(p);}
+    void setDimLinePoint(double x, double y, double z) {setPt6(x,y,z);}
+
+    DRW_Coord getFirstLine1() const {return getPt3();}        /*!< First definition line, point 1 (closer to angle vertex) = pt3 */
     void setFirstLine1(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getFirstLine2() const {return getPt4();}       /*!< Definition point line 1-2, code 14, 24 & 34 */
+    void setFirstLine1(double x, double y, double z) {setPt3(x,y,z);}
+
+    DRW_Coord getFirstLine2() const {return getPt4();}        /*!< First definition line, point 2 (further from angle vertex) = pt4 */
     void setFirstLine2(const DRW_Coord p) {setPt4(p);}
-    DRW_Coord getSecondLine1() const {return getPt5();}      /*!< Definition point line 2-1, code 15, 25 & 35 */
+    void setFirstLine2(double x, double y, double z) {setPt4(x,y,z);}
+
+    DRW_Coord getSecondLine1() const {return getPt5();}       /*!< Second definition line, point 1 (closer to angle vertex) = pt5 */
     void setSecondLine1(const DRW_Coord p) {setPt5(p);}
-    DRW_Coord getSecondLine2() const {return getPt0();}      /*!< Definition point line 2-2, code 10, 20 & 30 */
-    void setSecondLine2(const DRW_Coord p){setPt0(p);}
-    DRW_Coord getDimPoint() const {return getPt6();}         /*!< Dimension definition point, code 16, 26 & 36 */
-    void setDimPoint(const DRW_Coord p) {setPt6(p);}
+    void setSecondLine1(double x, double y, double z) {setPt5(x,y,z);}
+
+    DRW_Coord getSecondLine2() const {return getPt0();}       /*!< Second definition line, point 2 (further from angle vertex) = pt0 (for angular dimension only!) */
+    void setSecondLine2(const DRW_Coord p) {setPt0(p);}
+    void setSecondLine2(double x, double y, double z) {setPt0(x,y,z);}
 
 protected:
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;
 };
 
 
-//! Class to handle angular 3p dimension entity
+//! Class to handle angular 3 point dimension entity
 /*!
-*  Class to handle angular 3p dimension entity
+*  Class to handle angular 3 point dimension entity
 *  @author Rallaz
 */
 class DRW_DimAngular3p : public DRW_Dimension {
@@ -1293,18 +1354,22 @@ public:
         eType = DRW::DIMANGULAR3P;
     }
 
-    DRW_Coord getFirstLine() const {return getPt3();}        /*!< Definition point line 1, code 13, 23 & 33 */
+    DRW_Coord getFirstLine() const {return getPt3();}        /*!< First definition line point = pt3 */
     void setFirstLine(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getSecondLine() const {return getPt4();}       /*!< Definition point line 2, code 14, 24 & 34 */
+    void setFirstLine(double x, double y, double z) {setPt3(x,y,z);}
+
+    DRW_Coord getSecondLine() const {return getPt4();}       /*!< Second definition line point = pt4 */
     void setSecondLine(const DRW_Coord p) {setPt4(p);}
-    DRW_Coord getVertexPoint() const {return getPt5();}      /*!< Vertex point, code 15, 25 & 35 */
+    void setSecondLine(double x, double y, double z) {setPt4(x,y,z);}
+
+    DRW_Coord getVertexPoint() const {return getPt5();}      /*!< Angle vertex point = pt5 */
     void SetVertexPoint(const DRW_Coord p) {setPt5(p);}
-    DRW_Coord getDimPoint() const {return getPt0();}         /*!< Dimension definition point, code 10, 20 & 30 */
-    void setDimPoint(const DRW_Coord p) {setPt0(p);}
+    void SetVertexPoint(double x, double y, double z) {setPt5(x,y,z);}
 
 protected:
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;
 };
+
 
 //! Class to handle ordinate dimension entity
 /*!
@@ -1322,12 +1387,17 @@ public:
         eType = DRW::DIMORDINATE;
     }
 
-    DRW_Coord getOriginPoint() const {return getPt0();}        /*!< Origin definition point, code 10, 20 & 30 */
+    DRW_Coord getOriginPoint() const {return getPt0();}        /*!< Origin definition point (ie. point to measure ordinate values from) = pt0 */
     void setOriginPoint(const DRW_Coord p) {setPt0(p);}
-    DRW_Coord getFirstLine() const {return getPt3();}          /*!< Feature location point, code 13, 23 & 33 */
-    void setFirstLine(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getSecondLine() const {return getPt4();}         /*!< Leader end point, code 14, 24 & 34 */
-    void setSecondLine(const DRW_Coord p) {setPt4(p);}
+    void setOriginPoint(double x, double y, double z) {setPt0(x,y,z);}
+
+    DRW_Coord getDefPoint() const {return getPt3();}           /*!< Definition point (ie. point to give the ordinates of) = pt3 */
+    void setDefPoint(const DRW_Coord p) {setPt3(p);}
+    void setDefPoint(double x, double y, double z) {setPt3(x,y,z);}
+
+    DRW_Coord getLeaderPoint() const {return getPt4();}        /*!< Leader line point = pt4 */
+    void setLeaderPoint(const DRW_Coord p) {setPt4(p);}
+    void setLeaderPoint(double x, double y, double z) {setPt4(x,y,z);}
 
 protected:
     virtual bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0) override;
@@ -1350,25 +1420,36 @@ public:
         eType = DRW::DIMARC;
     }
 
-    DRW_Coord getDimPoint() const {return getPt0();}         /*!< Dimension definition point, code 10, 20 & 30 */
-    void setDimPoint(const DRW_Coord p) {setPt0(p);}
-    DRW_Coord getFirstLine() const {return line1;}           /*!< Definition point line 1, code 13, 23 & 33 */
-    void setFirstLine(const DRW_Coord p) {line1 = p;}
-    DRW_Coord getSecondLine() const {return line2;}          /*!< Definition point line 2, code 14, 24 & 34 */
-    void setSecondLine(const DRW_Coord p) {line2 = p;}
-    DRW_Coord getLeader1() const {return leader1;}           /*!< Leader point 1, code 16, 26 & 36 */
-    void setLeader1(const DRW_Coord p) {leader1 = p;}
-    DRW_Coord getLeader2() const {return leader2;}           /*!< Leader point 2, code 17, 27 & 37 */
-    void setLeader2(const DRW_Coord p) {leader2 = p;}
-    DRW_Coord getVertexPoint() const {return vertex;}        /*!< Vertex point, code 15, 25 & 35 */
-    void setVertexPoint(const DRW_Coord p) {vertex = p;}
-    double getStartAngle() const {return staangle;}          /*!< Start angle (radians), code 40 */
+    DRW_Coord getDefPoint1() const {return getPt3();}       /*!< Definition point 1 (arc point to measure from) = pt3 */
+    void setDefPoint1(const DRW_Coord p) {setPt3(p);}
+    void setDefPoint1(double x, double y, double z) {setPt3(x,y,z);}
+
+    DRW_Coord getDefPoint2() const {return getPt4();}       /*!< Definition point 2 (arc point to measure to) = pt4 */
+    void setDefPoint2(const DRW_Coord p) {setPt4(p);}
+    void setDefPoint2(double x, double y, double z) {setPt4(x,y,z);}
+
+    DRW_Coord getVertexPoint() const {return getPt5();}      /*!< Arc vertex point = pt5 */
+    void setVertexPoint(const DRW_Coord p) {setPt5(p);}
+    void setVertexPoint(double x, double y, double z) {setPt5(x,y,z);}
+
+    DRW_Coord getLeaderStart() const {return getPt6();}      /*!< Leader line start point = pt6 */
+    void setLeaderStart(const DRW_Coord p) {setPt6(p);}
+    void setLeaderStart(double x, double y, double z) {setPt6(x,y,z);}
+
+    DRW_Coord getLeaderEnd() const {return getPt7();}        /*!< Leader line end point = pt7 */
+    void setLeaderEnd(const DRW_Coord p) {setPt7(p);}
+    void setLeaderEnd(double x, double y, double z) {setPt7(x,y,z);}
+
+    double getStartAngle() const {return staangle;}          /*!< Start angle (radians) */
     void setStartAngle(const double d) {staangle = d;}
-    double getEndAngle() const {return endangle;}            /*!< End angle (radians), code 41 */
+
+    double getEndAngle() const {return endangle;}            /*!< End angle (radians) */
     void setEndAngle(const double d) {endangle = d;}
-    bool getPartial() const {return partial;}                /*!< dimension of partial arc, code 70 */
+
+    bool getPartial() const {return partial;}                /*!< Draw as partial arc dimension */
     void setPartial(const bool b) {partial = b;}
-    bool getLeader() const {return leader;}                  /*!< dimension has leader line, code 71 */
+
+    bool getLeader() const {return leader;}                  /*!< Draw with leader line from text to arc */
     void setLeader(const bool b) {leader = b;}
 
     friend std::ostream& operator << (std::ostream&, const DRW_DimArc& dimArc);
@@ -1379,15 +1460,10 @@ protected:
 
 private:
 	/* Values for these within "AcDbArcDimension" sub-class in the DXF */
-	bool partial = false;             /*!< dimension of partial arc, code 70 */
-	bool leader = false;              /*!< dimension has leader line, code 71 */
-	DRW_Coord line1;                  /*!< Definition point line 1 (start of dim on the arc), code 13, 23 & 33 */
-	DRW_Coord line2;                  /*!< Definition point line 2 (end of dim on the arc), code 14, 24 & 34 */
-	DRW_Coord vertex;                 /*!< Arc centre point, code 15, 25 & 35 */
 	double staangle;                  /*!< Start point angle ref centre point, radians, code 40 */
 	double endangle;                  /*!< End point angle ref centre point, radians, code 41 */
-	DRW_Coord leader1;                /*!< Leader point 1 (start of arrow from dim text), code 16, 26 & 36 */
-	DRW_Coord leader2;                /*!< Leader point 2 (end of arrow to the arc), code 17, 27 & 37 */
+	bool partial = false;             /*!< Draw as partial arc dimension, code 70 */
+	bool leader = false;              /*!< Draw with leader line from text to arc, code 71 */
 };
 
 

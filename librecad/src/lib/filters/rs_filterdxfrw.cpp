@@ -855,7 +855,7 @@ void RS_FilterDXFRW::addText(const DRW_Text& data) {
  */
 RS_DimensionData RS_FilterDXFRW::convDimensionData(const  DRW_Dimension* data) {
 
-    DRW_Coord crd = data->getDefPoint();
+    DRW_Coord crd = data->getDimLinePoint();
     RS_Vector defP(crd.x, crd.y);
     crd = data->getTextPoint();
     RS_Vector midP(crd.x, crd.y);
@@ -869,7 +869,7 @@ RS_DimensionData RS_FilterDXFRW::convDimensionData(const  DRW_Dimension* data) {
     // middlepoint of text can be 0/0 which is considered to be invalid (!):
     //  0/0 because older QCad versions save the middle of the text as 0/0
     //  although they didn't support saving of the middle of the text.
-    if (fabs(crd.x)<1.0e-6 && fabs(crd.y)<1.0e-6) {
+    if (fabs(midP.x)<1.0e-6 && fabs(midP.y)<1.0e-6) {
         midP = RS_Vector(false);
     }
 
@@ -895,7 +895,7 @@ RS_DimensionData RS_FilterDXFRW::convDimensionData(const  DRW_Dimension* data) {
         lss = RS_MTextData::Exact;
     }
 
-    t = toNativeString(QString::fromUtf8( data->getText().c_str() ));
+    t = toNativeString(QString::fromUtf8( data->getDimText().c_str() ));
 
     if (sty.isEmpty()) {
         sty = dimStyle;
@@ -909,7 +909,7 @@ RS_DimensionData RS_FilterDXFRW::convDimensionData(const  DRW_Dimension* data) {
                             valign, halign,
                             lss,
                             data->getTextLineFactor(),
-                            t, sty, data->getDir());
+                            t, sty, data->getTextRotation());
 }
 
 
@@ -923,8 +923,8 @@ void RS_FilterDXFRW::addDimAlign(const DRW_DimAligned *data) {
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
 
-    RS_Vector ext1(data->getDef1Point().x, data->getDef1Point().y);
-    RS_Vector ext2(data->getDef2Point().x, data->getDef2Point().y);
+    RS_Vector ext1(data->getDefPoint1().x, data->getDefPoint1().y);
+    RS_Vector ext2(data->getDefPoint2().x, data->getDefPoint2().y);
 
     RS_DimAlignedData d(ext1, ext2);
 
@@ -947,8 +947,8 @@ void RS_FilterDXFRW::addDimLinear(const DRW_DimLinear *data) {
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
 
-    RS_Vector dxt1(data->getDef1Point().x, data->getDef1Point().y);
-    RS_Vector dxt2(data->getDef2Point().x, data->getDef2Point().y);
+    RS_Vector dxt1(data->getDefPoint1().x, data->getDefPoint1().y);
+    RS_Vector dxt2(data->getDefPoint2().x, data->getDefPoint2().y);
 
     RS_DimLinearData d(dxt1, dxt2, RS_Math::deg2rad(data->getAngle()),
                        RS_Math::deg2rad(data->getOblique()));
@@ -970,7 +970,7 @@ void RS_FilterDXFRW::addDimRadial(const DRW_DimRadial* data) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimRadial");
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
-    RS_Vector dp(data->getDiameterPoint().x, data->getDiameterPoint().y);
+    RS_Vector dp(data->getDefPoint2().x, data->getDefPoint2().y);
 
     RS_DimRadialData d(dp, data->getLeaderLength());
 
@@ -992,7 +992,7 @@ void RS_FilterDXFRW::addDimDiametric(const DRW_DimDiametric* data) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimDiametric");
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
-    RS_Vector dp(data->getDiameter1Point().x, data->getDiameter1Point().y);
+    RS_Vector dp(data->getDefPoint2().x, data->getDefPoint2().y);
 
     RS_DimDiametricData d(dp, data->getLeaderLength());
 
@@ -1013,11 +1013,14 @@ void RS_FilterDXFRW::addDimDiametric(const DRW_DimDiametric* data) {
 void RS_FilterDXFRW::addDimAngular(const DRW_DimAngular* data) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimAngular");
 
-    RS_DimensionData dimensionData = convDimensionData(data);
     RS_Vector dp1(data->getFirstLine1().x, data->getFirstLine1().y);
     RS_Vector dp2(data->getFirstLine2().x, data->getFirstLine2().y);
     RS_Vector dp3(data->getSecondLine1().x, data->getSecondLine1().y);
-    RS_Vector dp4(data->getDimPoint().x, data->getDimPoint().y);
+    RS_Vector dp4(data->getSecondLine2().x, data->getSecondLine2().y);
+    RS_Vector defPoint(data->getDimLinePoint().x, data->getDimLinePoint().y);
+
+    RS_DimensionData dimensionData = convDimensionData(data);
+    dimensionData.definitionPoint = defPoint;
 
     RS_DimAngularData d(dp1, dp2, dp3, dp4);
 
@@ -1032,18 +1035,20 @@ void RS_FilterDXFRW::addDimAngular(const DRW_DimAngular* data) {
 
 
 /**
- * Implementation of the method which handles
+ * Implementation of the method which handles 3 point
  * angular dimensions (DIMENSION).
  */
 void RS_FilterDXFRW::addDimAngular3P(const DRW_DimAngular3p* data) {
     RS_DEBUG->print("RS_FilterDXFRW::addDimAngular3P");
 
-    RS_DimensionData dimensionData = convDimensionData(data);
-    RS_Vector dp1(data->getFirstLine().x, data->getFirstLine().y);
-    RS_Vector dp2(data->getSecondLine().x, data->getSecondLine().y);
+    RS_Vector dp1(data->getVertexPoint().x, data->getVertexPoint().y);
+    RS_Vector dp2(data->getFirstLine().x, data->getFirstLine().y);
     RS_Vector dp3(data->getVertexPoint().x, data->getVertexPoint().y);
-	RS_Vector dp4 = dimensionData.definitionPoint;
-	dimensionData.definitionPoint = RS_Vector(data->getVertexPoint().x, data->getVertexPoint().y);
+    RS_Vector dp4(data->getSecondLine().x, data->getSecondLine().y);
+    RS_Vector defPoint(data->getDimLinePoint().x, data->getDimLinePoint().y);
+
+    RS_DimensionData dimensionData = convDimensionData(data);
+    dimensionData.definitionPoint = defPoint;
 
     RS_DimAngularData d(dp1, dp2, dp3, dp4);
 
@@ -1071,20 +1076,24 @@ void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
 
-    DRW_Coord crd = data->getFirstLine();
+    // TBD - use only P0, P1, P3, P4, P5 from the input data
+    // TBD - fully calc all the output data
+    DRW_Coord crd = data->getDefPoint1();
     RS_Vector startPos(crd.x, crd.y, 0.0);
+    crd = data->getDefPoint2();
+    RS_Vector endPos(crd.x, crd.y, 0.0);
     crd = data->getVertexPoint();
     RS_Vector centrePos(crd.x, crd.y, 0.0);
-    crd = data->getLeader1();
+    crd = data->getLeaderStart();
     RS_Vector leaderStart(crd.x, crd.y, 0.0);
-    crd = data->getLeader2();
+    crd = data->getLeaderEnd();
     RS_Vector leaderEnd(crd.x, crd.y, 0.0);
 
-    double startAngle = data->getStartAngle();
-    double endAngle = data->getEndAngle();
-
     double radius = centrePos.distanceTo(startPos);
-    double arcLength = radius * RS_Math::correctAngle(endAngle - startAngle);
+    double startAngle = centrePos.angleTo(startPos);
+    double endAngle = centrePos.angleTo(endPos);
+
+    double arcLength = radius * (endAngle - startAngle);
 
     LC_DimArcData dimarcData(radius, 
                   arcLength,
@@ -2698,44 +2707,47 @@ void RS_FilterDXFRW::writeDimension(RS_Dimension* d) {
         RS_DimAligned* da = (RS_DimAligned*)d;
         DRW_DimAligned * dd = new DRW_DimAligned();
         dim = dd ;
-        dim->type = 1 +32;
-        dd->setDef1Point(DRW_Coord (da->getExtensionPoint1().x, da->getExtensionPoint1().y, 0.0));
-        dd->setDef2Point(DRW_Coord (da->getExtensionPoint2().x, da->getExtensionPoint2().y, 0.0));
+        dim->setType(1 + 32);
+        dd->setDefPoint1(DRW_Coord (da->getExtensionPoint1().x, da->getExtensionPoint1().y, 0.0));
+        dd->setDefPoint2(DRW_Coord (da->getExtensionPoint2().x, da->getExtensionPoint2().y, 0.0));
         break; }
     case RS2::EntityDimDiametric: {
         RS_DimDiametric* dr = (RS_DimDiametric*)d;
         DRW_DimDiametric * dd = new DRW_DimDiametric();
         dim = dd ;
-        dim->type = 3+32;
-        dd->setDiameter1Point(DRW_Coord (dr->getDefinitionPoint().x, dr->getDefinitionPoint().y, 0.0));
+        dim->setType(3 + 32);
+        dd->setDefPoint1(DRW_Coord (d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0.0));
+        dd->setDefPoint2(DRW_Coord (dr->getDefinitionPoint().x, dr->getDefinitionPoint().y, 0.0));
         dd->setLeaderLength(dr->getLeader());
         break; }
     case RS2::EntityDimRadial: {
         RS_DimRadial* dr = (RS_DimRadial*)d;
         DRW_DimRadial * dd = new DRW_DimRadial();
         dim = dd ;
-        dim->type = 4+32;
-        dd->setDiameterPoint(DRW_Coord (dr->getDefinitionPoint().x, dr->getDefinitionPoint().y, 0.0));
+        dim->setType(4 + 32);
+        dd->setDefPoint1(DRW_Coord (d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0.0));
+        dd->setDefPoint2(DRW_Coord (dr->getDefinitionPoint().x, dr->getDefinitionPoint().y, 0.0));
         dd->setLeaderLength(dr->getLeader());
         break; }
     case RS2::EntityDimAngular: {
-		RS_DimAngular* da = static_cast<RS_DimAngular*>(d);
-		if (da->getDefinitionPoint3() == da->getData().definitionPoint) {
+		RS_DimAngular* da = (RS_DimAngular*)d;
+		if (da->getDefinitionPoint1() == da->getDefinitionPoint3()) {  // point 1 == point 3 => is vertex point
             DRW_DimAngular3p * dd = new DRW_DimAngular3p();
             dim = dd ;
-            dim->type = 5+32;
-            dd->setFirstLine(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //13
-            dd->setSecondLine(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //14
-            dd->SetVertexPoint(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //15
-            dd->setDimPoint(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //10
+            dim->setType(5 + 32);
+            dd->setFirstLine(DRW_Coord (da->getDefinitionPoint2().x, da->getDefinitionPoint2().y, 0.0)); //13
+            dd->setSecondLine(DRW_Coord (da->getDefinitionPoint4().x, da->getDefinitionPoint4().y, 0.0)); //14
+            dd->SetVertexPoint(DRW_Coord (da->getDefinitionPoint1().x, da->getDefinitionPoint1().y, 0.0)); //15
+            dd->setDimLinePoint(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //10
         } else {
             DRW_DimAngular * dd = new DRW_DimAngular();
             dim = dd ;
-            dim->type = 2+32;
+            dim->setType(2 + 32);
             dd->setFirstLine1(DRW_Coord (da->getDefinitionPoint1().x, da->getDefinitionPoint1().y, 0.0)); //13
             dd->setFirstLine2(DRW_Coord (da->getDefinitionPoint2().x, da->getDefinitionPoint2().y, 0.0)); //14
             dd->setSecondLine1(DRW_Coord (da->getDefinitionPoint3().x, da->getDefinitionPoint3().y, 0.0)); //15
-            dd->setDimPoint(DRW_Coord (da->getDefinitionPoint4().x, da->getDefinitionPoint4().y, 0.0)); //16
+            dd->setSecondLine2(DRW_Coord (da->getDefinitionPoint4().x, da->getDefinitionPoint4().y, 0.0)); //10
+            dd->setDimLinePoint(DRW_Coord (da->getDefinitionPoint().x, da->getDefinitionPoint().y, 0.0)); //16
         }
         break; }
     case RS2::EntityDimArc: {
@@ -2753,36 +2765,37 @@ void RS_FilterDXFRW::writeDimension(RS_Dimension* d) {
         RS_Vector defPoint1(centrePos + RS_Vector::polar(radius, startAngle));
         RS_Vector defPoint2(centrePos + RS_Vector::polar(radius, endAngle));
         dim = dd ;
-        dim->type = 5;
-        dd->setDimPoint(DRW_Coord (d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0.0));
-        dd->setFirstLine(DRW_Coord (defPoint1.x, defPoint1.y, 0.0));
-        dd->setSecondLine(DRW_Coord (defPoint2.x, defPoint2.y, 0.0));
-        dd->setLeader1(DRW_Coord (da->getLeaderStart().x, da->getLeaderStart().y, 0.0));
-        dd->setLeader2(DRW_Coord (da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0));
+        dim->setType(5);
+        dd->setDimLinePoint(DRW_Coord (d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0.0));
+        dd->setDefPoint1(DRW_Coord (defPoint1.x, defPoint1.y, 0.0));
+        dd->setDefPoint2(DRW_Coord (defPoint2.x, defPoint2.y, 0.0));
+        dd->setLeaderStart(DRW_Coord (da->getLeaderStart().x, da->getLeaderStart().y, 0.0));
+        dd->setLeaderEnd(DRW_Coord (da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0));
         dd->setVertexPoint(DRW_Coord (centrePos.x, centrePos.y, 0.0));
         dd->setStartAngle(startAngle);
         dd->setEndAngle(endAngle);
         dd->setPartial(da->getPartial());
         dd->setLeader(da->getLeader());
+        dd->setActValue(da->getArcLength());
         break; }
     default: { //default to DimLinear
         RS_DimLinear* dl = (RS_DimLinear*)d;
         DRW_DimLinear * dd = new DRW_DimLinear();
         dim = dd ;
-        dim->type = 0+32;
-        dd->setDef1Point(DRW_Coord (dl->getExtensionPoint1().x, dl->getExtensionPoint1().y, 0.0));
-        dd->setDef2Point(DRW_Coord (dl->getExtensionPoint2().x, dl->getExtensionPoint2().y, 0.0));
+        dim->setType(0 + 32);
+        dd->setDefPoint1(DRW_Coord (dl->getExtensionPoint1().x, dl->getExtensionPoint1().y, 0.0));
+        dd->setDefPoint2(DRW_Coord (dl->getExtensionPoint2().x, dl->getExtensionPoint2().y, 0.0));
         dd->setAngle( RS_Math::rad2deg(dl->getAngle()) );
-        dd->setOblique(dl->getOblique());
+        dd->setOblique( RS_Math::rad2deg(dl->getOblique()) );
         break; }
     }
     getEntityAttributes(dim, d);
-    dim->setDefPoint(DRW_Coord(d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0));
+    dim->setDimLinePoint(DRW_Coord(d->getDefinitionPoint().x, d->getDefinitionPoint().y, 0));
     dim->setTextPoint(DRW_Coord(d->getMiddleOfText().x, d->getMiddleOfText().y, 0));
     dim->setStyle (d->getStyle().toUtf8().data());
     dim->setAlign (attachmentPoint);
     dim->setTextLineStyle(d->getLineSpacingStyle());
-    dim->setText (toDxfString(d->getText()).toUtf8().data());
+    dim->setDimText (toDxfString(d->getText()).toUtf8().data());
     dim->setTextLineFactor(d->getLineSpacingFactor());
     if (!blkName.isEmpty()) {
         dim->setName(blkName.toStdString());

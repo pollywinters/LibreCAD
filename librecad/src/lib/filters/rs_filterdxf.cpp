@@ -886,16 +886,16 @@ void RS_FilterDXF::addDimArc(const DL_DimensionData& data, const DL_DimArcData& 
 
     RS_DimensionData dimensionData = convDimensionData(data);
 
-    RS_Vector startPos(edata.dpx1, edata.dpy1, 0.0);
-    RS_Vector centrePos(edata.dpx3, edata.dpy3, 0.0);
-    double radius = centrePos.distanceTo(startPos);
+    RS_Vector dimPoint(data.dpx, data.dpy, 0.0);
+    RS_Vector centrePoint(edata.dpx3, edata.dpy3, 0.0);
+    double radius = centrePoint.distanceTo(dimPoint);
     double arcLength = radius * RS_Math::correctAngle(edata.endangle - edata.staangle);
     RS_Vector leaderStart(edata.dpx4, edata.dpy4, 0.0);
     RS_Vector leaderEnd(edata.dpx5, edata.dpy5, 0.0);
 
     LC_DimArcData dimarcData(radius, 
                   arcLength,
-                  centrePos, 
+                  centrePoint, 
                   edata.staangle, 
                   edata.endangle,
                   edata.partial,

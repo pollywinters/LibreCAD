@@ -655,7 +655,7 @@ void LC_DimArc::calcDimension()
     dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.startAngle, dimArcData.startAngle, false));
     dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimArcData.radius, dimArcData.endAngle,   dimArcData.endAngle, false));
 
-    const double entityRadius  = dimArcData.centre.distanceTo(data.definitionPoint);
+    const double entityRadius  = dimArcData.radius;
     std::cout << "entityRadius " << entityRadius << "\n";
 
     RS_Vector startAngleVector = RS_Vector(dimArcData.startAngle);
@@ -726,7 +726,8 @@ std::ostream& operator << (std::ostream& os, const LC_DimArcData& input_dimArcDa
     os << "{\n\tCentre      : " << input_dimArcData.centre 
        <<  "\n\tRadius      : " << input_dimArcData.radius 
        <<  "\n\tStart Angle : " << input_dimArcData.startAngle 
-       <<  "\n\tEnd   Angle : " << input_dimArcData.endAngle 
+       <<  "\n\tEnd Angle   : " << input_dimArcData.endAngle 
+       <<  "\n\tArc Length  : " << input_dimArcData.arcLength
        <<  "\n\tPartial     : " << input_dimArcData.partial
        <<  "\n\tLeader      : " << input_dimArcData.leader
        <<  "\n\tLeader Start: " << input_dimArcData.leaderStart

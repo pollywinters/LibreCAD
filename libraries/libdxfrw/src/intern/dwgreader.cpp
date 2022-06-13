@@ -1037,49 +1037,49 @@ bool dwgReader::readDwgEntity(dwgBuffer *dbuf, objHandle& obj, DRW_Interface& in
         case 20: {
             DRW_DimOrdinate e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimOrdinate(&e);
             }
             break; }
         case 21: {
             DRW_DimLinear e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimLinear(&e);
             }
             break; }
         case 22: {
             DRW_DimAligned e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimAlign(&e);
             }
             break; }
         case 23: {
             DRW_DimAngular3p e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimAngular3P(&e);
             }
             break; }
         case 24: {
             DRW_DimAngular e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimAngular(&e);
             }
             break; }
         case 25: {
             DRW_DimRadial e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimRadial(&e);
             }
             break; }
         case 26: {
             DRW_DimDiametric e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimDiametric(&e);
             }
             break; }
@@ -1156,7 +1156,7 @@ bool dwgReader::readDwgEntity(dwgBuffer *dbuf, objHandle& obj, DRW_Interface& in
         case 103: {
             DRW_DimArc e;
             if (entryParse( e, buff, bs, ret)) {
-                e.style = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
+                e.styleName = findTableName(DRW::DIMSTYLE, e.dimStyleH.ref);
                 intfa.addDimArc(&e);
             }
             break; }

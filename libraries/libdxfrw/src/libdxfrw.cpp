@@ -1084,21 +1084,21 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             writer->writeString(2, ent->getName());
             std::cout << "2 = " << ent->getName() << "\n";
         }
-        writer->writeDouble(10, ent->getDefPoint().x);
-        writer->writeDouble(20, ent->getDefPoint().y);
-        writer->writeDouble(30, ent->getDefPoint().z);
-        std::cout << "10/20/30 = " << ent->getDefPoint().x << "/" << ent->getDefPoint().y << "/" << ent->getDefPoint().z << "\n";
+        writer->writeDouble(10, ent->getDimLinePoint().x);
+        writer->writeDouble(20, ent->getDimLinePoint().y);
+        writer->writeDouble(30, ent->getDimLinePoint().z);
+        std::cout << "10/20/30 = " << ent->getDimLinePoint().x << "/" << ent->getDimLinePoint().y << "/" << ent->getDimLinePoint().z << "\n";
         writer->writeDouble(11, ent->getTextPoint().x);
         writer->writeDouble(21, ent->getTextPoint().y);
         writer->writeDouble(31, ent->getTextPoint().z);
         std::cout << "11/21/31 = " << ent->getTextPoint().x << "/" << ent->getTextPoint().y << "/" << ent->getTextPoint().z << "\n";
-        if ( !(ent->type & 32))
-            ent->type = ent->type +32;
-        writer->writeInt16(70, ent->type);
-        std::cout << "70 = " << ent->type << "\n";
-        if ( !(ent->getText().empty()) ) {
-            writer->writeUtf8String(1, ent->getText());
-            std::cout << "1 = " << ent->getText() << "\n";
+        if ( !(ent->dimType & 32))
+            ent->dimType = ent->dimType +32;
+        writer->writeInt16(70, ent->dimType);
+        std::cout << "70 = " << ent->dimType << "\n";
+        if ( !(ent->getDimText().empty()) ) {
+            writer->writeUtf8String(1, ent->getDimText());
+            std::cout << "1 = " << ent->getDimText() << "\n";
         }
         writer->writeInt16(71, ent->getAlign());
         std::cout << "71 = " << ent->getAlign() << "\n";
@@ -1117,8 +1117,8 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
         writer->writeUtf8String(3, ent->getStyle());
         std::cout << "3 = " << ent->getStyle() << "\n";
         if ( ent->getTextLineFactor() != 0) {
-            writer->writeDouble(53, ent->getDir());
-            std::cout << "53 = " << ent->getDir() << "\n";
+            writer->writeDouble(53, ent->getTextRotation());
+            std::cout << "53 = " << ent->getTextRotation() << "\n";
         }
         writer->writeDouble(210, ent->getExtrusion().x);
         writer->writeDouble(220, ent->getExtrusion().y);
@@ -1136,12 +1136,12 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
                 writer->writeDouble(22, crd.y);
                 writer->writeDouble(32, crd.z);
             }
-            writer->writeDouble(13, dd->getDef1Point().x);
-            writer->writeDouble(23, dd->getDef1Point().y);
-            writer->writeDouble(33, dd->getDef1Point().z);
-            writer->writeDouble(14, dd->getDef2Point().x);
-            writer->writeDouble(24, dd->getDef2Point().y);
-            writer->writeDouble(34, dd->getDef2Point().z);
+            writer->writeDouble(13, dd->getDefPoint1().x);
+            writer->writeDouble(23, dd->getDefPoint1().y);
+            writer->writeDouble(33, dd->getDefPoint1().z);
+            writer->writeDouble(14, dd->getDefPoint2().x);
+            writer->writeDouble(24, dd->getDefPoint2().y);
+            writer->writeDouble(34, dd->getDefPoint2().z);
             if (ent->eType == DRW::DIMLINEAR) {
                 DRW_DimLinear * dl = (DRW_DimLinear*)ent;
                 if (dl->getAngle() != 0)
@@ -1154,17 +1154,17 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
         case DRW::DIMRADIAL: {
             DRW_DimRadial * dd = (DRW_DimRadial*)ent;
             writer->writeString(100, "AcDbRadialDimension");
-            writer->writeDouble(15, dd->getDiameterPoint().x);
-            writer->writeDouble(25, dd->getDiameterPoint().y);
-            writer->writeDouble(35, dd->getDiameterPoint().z);
+            writer->writeDouble(15, dd->getDefPoint2().x);
+            writer->writeDouble(25, dd->getDefPoint2().y);
+            writer->writeDouble(35, dd->getDefPoint2().z);
             writer->writeDouble(40, dd->getLeaderLength());
             break; }
         case DRW::DIMDIAMETRIC: {
             DRW_DimDiametric * dd = (DRW_DimDiametric*)ent;
             writer->writeString(100, "AcDbDiametricDimension");
-            writer->writeDouble(15, dd->getDiameter1Point().x);
-            writer->writeDouble(25, dd->getDiameter1Point().y);
-            writer->writeDouble(35, dd->getDiameter1Point().z);
+            writer->writeDouble(15, dd->getDefPoint2().x);
+            writer->writeDouble(25, dd->getDefPoint2().y);
+            writer->writeDouble(35, dd->getDefPoint2().z);
             writer->writeDouble(40, dd->getLeaderLength());
             break; }
         case DRW::DIMANGULAR: {
@@ -1179,9 +1179,9 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             writer->writeDouble(15, dd->getSecondLine1().x);
             writer->writeDouble(25, dd->getSecondLine1().y);
             writer->writeDouble(35, dd->getSecondLine1().z);
-            writer->writeDouble(16, dd->getDimPoint().x);
-            writer->writeDouble(26, dd->getDimPoint().y);
-            writer->writeDouble(36, dd->getDimPoint().z);
+            writer->writeDouble(16, dd->getDimLinePoint().x);
+            writer->writeDouble(26, dd->getDimLinePoint().y);
+            writer->writeDouble(36, dd->getDimLinePoint().z);
             break; }
         case DRW::DIMANGULAR3P: {
             DRW_DimAngular3p * dd = (DRW_DimAngular3p*)ent;
@@ -1199,25 +1199,25 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
         case DRW::DIMORDINATE: {
             DRW_DimOrdinate * dd = (DRW_DimOrdinate*)ent;
             writer->writeString(100, "AcDbOrdinateDimension");
-            writer->writeDouble(13, dd->getFirstLine().x);
-            writer->writeDouble(23, dd->getFirstLine().y);
-            writer->writeDouble(33, dd->getFirstLine().z);
-            writer->writeDouble(14, dd->getSecondLine().x);
-            writer->writeDouble(24, dd->getSecondLine().y);
-            writer->writeDouble(34, dd->getSecondLine().z);
+            writer->writeDouble(13, dd->getDefPoint().x);
+            writer->writeDouble(23, dd->getDefPoint().y);
+            writer->writeDouble(33, dd->getDefPoint().z);
+            writer->writeDouble(14, dd->getLeaderPoint().x);
+            writer->writeDouble(24, dd->getLeaderPoint().y);
+            writer->writeDouble(34, dd->getLeaderPoint().z);
             break; }
         case DRW::DIMARC: {
             DRW_DimArc * dd = (DRW_DimArc*)ent;
             writer->writeString(100, "AcDbArcDimension");
             std::cout << "100 = AcDbArcDimension\n";
-            writer->writeDouble(13, dd->getFirstLine().x);  // 1st point defines start angle and radius ref. Arc centre
-            writer->writeDouble(23, dd->getFirstLine().y);
-            writer->writeDouble(33, dd->getFirstLine().z);
-            std::cout << "13/23/33 = " << dd->getFirstLine().x << "/" << dd->getFirstLine().y << "/" << dd->getFirstLine().z << "\n";
-            writer->writeDouble(14, dd->getSecondLine().x);  // 2nd point defines end angle ref. Arc centre
-            writer->writeDouble(24, dd->getSecondLine().y);
-            writer->writeDouble(34, dd->getSecondLine().z);
-            std::cout << "14/24/34 = " << dd->getSecondLine().x << "/" << dd->getSecondLine().y << "/" << dd->getSecondLine().z << "\n";
+            writer->writeDouble(13, dd->getDefPoint1().x);  // 1st point defines start angle and radius ref. Arc centre
+            writer->writeDouble(23, dd->getDefPoint1().y);
+            writer->writeDouble(33, dd->getDefPoint1().z);
+            std::cout << "13/23/33 = " << dd->getDefPoint1().x << "/" << dd->getDefPoint1().y << "/" << dd->getDefPoint1().z << "\n";
+            writer->writeDouble(14, dd->getDefPoint2().x);  // 2nd point defines end angle ref. Arc centre
+            writer->writeDouble(24, dd->getDefPoint2().y);
+            writer->writeDouble(34, dd->getDefPoint2().z);
+            std::cout << "14/24/34 = " << dd->getDefPoint2().x << "/" << dd->getDefPoint2().y << "/" << dd->getDefPoint2().z << "\n";
             writer->writeDouble(15, dd->getVertexPoint().x);  // Arc centre
             writer->writeDouble(25, dd->getVertexPoint().y);
             writer->writeDouble(35, dd->getVertexPoint().z);
@@ -1229,14 +1229,14 @@ bool dxfRW::writeDimension(DRW_Dimension *ent) {
             std::cout << "40/41 = " << dd->getStartAngle() << "/" << dd->getEndAngle() << "\n";
             writer->writeBool(71, dd->getLeader());  // Has leader?
             std::cout << "71 = " << dd->getLeader() << "\n";
-            writer->writeDouble(16, dd->getLeader1().x);  // Leader point 1 (start of arrow from dim text)
-            writer->writeDouble(26, dd->getLeader1().y);
-            writer->writeDouble(36, dd->getLeader1().z);
-            std::cout << "16/26/36 = " << dd->getLeader1().x << "/" << dd->getLeader1().y << "/" << dd->getLeader1().z << "\n";
-            writer->writeDouble(17, dd->getLeader2().x);  // Leader point 2 (end of arrow to the arc)
-            writer->writeDouble(27, dd->getLeader2().y);
-            writer->writeDouble(37, dd->getLeader2().z);
-            std::cout << "17/27/37 = " << dd->getLeader2().x << "/" << dd->getLeader2().y << "/" << dd->getLeader2().z << "\n";
+            writer->writeDouble(16, dd->getLeaderStart().x);  // Leader point 1 (start of arrow from dim text)
+            writer->writeDouble(26, dd->getLeaderStart().y);
+            writer->writeDouble(36, dd->getLeaderStart().z);
+            std::cout << "16/26/36 = " << dd->getLeaderStart().x << "/" << dd->getLeaderStart().y << "/" << dd->getLeaderStart().z << "\n";
+            writer->writeDouble(17, dd->getLeaderEnd().x);  // Leader point 2 (end of arrow to the arc)
+            writer->writeDouble(27, dd->getLeaderEnd().y);
+            writer->writeDouble(37, dd->getLeaderEnd().z);
+            std::cout << "17/27/37 = " << dd->getLeaderEnd().x << "/" << dd->getLeaderEnd().y << "/" << dd->getLeaderEnd().z << "\n";
             break; }
         default:
             break;
@@ -2881,7 +2881,7 @@ bool dxfRW::processDimension() {
         if (0 == code) {
             nextentity = reader->getString();
             DRW_DBG(nextentity); DRW_DBG("\n");
-            int type = dim.type & 0x0F;
+            int type = dim.dimType & 0x0F;
             switch (type) {
             case 0: {
                 DRW_DimLinear d(dim);
