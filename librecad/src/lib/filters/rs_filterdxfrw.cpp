@@ -1096,7 +1096,6 @@ void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
     double arcLength = radius * (endAngle - startAngle);
 
     LC_DimArcData dimarcData(radius, 
-                  arcLength,
                   centrePos, 
                   startAngle, 
                   endAngle,

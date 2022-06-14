@@ -58,12 +58,7 @@ void LC_ActionDimArc::reset()
 
     actionType = RS2::ActionDimArc;
 
-    dimArcData.radius    = 0.0;
-    dimArcData.arcLength = 0.0;
-
-    dimArcData.centre     = RS_Vector(false);
-    dimArcData.endAngle   = 0.0;
-    dimArcData.startAngle = 0.0;
+    dimArcData = LC_DimArcData( 0.0, RS_Vector(false), 0.0, 0.0 );
 
     selectedArcEntity = nullptr;
 
@@ -126,7 +121,7 @@ void LC_ActionDimArc::mouseMoveEvent(QMouseEvent* e)
     {
         case SetPos:
         {
-            setRadius (snapPoint(e));
+            setDimLine (snapPoint(e));
 
             LC_DimArc *temp_dimArc_entity { new LC_DimArc (preview.get(), *data, dimArcData) };
 
@@ -164,24 +159,19 @@ void LC_ActionDimArc::mouseReleaseEvent(QMouseEvent* e)
                 {
                     if (selectedArcEntity->rtti() == RS2::EntityArc)
                     {
+                        dimArcData.radius     = selectedArcEntity->getRadius();
                         dimArcData.centre     = selectedArcEntity->getCenter();
-                        dimArcData.arcLength  = selectedArcEntity->getLength();
-
-                        dimArcData.startAngle = ((RS_Arc *) selectedArcEntity)->getAngle1();
-                        dimArcData.endAngle   = ((RS_Arc *) selectedArcEntity)->getAngle2();
-
-                        data->definitionPoint = selectedArcEntity->getStartpoint();
 
                         if (((RS_Arc *) selectedArcEntity)->isReversed())
                         {
-                            double tempAngle = dimArcData.startAngle;
-
-                            dimArcData.startAngle = dimArcData.endAngle;
-                            dimArcData.endAngle   = tempAngle;
-
-                            data->definitionPoint = selectedArcEntity->getEndpoint();
+                            dimArcData.startAngle = ((RS_Arc *) selectedArcEntity)->getAngle2();
+                            dimArcData.endAngle   = ((RS_Arc *) selectedArcEntity)->getAngle1();
+                        } else {
+                            dimArcData.startAngle = ((RS_Arc *) selectedArcEntity)->getAngle1();
+                            dimArcData.endAngle   = ((RS_Arc *) selectedArcEntity)->getAngle2();
                         }
 
+                        data->definitionPoint.setPolar(dimArcData.radius, dimArcData.startAngle);
                         setStatus (SetPos);
                     }
                     else
@@ -245,7 +235,7 @@ void LC_ActionDimArc::coordinateEvent(RS_CoordinateEvent* e)
     switch (getStatus())
     {
         case SetPos:
-            setRadius (e->getCoordinate());
+            setDimLine (e->getCoordinate());
             trigger();
             reset();
             setStatus (SetEntity);
@@ -318,18 +308,14 @@ void LC_ActionDimArc::updateMouseButtonHints()
 }
 
 
-void LC_ActionDimArc::setRadius(const RS_Vector& selectedPosition)
+void LC_ActionDimArc::setDimLine(const RS_Vector& selectedPosition)
 {
-    RS_DEBUG->print("LC_ActionDimArc::setRadius - enter\n");
+    RS_DEBUG->print("LC_ActionDimArc::setDimLine - enter\n");
 
-    const double minimum_dimArc_gap = 0.0;
+    double dimLineRadius = selectedPosition.distanceTo (dimArcData.centre);
 
-    dimArcData.radius = selectedPosition.distanceTo (dimArcData.centre);
+    data->definitionPoint.setPolar(dimLineRadius, dimArcData.startAngle);
 
-    const double minimumRadius = selectedArcEntity->getRadius() + minimum_dimArc_gap;
-
-    if (dimArcData.radius < minimumRadius) dimArcData.radius = minimumRadius;
-
-    RS_DEBUG->print("LC_ActionDimArc::setRadius - exit\n");
+    RS_DEBUG->print("LC_ActionDimArc::setDimLine - exit\n");
 }
 

@@ -71,6 +71,6 @@ class LC_ActionDimArc : public RS_ActionDimension
 
         LC_DimArcData dimArcData;
 
-        void setRadius(const RS_Vector& selectedPosition);
+        void setDimLine(const RS_Vector& selectedPosition);
 };
 

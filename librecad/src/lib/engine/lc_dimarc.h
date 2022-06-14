@@ -35,31 +35,49 @@ struct LC_DimArcData
 
     LC_DimArcData(const LC_DimArcData& input_dimArcData);
 
-    LC_DimArcData(const double& input_radius, 
-                  const double& input_arcLength,
-                  const RS_Vector& input_centre, 
-                  const double& input_startAngle, 
-                  const double& input_endAngle);
+    LC_DimArcData(const double& input_radius,         // radius of arc being dimensioned
+                  const RS_Vector& input_centre,      // coord for centre of arc being dimensioned
+                  const double& input_startAngle,     // angle from centre for start of arc, radians
+                  const double& input_endAngle);      // angle from centre for end of arc, radians
+                                                      // note: arc always goes counter-clockwise from start to end angle
 
     LC_DimArcData(const double& input_radius, 
-                  const double& input_arcLength,
                   const RS_Vector& input_centre, 
-                  const double& input_startAngle, 
+                  const RS_Vector& input_startVector, // angles as unit vectors
+                  const RS_Vector& input_endVector);
+
+    LC_DimArcData(const double& input_radius, 
+                  const RS_Vector& input_centre, 
+                  const double& input_startAngle,     // angles as radians
                   const double& input_endAngle,
+                  const bool& input_partial);         // true when dimension is for part of a larger arc
+                                                      // (changes styling of the dimension line)
+
+    LC_DimArcData(const double& input_radius, 
+                  const RS_Vector& input_centre, 
+                  const RS_Vector& input_startVector, // angles as unit vectors
+                  const RS_Vector& input_endVector,
                   const bool& input_partial);
 
     LC_DimArcData(const double& input_radius, 
-                  const double& input_arcLength,
                   const RS_Vector& input_centre, 
-                  const double& input_startAngle, 
+                  const double& input_startAngle,     // angles as radians
                   const double& input_endAngle,
+                  const bool& input_partial,
+                  const bool& input_leader,           // true when leader line to be drawn from dimension text to the arc
+                  const RS_Vector& input_leaderStart, // start and end coords for leader line
+                  const RS_Vector& input_leaderEnd);
+
+    LC_DimArcData(const double& input_radius, 
+                  const RS_Vector& input_centre, 
+                  const RS_Vector& input_startVector, // angles as unit vectors
+                  const RS_Vector& input_endVector,
                   const bool& input_partial,
                   const bool& input_leader,
                   const RS_Vector& input_leaderStart,
                   const RS_Vector& input_leaderEnd);
 
     double radius;           /*! Radius of the arc */
-    double arcLength;        /*! Length value for the arc */
 
     RS_Vector centre;        /*! Coordinate of arc centre point */
     double startAngle;       /*! Angle centre to arc start point, radians */
@@ -106,7 +124,7 @@ class LC_DimArc : public RS_Dimension
 
         double getArcLength() const
         {
-            return dimArcData.arcLength;
+            return arcLength;
         }
 
         double getStartAngle() const
@@ -175,6 +193,8 @@ class LC_DimArc : public RS_Dimension
         RS_Line* extLine2;
         RS_Arc*  dimArc1;
         RS_Arc*  dimArc2;
+
+        double arcLength;        /*! Length value for the arc (computed) */
 
         void calcDimension();
 

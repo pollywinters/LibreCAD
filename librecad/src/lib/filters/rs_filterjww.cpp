@@ -897,7 +897,6 @@ void RS_FilterJWW::addDimArc(const DL_DimensionData& data,
     RS_Vector leaderEnd(edata.dpx5, edata.dpy5, 0.0);
 
     LC_DimArcData dimarcData(radius, 
-                  arcLength,
                   centrePos, 
                   edata.staangle, 
                   edata.endangle,
