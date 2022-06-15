@@ -991,6 +991,12 @@ void DL_Jww::addDimAngular3P(DL_CreationInterface* /*creationInterface*/) {
 }
 
 
+/**
+ * Adds an arc length dimension entity that was read from the file via the creation interface.
+ */
+void DL_Jww::addDimArc(DL_CreationInterface* /*creationInterface*/) {
+}
+
 
 /**
  * Adds a leader entity that was read from the file via the creation interface.

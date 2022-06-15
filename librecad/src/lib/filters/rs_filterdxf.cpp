@@ -886,18 +886,21 @@ void RS_FilterDXF::addDimArc(const DL_DimensionData& data, const DL_DimArcData& 
 
     RS_DimensionData dimensionData = convDimensionData(data);
 
-    RS_Vector dimPoint(data.dpx, data.dpy, 0.0);
-    RS_Vector centrePoint(edata.dpx3, edata.dpy3, 0.0);
-    double radius = centrePoint.distanceTo(dimPoint);
-    double arcLength = radius * RS_Math::correctAngle(edata.endangle - edata.staangle);
+    // recalculate start/end angles from the arc start & end & centre coords
+    RS_Vector startPos(edata.dpx1, edata.dpy1, 0.0);
+    RS_Vector endPos(edata.dpx2, edata.dpy2, 0.0);
+    RS_Vector centrePos(edata.dpx3, edata.dpy3, 0.0);
     RS_Vector leaderStart(edata.dpx4, edata.dpy4, 0.0);
     RS_Vector leaderEnd(edata.dpx5, edata.dpy5, 0.0);
 
+    double radius = centrePos.distanceTo(startPos);
+    double startAngle = centrePos.angleTo(startPos);
+    double endAngle = centrePos.angleTo(endPos);
+
     LC_DimArcData dimarcData(radius, 
-                  arcLength,
-                  centrePoint, 
-                  edata.staangle, 
-                  edata.endangle,
+                  centrePos, 
+                  startAngle, 
+                  endAngle,
                   edata.partial,
                   edata.leader,
                   leaderStart,
@@ -2222,7 +2225,7 @@ void RS_FilterDXF::writeDimension(DL_WriterA& dw, RS_Dimension* d,
                                  da->getLeader(),
                                  defPoint1.x, defPoint1.y, 0.0,   /*! Coordinate of Definition point line 1. */
                                  defPoint2.x, defPoint2.y, 0.0,   /*! Coordinate of Definition point line 2. */
-                                 da->getCenter().x, da->getCenter().y, 0.0,
+                                 centrePos.x, centrePos.y, 0.0,
                                  startAngle, endAngle,
                                  da->getLeaderStart().x, da->getLeaderStart().y, 0.0,
                                  da->getLeaderEnd().x, da->getLeaderEnd().y, 0.0);  /*! Coordinate of leader arrow end point. */

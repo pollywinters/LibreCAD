@@ -1072,12 +1072,11 @@ void RS_FilterDXFRW::addDimOrdinate(const DRW_DimOrdinate *data) {
  * arc dimensions (ARC_DIMENSION).
  */
 void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
-    RS_DEBUG->print("RS_FilterDXFRW::addDimArc - enter\n");
+    RS_DEBUG->print("RS_FilterDXFRW::addDimArc\n");
 
     RS_DimensionData dimensionData = convDimensionData((DRW_Dimension*)data);
 
-    // TBD - use only P0, P1, P3, P4, P5 from the input data
-    // TBD - fully calc all the output data
+    // recalculate start/end angles from the arc start & end & centre coords
     DRW_Coord crd = data->getDefPoint1();
     RS_Vector startPos(crd.x, crd.y, 0.0);
     crd = data->getDefPoint2();
@@ -1093,8 +1092,6 @@ void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
     double startAngle = centrePos.angleTo(startPos);
     double endAngle = centrePos.angleTo(endPos);
 
-    double arcLength = radius * (endAngle - startAngle);
-
     LC_DimArcData dimarcData(radius, 
                   centrePos, 
                   startAngle, 
@@ -1109,8 +1106,6 @@ void RS_FilterDXFRW::addDimArc(const DRW_DimArc *data) {
     setEntityAttributes(entity, data);
     entity->update();
     currentContainer->addEntity(entity);
-
-    RS_DEBUG->print("RS_FilterDXFRW::addDimArc - exit\n");
 }
 
 
