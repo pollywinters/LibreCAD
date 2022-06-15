@@ -146,6 +146,7 @@ public:
     void addDimDiametric(DL_CreationInterface* creationInterface);
     void addDimAngular(DL_CreationInterface* creationInterface);
     void addDimAngular3P(DL_CreationInterface* creationInterface);
+    void addDimArc(DL_CreationInterface* creationInterface);
     void addLeader(DL_CreationInterface* creationInterface);
     void addHatch(DL_CreationInterface* creationInterface);
     void addImage(DL_CreationInterface* creationInterface);

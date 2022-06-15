@@ -58,7 +58,8 @@ void LC_ActionDimArc::reset()
 
     actionType = RS2::ActionDimArc;
 
-    dimArcData = LC_DimArcData( 0.0, RS_Vector(false), 0.0, 0.0 );
+//    dimArcData = LC_DimArcData( 0.0, RS_Vector(false), 0.0, 0.0 );
+    dimArcData = LC_DimArcData( 0.0, RS_Vector(false), 0.0, 0.0, true );
 
     selectedArcEntity = nullptr;
 

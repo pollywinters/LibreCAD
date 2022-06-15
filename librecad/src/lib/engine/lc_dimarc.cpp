@@ -37,6 +37,13 @@
 #include "lc_dimarc.h"
 
 
+static const double deg45 = M_PI_2 / 2.0;
+static const double deg90 = M_PI_2;
+static const double deg180 = M_PI;
+static const double deg270 = M_PI + M_PI_2;
+static const double deg360 = M_PI * 2.0;
+
+
 LC_DimArcData::LC_DimArcData()
                :
                radius     (0.0), 
@@ -268,8 +275,6 @@ void LC_DimArc::arrow( const RS_Vector& point,
     }
     else
     {
-        const double deg45 = M_PI_2 / 2.0;
-
         const RS_Vector tickVector = RS_Vector::polar(getTickSize() * getGeneralScale(), angle - deg45);
 
         RS_Line* tick = new RS_Line(this, point - tickVector, point + tickVector);
@@ -310,47 +315,60 @@ void LC_DimArc::updateDim(bool autoText /* = false */)
     addEntity (extLine1);
     addEntity (extLine2);
 
+    RS_Arc* refArc;
     double dimLineRadius = dimArcData.centre.distanceTo(data.definitionPoint);
-    RS_Arc* refArc
-    {
-        new RS_Arc( this, 
-                    RS_ArcData( dimArcData.centre, 
-                                dimLineRadius, 
-                                dimArcData.startAngle, 
-                                dimArcData.endAngle, 
-                                false) 
-                  ) 
-    };
+    double arcAngle = RS_Math::correctAngle(dimArcData.endAngle - dimArcData.startAngle);
+    if (dimArcData.partial && arcAngle < deg90) {
+        double midAngle = (dimArcData.startAngle + dimArcData.endAngle) / 2;
+        RS_Vector midAngleVector = RS_Vector(midAngle);
+        RS_Vector offsetVector = midAngleVector * ( dimLineRadius - dimArcData.radius );
 
-    arrow (arrowStartPoint, dimArcData.startAngle, +1.0, pen);
-    arrow (arrowEndPoint,   dimArcData.endAngle,   -1.0, pen);
+        refArc = new RS_Arc( this, 
+                             RS_ArcData( dimArcData.centre + offsetVector, 
+                                         dimArcData.radius, 
+                                         dimArcData.startAngle, 
+                                         dimArcData.endAngle, 
+                                         false) 
+                           );
+        arrow (arrowStartPoint, midAngle, +1.0, pen);
+        arrow (arrowEndPoint,   midAngle,   -1.0, pen);
+    } else {
+        refArc = new RS_Arc( this, 
+                             RS_ArcData( dimArcData.centre, 
+                                         dimLineRadius, 
+                                         dimArcData.startAngle, 
+                                         dimArcData.endAngle, 
+                                         false) 
+                           );
+
+        arrow (arrowStartPoint, dimArcData.startAngle, +1.0, pen);
+        arrow (arrowEndPoint,   dimArcData.endAngle,   -1.0, pen);
+    }
 
     double textAngle  { 0.0 };
 
     RS_Vector textPos { refArc->getMiddlePoint() };
 
-    const double textAngle_preliminary { std::trunc((textPos.angleTo(dimArcData.centre) - M_PI) * 1.0E+10) * 1.0E-10 };
+    const double textAngle_preliminary { std::trunc((textPos.angleTo(dimArcData.centre) - deg180) * 1.0E+10) * 1.0E-10 };
 
     if ( ! this->getInsideHorizontalText())
     {
         RS_Vector textPosOffset;
 
-        const double deg360 { M_PI * 2.0 };
-
         const double degTolerance { 1.0E-3 };
 
         /* With regards to Quadrants #1 and #2 */
-        if (((textAngle_preliminary >= -degTolerance) && (textAngle_preliminary <= (M_PI + degTolerance))) 
-        ||  ((textAngle_preliminary <= -(M_PI - degTolerance)) && (textAngle_preliminary >= -(deg360 + degTolerance))))
+        if (((textAngle_preliminary >= -degTolerance) && (textAngle_preliminary <= (deg180 + degTolerance))) 
+        ||  ((textAngle_preliminary <= -(deg180 - degTolerance)) && (textAngle_preliminary >= -(deg360 + degTolerance))))
         {
             textPosOffset.setPolar (getDimensionLineGap(), textAngle_preliminary);
-            textAngle = textAngle_preliminary + M_PI + M_PI_2;
+            textAngle = textAngle_preliminary + deg270;
         }
         /* With regards to Quadrants #3 and #4 */
         else
         {
-            textPosOffset.setPolar (getDimensionLineGap(), textAngle_preliminary + M_PI);
-            textAngle = textAngle_preliminary + M_PI_2;
+            textPosOffset.setPolar (getDimensionLineGap(), textAngle_preliminary + deg180);
+            textAngle = textAngle_preliminary + deg90;
         }
     }
 
@@ -634,9 +652,6 @@ void LC_DimArc::calcDimension()
 
     double dimLineRadius = dimArcData.centre.distanceTo(data.definitionPoint);
 
-    dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimLineRadius, dimArcData.startAngle, dimArcData.startAngle, false));
-    dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimLineRadius, dimArcData.endAngle,   dimArcData.endAngle, false));
-
     const double entityRadius  = dimArcData.radius;
     std::cout << "entityRadius " << entityRadius << "\n";
     std::cout << "dimLineRadius " << dimLineRadius << "\n";
@@ -652,11 +667,24 @@ void LC_DimArc::calcDimension()
     RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector * entityRadius);
     std::cout << "entityEndPoint " << entityEndPoint << "\n";
 
-    arcLength = dimArcData.radius * RS_Math::correctAngle(dimArcData.endAngle - dimArcData.startAngle);
+    double arcAngle = RS_Math::correctAngle(dimArcData.endAngle - dimArcData.startAngle);
+
+    arcLength = dimArcData.radius * arcAngle;
     std::cout << "arcLength " << arcLength << "\n";
 
-    dimStartPoint = dimArcData.centre + startAngleVector * dimLineRadius;
-    dimEndPoint   = dimArcData.centre + endAngleVector * dimLineRadius;
+    if (dimArcData.partial && arcAngle < deg90) {
+        RS_Vector midAngleVector = RS_Vector( (dimArcData.startAngle + dimArcData.endAngle) / 2);
+        RS_Vector offsetVector = midAngleVector * ( dimLineRadius - dimArcData.radius );
+        dimStartPoint = entityStartPoint + offsetVector;
+        dimEndPoint   = entityEndPoint + offsetVector;
+        dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre + offsetVector, dimArcData.radius, dimArcData.startAngle, dimArcData.startAngle, false));
+        dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre + offsetVector, dimArcData.radius, dimArcData.endAngle,   dimArcData.endAngle, false));
+    } else {
+        dimStartPoint = dimArcData.centre + startAngleVector * dimLineRadius;
+        dimEndPoint   = dimArcData.centre + endAngleVector * dimLineRadius;
+        dimArc1 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimLineRadius, dimArcData.startAngle, dimArcData.startAngle, false));
+        dimArc2 = new RS_Arc (this, RS_ArcData(dimArcData.centre, dimLineRadius, dimArcData.endAngle,   dimArcData.endAngle, false));
+    }
 
     arrowStartPoint = dimStartPoint;
     arrowEndPoint   = dimEndPoint;
