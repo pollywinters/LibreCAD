@@ -223,7 +223,7 @@ QString LC_DimArc::getMeasuredLabel()
 
         RS2::LinearFormat format = currentGraphic->getLinearFormat(dimlunit);
 
-        measuredLabel = RS_Units::formatLinear(arcLength, RS2::None, format, dimdec);
+        measuredLabel = RS_Units::formatLinear(arcLength * getGeneralFactor(), RS2::None, format, dimdec);
 
         if (format == RS2::Decimal) measuredLabel = stripZerosLinear(measuredLabel, dimzin);
 
@@ -234,7 +234,7 @@ QString LC_DimArc::getMeasuredLabel()
     }
     else
     {
-        measuredLabel = QString("%1").arg(arcLength);
+        measuredLabel = QString("%1").arg(arcLength * getGeneralFactor());
     }
 
     return measuredLabel;
@@ -270,9 +270,7 @@ void LC_DimArc::arrow( const RS_Vector& point,
     {
         const double deg45 = M_PI_2 / 2.0;
 
-        const double midAngle = (dimArcData.startAngle + dimArcData.endAngle) / 2.0;
-
-        const RS_Vector tickVector = RS_Vector::polar(getTickSize() * getGeneralScale(), midAngle - deg45);
+        const RS_Vector tickVector = RS_Vector::polar(getTickSize() * getGeneralScale(), angle - deg45);
 
         RS_Line* tick = new RS_Line(this, point - tickVector, point + tickVector);
         tick->setPen(pen);
@@ -654,7 +652,7 @@ void LC_DimArc::calcDimension()
     RS_Vector entityEndPoint   = truncateVector(dimArcData.centre + endAngleVector * entityRadius);
     std::cout << "entityEndPoint " << entityEndPoint << "\n";
 
-    arcLength = dimArcData.radius * (dimArcData.endAngle - dimArcData.startAngle);
+    arcLength = dimArcData.radius * RS_Math::correctAngle(dimArcData.endAngle - dimArcData.startAngle);
     std::cout << "arcLength " << arcLength << "\n";
 
     dimStartPoint = dimArcData.centre + startAngleVector * dimLineRadius;

@@ -310,12 +310,16 @@ void LC_ActionDimArc::updateMouseButtonHints()
 
 void LC_ActionDimArc::setDimLine(const RS_Vector& selectedPosition)
 {
-    RS_DEBUG->print("LC_ActionDimArc::setDimLine - enter\n");
+    RS_DEBUG->print("LC_ActionDimArc::setDimLine\n");
 
     double dimLineRadius = selectedPosition.distanceTo (dimArcData.centre);
 
-    data->definitionPoint.setPolar(dimLineRadius, dimArcData.startAngle);
+    data->definitionPoint = RS_Vector::polar(dimLineRadius, dimArcData.startAngle) + dimArcData.centre;
 
-    RS_DEBUG->print("LC_ActionDimArc::setDimLine - exit\n");
+    std::cout << "LC_ActionDimArc::setDimLine\n";
+    std::cout << "selectedPosition " << selectedPosition << "\n";
+    std::cout << "dimArcData.centre " << dimArcData.centre << "\n";
+    std::cout << "dimLineRadius " << dimLineRadius << "\n";
+    std::cout << "data->definitionPoint " << data->definitionPoint << "\n";
 }
 
