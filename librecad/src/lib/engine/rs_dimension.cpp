@@ -134,10 +134,7 @@ RS_Vector RS_Dimension::getNearestSelectedRef( const RS_Vector& coord,
  * @see getMeasuredLabel
  */
 QString RS_Dimension::getLabel(bool resolve) {
-    RS_DEBUG->print("RS_Dimension::getLabel - entry\n");
-
         if (!resolve) {
-                RS_DEBUG->print("RS_Dimension::getLabel - exit !resolve\n");
                 return data.text;
         }
 
@@ -158,8 +155,6 @@ QString RS_Dimension::getLabel(bool resolve) {
         ret = data.text;
         ret = ret.replace(QString("<>"), getMeasuredLabel());
     }
-
-    RS_DEBUG->print("RS_Dimension::getLabel - exit\n");
 
     return ret;
 }

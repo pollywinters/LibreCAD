@@ -1239,17 +1239,6 @@ struct DL_DimArcData {
     double dpy5;
     /*! Z Coordinate of leader line end point. */
     double dpz5;
-
-	/* Values for these within "AcDbArcDimension" sub-class in the DXF */
-//	bool partial = false;             /*!< dimension of partial arc, code 70 */
-//	bool leader = false;              /*!< dimension has leader line, code 71 */
-//	DRW_Coord line1;                  /*!< Definition point line 1, code 13, 23 & 33 */
-//	DRW_Coord line2;                  /*!< Definition point line 2, code 14, 24 & 34 */
-//	DRW_Coord vertex;                 /*!< Arc centre point, code 15, 25 & 35 */
-//	double staangle;                  /*!< Start angle on arc for partial dim, radians, code 40 */
-//	double endangle;                  /*!< End angle on arc for partial dim, radians, code 41 */
-//	DRW_Coord leader1;                /*!< Leader start point, code 16, 26 & 36 */
-//	DRW_Coord leader2;                /*!< Leader end point, code 17, 27 & 37 */
 };
 
 

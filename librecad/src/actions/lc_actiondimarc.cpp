@@ -52,8 +52,6 @@ LC_ActionDimArc::~LC_ActionDimArc() = default;
 
 void LC_ActionDimArc::reset()
 {
-    RS_DEBUG->print("LC_ActionDimArc::reset - enter\n");
-
     RS_ActionDimension::reset();
 
     actionType = RS2::ActionDimArc;
@@ -64,15 +62,11 @@ void LC_ActionDimArc::reset()
     selectedArcEntity = nullptr;
 
     RS_DIALOGFACTORY->requestOptions (this, true, true);
-
-    RS_DEBUG->print("LC_ActionDimArc::reset - exit\n");
 }
 
 
 void LC_ActionDimArc::trigger()
 {
-    RS_DEBUG->print("LC_ActionDimArc::trigger - enter\n");
-
     RS_PreviewActionInterface::trigger();
 
     if (selectedArcEntity == nullptr)
@@ -109,8 +103,6 @@ void LC_ActionDimArc::trigger()
     graphicView->moveRelativeZero (relativeZeroPos);
 
     RS_Snapper::finish();
-
-    RS_DEBUG->print("LC_ActionDimArc::trigger - exit\n");
 }
 
 
@@ -126,8 +118,8 @@ void LC_ActionDimArc::mouseMoveEvent(QMouseEvent* e)
 
             LC_DimArc *temp_dimArc_entity { new LC_DimArc (preview.get(), *data, dimArcData) };
 
-            std::cout << *data;
-            std::cout << *temp_dimArc_entity;
+//            std::cout << *data;
+//            std::cout << *temp_dimArc_entity;
 
             deletePreview();
             preview->addEntity(temp_dimArc_entity);
@@ -146,8 +138,6 @@ void LC_ActionDimArc::mouseMoveEvent(QMouseEvent* e)
 
 void LC_ActionDimArc::mouseReleaseEvent(QMouseEvent* e)
 {
-    RS_DEBUG->print("LC_ActionDimArc::mouseReleaseEvent - enter\n");
-
     if (Qt::LeftButton == e->button())
     {
         switch (getStatus())
@@ -199,38 +189,27 @@ void LC_ActionDimArc::mouseReleaseEvent(QMouseEvent* e)
         deletePreview();
         init (getStatus() - 1);
     }
-    RS_DEBUG->print("LC_ActionDimArc::mouseReleaseEvent - exit\n");
 }
 
 
 void LC_ActionDimArc::showOptions()
 {
-    RS_DEBUG->print("LC_ActionDimArc::showOptions - enter\n");
-
     RS_ActionInterface::showOptions();
 
     RS_DIALOGFACTORY->requestOptions (this, true);
-
-    RS_DEBUG->print("LC_ActionDimArc::showOptions - exit\n");
 }
 
 
 void LC_ActionDimArc::hideOptions()
 {
-    RS_DEBUG->print("LC_ActionDimArc::hideOptions - enter\n");
-
     RS_ActionInterface::hideOptions();
 
     RS_DIALOGFACTORY->requestOptions (this, false);
-
-    RS_DEBUG->print("LC_ActionDimArc::hideOptions - exit\n");
 }
 
 
 void LC_ActionDimArc::coordinateEvent(RS_CoordinateEvent* e)
 {
-    RS_DEBUG->print("LC_ActionDimArc::coordinateEvent - enter\n");
-
     if (e == nullptr) return;
 
     switch (getStatus())
@@ -245,15 +224,11 @@ void LC_ActionDimArc::coordinateEvent(RS_CoordinateEvent* e)
         default:
             break;
     }
-
-    RS_DEBUG->print("LC_ActionDimArc::coordinateEvent - exit\n");
 }
 
 
 void LC_ActionDimArc::commandEvent(RS_CommandEvent* e)
 {
-    RS_DEBUG->print("LC_ActionDimArc::commandEvent - enter\n");
-
     QString inputCommand (e->getCommand().toLower());
 
     if (checkCommand (QStringLiteral ("help"), inputCommand))
@@ -267,18 +242,12 @@ void LC_ActionDimArc::commandEvent(RS_CommandEvent* e)
         init (-1);
         return;
     }
-
-    RS_DEBUG->print("LC_ActionDimArc::commandEvent - exit\n");
 }
 
 
 QStringList LC_ActionDimArc::getAvailableCommands()
 {
-    RS_DEBUG->print("LC_ActionDimArc::getAvailableCommands - enter\n");
-
     QStringList availableCommandsList { "help", "exit" };
-
-    RS_DEBUG->print("LC_ActionDimArc::getAvailableCommands - exit\n");
 
     return availableCommandsList;
 }
@@ -286,8 +255,6 @@ QStringList LC_ActionDimArc::getAvailableCommands()
 
 void LC_ActionDimArc::updateMouseButtonHints()
 {
-    RS_DEBUG->print("LC_ActionDimArc::updateMouseButtonHints - enter\n");
-
     switch (getStatus())
     {
         case SetEntity:
@@ -304,23 +271,19 @@ void LC_ActionDimArc::updateMouseButtonHints()
             RS_DIALOGFACTORY->updateMouseWidget();
             break;
     }
-
-    RS_DEBUG->print("LC_ActionDimArc::updateMouseButtonHints - exit\n");
 }
 
 
 void LC_ActionDimArc::setDimLine(const RS_Vector& selectedPosition)
 {
-    RS_DEBUG->print("LC_ActionDimArc::setDimLine\n");
-
     double dimLineRadius = selectedPosition.distanceTo (dimArcData.centre);
 
     data->definitionPoint = RS_Vector::polar(dimLineRadius, dimArcData.startAngle) + dimArcData.centre;
 
-    std::cout << "LC_ActionDimArc::setDimLine\n";
-    std::cout << "selectedPosition " << selectedPosition << "\n";
-    std::cout << "dimArcData.centre " << dimArcData.centre << "\n";
-    std::cout << "dimLineRadius " << dimLineRadius << "\n";
-    std::cout << "data->definitionPoint " << data->definitionPoint << "\n";
+//    std::cout << "LC_ActionDimArc::setDimLine\n";
+//    std::cout << "selectedPosition " << selectedPosition << "\n";
+//    std::cout << "dimArcData.centre " << dimArcData.centre << "\n";
+//    std::cout << "dimLineRadius " << dimLineRadius << "\n";
+//    std::cout << "data->definitionPoint " << data->definitionPoint << "\n";
 }
 

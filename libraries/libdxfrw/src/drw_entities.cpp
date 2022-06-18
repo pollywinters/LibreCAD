@@ -75,7 +75,6 @@ bool DRW_Entity::parseCode(int code, dxfReader *reader){
     case 100:
         subclassName = reader->getString();
         DRW_DBG("\nDRW_Entity::parseCode, subclassName = "); DRW_DBG(subclassName);
-//        std::cout << "\nDRW_Entity::parseCode, subclassName = '" << subclassName << "'/n";
         break;
     case 330:
         parentHandle = reader->getHandleString();
@@ -2799,7 +2798,6 @@ bool DRW_DimOrdinate::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs)
 }
 
 bool DRW_DimArc::parseCode(int code, dxfReader *reader){
-//    std::cout << "DRW_DimArc::parseCode, subclassName = '" << subclassName << "'\n";
     if (subclassName == "AcDbArcDimension") {
         switch (code) {
         case 40:
