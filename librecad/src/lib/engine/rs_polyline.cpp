@@ -27,6 +27,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <iostream>
 
 #include "rs_arc.h"
 #include "rs_line.h"
