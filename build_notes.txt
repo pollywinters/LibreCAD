@@ -1,0 +1,27 @@
+BUILD NOTES - how to build librecad 2 from source
+=================================================
+
+Basic build commands:
+
+./CLEAN.SH       - deletes all previously generated files, ready for a clean build
+
+qmake -r         - builds all the makefiles
+
+make -j20        - does the make, running 20 jobs in parallel
+
+./install.sh     - installs the build librecad executable to /opt/librecad folder
+
+
+BUILD version label:
+
+The executable version label is generated from the latest git tag of the source code.
+To set version label 
+(a) use git gui to create tag on the latest commit of the source code
+(b) push the project to the repository
+(c) use "git describe" to check that label looks right
+(d) Use "./CLEAN.SH" and "qmake -r" as above to regenerate the makefiles for the project
+(e) Check first 20 lines of file librecad/src/Makefile, ensure that -DLC_VERSION="......" contains the correct string
+(f) Use "make -j20" to recompile
+(g) Run executable unix/librecad, check the "HELP/About" menu shows the correct text
+
+
