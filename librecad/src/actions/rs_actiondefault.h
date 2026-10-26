@@ -92,6 +92,7 @@ protected:
         static constexpr double hoverToleranceFactor2 = 10.0;
 
         static constexpr size_t minimumNumberOf_highlightedEntityDuplicates = 10;
+        static constexpr size_t maximumNumberOf_highlightedEntityDuplicates = 30;
 
         size_t numberOf_highlightedEntityDuplicates;
 
